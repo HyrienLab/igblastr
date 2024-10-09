@@ -8,7 +8,11 @@ Authors@R: person("Hervé", "Pagès", role=c("aut", "cre"),
 		  email="hpages.on.github@gmail.com",
 		  comment=c(ORCID="0009-0002-8272-4522"))
 Depends: S4Vectors, Biostrings
-Imports: utils, httr
+Imports: utils, tools, httr
 Suggests: knitr
 VignetteBuilder: knitr
-Collate: utils.R zzz.R
+Collate:
+	IMGT-utils.R
+	make_NCBI_igblast_germline_db.R
+	make_IMGT_igblast_germline_db.R
+	zzz.R
