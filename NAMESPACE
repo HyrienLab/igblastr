@@ -1,0 +1,11 @@
+importFrom(utils, download.file)
+
+importFrom(httr, HEAD)
+
+import(S4Vectors)
+import(Biostrings)
+
+export(
+    download_IMGT_germline_sequences
+)
+
