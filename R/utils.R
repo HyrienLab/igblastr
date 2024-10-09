@@ -5,7 +5,7 @@
     c("HV", "HD", "HJ", "KV", "KJ", "LV", "LJ"), ".fasta")
 
 .TR_FILES <- paste0("TR",
-    c("AV", "AJ", "BV", "BD", "BJ", "DV", "DD", "DJ", "GV", "GV"), ".fasta")
+    c("AV", "AJ", "BV", "BD", "BJ", "DV", "DD", "DJ", "GV", "GJ"), ".fasta")
 
 url_exists <- function(url)
 {
