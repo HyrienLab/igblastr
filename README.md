@@ -11,13 +11,13 @@ WORK IN PROGRESS!
 ### 1. Install and load igblastr
 
 
-### Install
+#### Install
 
     library(remotes)
     install_github("hpages/igblastr")
 
 
-### Load
+#### Load
 
     library(igblastr)
 
@@ -39,9 +39,10 @@ user's `.profile` (on Unix/Mac).
 
     install_igblast()
 
-This downloads the arch-specific tarball from
+This will download the arch-specific tarball from
 https://ftp.ncbi.nih.gov/blast/executables/igblast/release/LATEST/
-and extracts it under `R_user_dir("igblastr", "cache")`.
+and extract it in a persistent user-writable hidden location (e.g.
+under `R_user_dir("igblastr", "cache")`).
 
 Notes:
 - No tarball for arm64 Mac (Mac Silicon), only a `dmg`.
