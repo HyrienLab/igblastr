@@ -1,5 +1,24 @@
-.IMGT_VQUEST_REFERENCE_DIRECTORY <-
-    "https://www.imgt.org/download/V-QUEST/IMGT_V-QUEST_reference_directory/"
+### =========================================================================
+### Low-level utilities to retrieve data from the VQUEST download site
+### -------------------------------------------------------------------------
+###
+### The two main functions defined in this file are:
+###   - download_VQUEST_germline_sequences()
+###   - download_VQUEST_germline_sequences_to_cache()
+###
+### Both functions are exported. Nothing else is.
+###
+
+
+### Do not remove the trailing slash.
+.VQUEST_DOWNLOAD_ROOT_URL <- "https://www.imgt.org/download/V-QUEST/"
+
+### Do not remove the trailing slash.
+.VQUEST_REFERENCE_DIRECTORY <-
+    paste0(.VQUEST_DOWNLOAD_ROOT_URL, "IMGT_V-QUEST_reference_directory/")
+
+.VQUEST_RELEASE_FILE <-
+    paste0(.VQUEST_DOWNLOAD_ROOT_URL, "IMGT_vquest_release.txt")
 
 .IG_FILES <- paste0("IG",
     c("HV", "HD", "HJ", "KV", "KJ", "LV", "LJ"), ".fasta")
@@ -7,38 +26,51 @@
 .TR_FILES <- paste0("TR",
     c("AV", "AJ", "BV", "BD", "BJ", "DV", "DD", "DJ", "GV", "GJ"), ".fasta")
 
-.url_exists <- function(url)
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Helper functions to support download_VQUEST_germline_sequences() and
+### download_VQUEST_germline_sequences_to_cache()
+###
+
+### Unused at the moment.
+.get_VQUEST_current_release <- function()
 {
-    response <- try(HEAD(url), silent=TRUE)
-    if (inherits(response, "try-error"))
-        stop(as.character(response), "  Please check your internet connection.")
-    response$status_code != 404L
+    content <- getUrlContent(.VQUEST_RELEASE_FILE)
+    sub("^([^ ]*)(.*)$", "\\1", content)
 }
 
-normalize_IMGT_VQUEST_organism <- function(organism)
+normalize_VQUEST_organism <- function(organism)
 {
-    if (!isSingleString(organism))
-        stop(wmsg("'organism' must be a single string"))
-    if (grepl("^\\s*$", organism))
-        stop(wmsg("'organism' contains only whitespace characters"))
+    if (!isSingleNonWhiteString(organism))
+        stop(wmsg("'organism' must be a single (non-empty) string"))
     chartr(" ", "_", organism)
 }
 
-.get_IMGT_VQUEST_orgdir_url <- function(organism)
+.get_VQUEST_orgdir_url <- function(organism)
 {
-    organism <- normalize_IMGT_VQUEST_organism(organism)
-    orgdir_url <- paste0(.IMGT_VQUEST_REFERENCE_DIRECTORY, organism, "/")
-    if (!.url_exists(orgdir_url))
+    organism <- normalize_VQUEST_organism(organism)
+    orgdir_url <- paste0(.VQUEST_REFERENCE_DIRECTORY, organism, "/")
+    if (!urlExists(orgdir_url))
         stop(organism, ": no such organism\n  ",
-             wmsg("See ", .IMGT_VQUEST_REFERENCE_DIRECTORY, " for ",
+             wmsg("See ", .VQUEST_REFERENCE_DIRECTORY, " for ",
                   "the list of supported organisms."))
     orgdir_url
+}
+
+.VQUEST_reference_directory_cache_root <- function()
+    file.path(R_user_dir("igblastr", "cache"),
+              "IMGT_V-QUEST_reference_directory")
+
+VQUEST_orgdir_cache <- function(organism)
+{
+    organism <- normalize_VQUEST_organism(organism)
+    file.path(.VQUEST_reference_directory_cache_root(), organism)
 }
 
 ### 'orgdir_url', 'dry.run', and 'destdir' are trusted.
 ### In particular:
 ### - 'orgdir_url' is trusted to have the trailing slash, which
-###   it should if it was obtained with .get_IMGT_VQUEST_orgdir_url().
+###   it should if it was obtained with .get_VQUEST_orgdir_url().
 ### - 'destdir' is trusted to exist.
 .download_IG_or_TR_files <- function(orgdir_url, subdir=c("IG", "TR"),
                                      dry.run=FALSE, destdir=".",
@@ -51,7 +83,7 @@ normalize_IMGT_VQUEST_organism <- function(organism)
     for (file in files) {
         file_url <- paste0(subdir_url, file)
         ## Not all organisms have all the IG or TR files.
-        if (.url_exists(file_url)) {
+        if (urlExists(file_url)) {
             if (!dry.run) {
                 destfile <- file.path(destdir, file)
                 download.file(file_url, destfile, method, quiet)
@@ -89,11 +121,17 @@ normalize_IMGT_VQUEST_organism <- function(organism)
     files
 }
 
-download_IMGT_germline_sequences <-
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### download_VQUEST_germline_sequences()
+###
+
+### Exported!
+download_VQUEST_germline_sequences <-
     function(organism="Homo_sapiens", subdir=c("IG", "TR", "both"),
              dry.run=FALSE, destdir=".", method, quiet=FALSE)
 {
-    orgdir_url <- .get_IMGT_VQUEST_orgdir_url(organism)
+    orgdir_url <- .get_VQUEST_orgdir_url(organism)
     subdir <- match.arg(subdir)
     if (!isTRUEorFALSE(dry.run))
         stop(wmsg("'dry.run' must be TRUE or FALSE"))
@@ -120,26 +158,28 @@ download_IMGT_germline_sequences <-
     if (dry.run) files else invisible(files)
 }
 
-IMGT_VQUEST_orgdir_cache <- function(organism)
-{
-    organism <- normalize_IMGT_VQUEST_organism(organism)
-    file.path(R_user_dir("igblastr", "cache"),
-              "IMGT_V-QUEST_reference_directory", organism)
-}
 
-download_IMGT_germline_sequences_to_cache <-
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### download_VQUEST_germline_sequences_to_cache()
+###
+
+### Exported!
+download_VQUEST_germline_sequences_to_cache <-
     function(organism="Homo_sapiens", subdir=c("IG", "TR", "both"),
              method, quiet=FALSE)
 {
-    organism <- normalize_IMGT_VQUEST_organism(organism)
-    orgdir_url <- .get_IMGT_VQUEST_orgdir_url(organism)
+    organism <- normalize_VQUEST_organism(organism)
+    orgdir_url <- .get_VQUEST_orgdir_url(organism)
     subdir <- match.arg(subdir)
     if (missing(method))
         method <- getOption("download.file.method", "auto")
 
-    orgdir_cache <- IMGT_VQUEST_orgdir_cache(organism)
-    if (!dir.exists(orgdir_cache))
+    orgdir_cache <- VQUEST_orgdir_cache(organism)
+    if (!dir.exists(orgdir_cache)) {
         dir.create(orgdir_cache, recursive=TRUE)
+        destfile <- file.path(orgdir_cache, basename(.VQUEST_RELEASE_FILE))
+        download.file(.VQUEST_RELEASE_FILE, destfile, method, quiet=quiet)
+    }
 
     if (subdir == "both") {
         IG_files <- .download_IG_or_TR_subdir(orgdir_url, subdir="IG",

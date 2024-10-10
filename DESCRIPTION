@@ -12,7 +12,9 @@ Imports: utils, tools, httr
 Suggests: knitr
 VignetteBuilder: knitr
 Collate:
-	IMGT-utils.R
-	make_NCBI_igblast_germline_db.R
-	make_IMGT_igblast_germline_db.R
+	utils.R
+	VQUEST-utils.R
+	make_igblast_germline_db_from_NCBI.R
+	make_igblast_germline_db_from_VQUEST.R
+	igblastn.R
 	zzz.R
