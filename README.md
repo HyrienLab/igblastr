@@ -4,7 +4,7 @@ WORK IN PROGRESS!
 ## Tentative workflow
 
 
-4 steps
+4 easy steps
 
 
 
@@ -29,66 +29,73 @@ WORK IN PROGRESS!
 #### Use an existing installation of IgBlast
 
     Sys.setenv(IGBLAST_ROOT, "path/to/igblast/root")
-    
-    # Note: Environment variable IGBLAST_ROOT should preferrably be set once
-    #       for all outside R e.g. by defining it in the user's .profile
-    #       on Unix/Mac.
+
+Note: Environment variable IGBLAST\_ROOT should preferrably be set
+in a more persistent fashion outside R e.g. by defining it in the
+user's `.profile` (on Unix/Mac).
 
 
 #### or install a pre-compiled IgBlast binary
 
     install_igblast()
-    
-    # --> Downloads the arch-specific tarball from
-    #     https://ftp.ncbi.nih.gov/blast/executables/igblast/release/LATEST/
-    #     and extracts under R_user_dir("igblastr", "cache")
-    # Note: No tarball for arm64 Mac (Mac Silicon), only a dmg.
-    # Note: This installation takes precedence over the installation indicated
-    #       by IGBLAST_ROOT.
+
+This downloads the arch-specific tarball from
+https://ftp.ncbi.nih.gov/blast/executables/igblast/release/LATEST/
+and extracts it under `R_user_dir("igblastr", "cache")`.
+
+Notes:
+- No tarball for arm64 Mac (Mac Silicon), only a `dmg`.
+- This installation takes precedence over the installation indicated
+  by IGBLAST\_ROOT.
 
 
 #### Check IgBlast
 
     igblast_info()
-    
-    # --> Makes sure that the installed IgBlast is functional and displays
-    #     some info about it (e.g. igblastn and igblastp versions).
+
+This makes sure that the installed IgBlast is functional. Also displays
+some info about it (e.g. `igblastn` and `igblastp` versions).
 
 
 
-### 3. Select germline db
+### 3. Install germline dbs and select db to use
+
+
+#### Install germline dbs
+
+At least one germline db must be installed.
+
+Several specialized functions will be provided for that:
+
+    install_NCBI_germline_db()
+    install_VQUEST_germline_db()
+    install_OGRDB_germline_db()
+    install_AIRR_germline_db()
+    etc...
+
+`install_NCBI_germline_db()` will manage installation of the dbs available
+at https://ftp.ncbi.nih.gov/blast/executables/igblast/release/database/.
+
+These are:
+- `ncbi_human_c_genes`
+- `mouse_gl_VDJ`
+- `rhesus_monkey_VJ`
+- `airr_c_human`
+- `airr_c_mouse`
+
+`install_VQUEST_germline_db()` will manage installation of the dbs available
+at https://www.imgt.org/download/V-QUEST/. It will require Perl!
+The following naming scheme will be used for the names of the installed dbs:
+`VQUEST_<version>_<organism>_<IG|TR|full>`.
+
 
 #### List the installed germline dbs
 
     list_germline_dbs()
-    
-    # --> Produces a data.frame with 1 row per db.
-    #     1st col is the name of the db, 2nd col is the organism (binomial
-    #     species e.g. Homo sapiens).
-    #
-    #     Pre-installed dbs (from NCBI):
-    #       ncbi_human_c_genes
-    #       mouse_gl_VDJ
-    #       rhesus_monkey_VJ
-    #       airr_c_human
-    #       airr_c_mouse
-    #     See below for more dbs.
 
-
-#### Install additional germline dbs if necessary
-
-Several specialized functions will be provides e.g.
-
-    install_VQUEST_germline_db()  # requires Perl
-    
-    # --> Will install dbs named as:
-    #     VQUEST_<version>_<organism>_<IG|TR|full>
-
-or
-
-    install_OGRDB_germline_db()
-    install_AIRR_germline_db()
-    etc...
+This will produce a `data.frame` with 1 row per installed db:
+- 1st col: name of the db
+- 2nd col: organism in binomial (latin) species form e.g. `Homo sapiens`
 
 
 #### Select the db to be used with igblastn() or igblastp()
@@ -99,6 +106,6 @@ or
 
 ### 4. Use igblastn() or igblastp()
 
-   
+
 Coming soon...
 
