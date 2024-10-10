@@ -4,11 +4,26 @@ WORK IN PROGRESS!
 ## Tentative workflow
 
 
+4 steps
+
+
+
+### 1. Install and load igblastr
+
+
+### Install
+
+    library(remotes)
+    install_github("hpages/igblastr")
+
+
+### Load
+
     library(igblastr)
 
 
 
-### Set up IgBlast
+### 2. Set up IgBlast
 
 
 #### Use an existing installation of IgBlast
@@ -41,7 +56,7 @@ WORK IN PROGRESS!
 
 
 
-### Select germline db
+### 3. Select germline db
 
 #### List the installed germline dbs
 
@@ -82,7 +97,8 @@ or
 
 
 
-### Use igblastn()
-    
-    coming soon...
+### 4. Use igblastn() or igblastp()
+
+   
+Coming soon...
 
