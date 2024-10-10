@@ -30,7 +30,7 @@ WORK IN PROGRESS!
 
     Sys.setenv(IGBLAST_ROOT, "path/to/igblast/root")
 
-Note: Environment variable IGBLAST\_ROOT should preferrably be set
+Note: Environment variable `IGBLAST_ROOT` should preferrably be set
 in a more persistent fashion outside R e.g. by defining it in the
 user's `.profile` (on Unix/Mac).
 
@@ -54,8 +54,8 @@ Notes:
 
     igblast_info()
 
-This makes sure that the installed IgBlast is functional. Also displays
-some info about it (e.g. `igblastn` and `igblastp` versions).
+This will make sure that the installed IgBlast is functional. Will also
+display some info about it (e.g. `igblastn` and `igblastp` versions).
 
 
 
@@ -66,7 +66,7 @@ some info about it (e.g. `igblastn` and `igblastp` versions).
 
 At least one germline db must be installed.
 
-Several specialized functions will be provided for that:
+Several specialized functions will be provided for that e.g.:
 
     install_NCBI_germline_db()
     install_VQUEST_germline_db()
@@ -74,20 +74,19 @@ Several specialized functions will be provided for that:
     install_AIRR_germline_db()
     etc...
 
-`install_NCBI_germline_db()` will manage installation of the dbs available
-at https://ftp.ncbi.nih.gov/blast/executables/igblast/release/database/.
+- `install_NCBI_germline_db()` will manage installation of the dbs available
+  at https://ftp.ncbi.nih.gov/blast/executables/igblast/release/database/.
+  These are:
+  - `ncbi_human_c_genes`
+  - `mouse_gl_VDJ`
+  - `rhesus_monkey_VJ`
+  - `airr_c_human`
+  - `airr_c_mouse`
 
-These are:
-- `ncbi_human_c_genes`
-- `mouse_gl_VDJ`
-- `rhesus_monkey_VJ`
-- `airr_c_human`
-- `airr_c_mouse`
-
-`install_VQUEST_germline_db()` will manage installation of the dbs available
-at https://www.imgt.org/download/V-QUEST/. It will require Perl!
-The following naming scheme will be used for the names of the installed dbs:
-`VQUEST_<version>_<organism>_<IG|TR|full>`.
+- `install_VQUEST_germline_db()` will manage installation of the dbs available
+  at https://www.imgt.org/download/V-QUEST/. It will require Perl!
+  The following naming scheme will be used for the names of the installed dbs:
+  `VQUEST_<version>_<organism>_<IG|TR|full>`.
 
 
 #### List the installed germline dbs
