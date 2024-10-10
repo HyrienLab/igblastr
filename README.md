@@ -1,11 +1,17 @@
 WORK IN PROGRESS!
 
-Tentative workflow:
+
+## Tentative workflow
+
 
     library(igblastr)
 
 
-### Use an existing installation of IgBlast
+
+### Set up IgBlast
+
+
+#### Use an existing installation of IgBlast
 
     Sys.setenv(IGBLAST_ROOT, "path/to/igblast/root")
     
@@ -14,7 +20,7 @@ Tentative workflow:
     #       on Unix/Mac.
 
 
-### or install a pre-compiled IgBlast binary
+#### or install a pre-compiled IgBlast binary
 
     install_igblast()
     
@@ -26,7 +32,7 @@ Tentative workflow:
     #       by IGBLAST_ROOT.
 
 
-### Check IgBlast
+#### Check IgBlast
 
     igblast_info()
     
@@ -34,7 +40,10 @@ Tentative workflow:
     #     some info about it (e.g. igblastn and igblastp versions).
 
 
-### List the installed germline dbs
+
+### Select germline db
+
+#### List the installed germline dbs
 
     list_germline_dbs()
     
@@ -51,7 +60,7 @@ Tentative workflow:
     #     See below for more dbs.
 
 
-### Install additional germline dbs if necessary
+#### Install additional germline dbs if necessary
 
 Several specialized functions will be provides e.g.
 
@@ -67,13 +76,13 @@ or
     etc...
 
 
-### Select the db to be used with igblastn() or igblastp()
+#### Select the db to be used with igblastn() or igblastp()
 
     use_germline_db(<db-name>)
 
 
-### Call igblastn()
+
+### Use igblastn()
     
     coming soon...
-
 
