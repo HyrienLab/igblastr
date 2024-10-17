@@ -74,6 +74,8 @@ Several specialized functions will be provided for that e.g.:
     install_AIRR_germline_db()
     etc...
 
+Notes:
+
 - `install_NCBI_germline_db()` will manage installation of the dbs available
   at https://ftp.ncbi.nih.gov/blast/executables/igblast/release/database/.
   These are:

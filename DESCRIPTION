@@ -10,6 +10,7 @@ Authors@R: person("Hervé", "Pagès", role=c("aut", "cre"),
 Depends: S4Vectors, Biostrings
 Imports: utils, tools, httr
 Suggests: knitr
+SystemRequirements: IgBlast (on macOS arm64 only), Perl (for install_VQUEST_germline_db() only)
 VignetteBuilder: knitr
 Collate:
 	utils.R
