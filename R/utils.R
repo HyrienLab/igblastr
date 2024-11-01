@@ -20,3 +20,14 @@ getUrlContent <- function(url)
     content(response)
 }
 
+system_command_works <- function(command, args=character())
+{
+    out <- try(suppressWarnings(system2(command, args=args,
+                                        stdout=TRUE, stderr=TRUE)),
+               silent=TRUE)
+    if (inherits(out, "try-error"))
+        return(FALSE)
+    status <- attr(out, "status")
+    is.null(status) || isTRUE(all.equal(status, 0L))
+}
+
