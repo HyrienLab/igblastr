@@ -4,16 +4,18 @@ Description: The igblastr package provides an interface to NCBI's IgBlast.
 Version: 0.0.1
 License: Artistic-2.0
 Encoding: UTF-8
-Authors@R: person("Hervé", "Pagès", role=c("aut", "cre"),
-		  email="hpages.on.github@gmail.com",
-		  comment=c(ORCID="0009-0002-8272-4522"))
-Depends: S4Vectors, Biostrings
-Imports: utils, tools, httr, GenomeInfoDb
+Authors@R: c(
+	person("Hervé", "Pagès", role=c("aut", "cre"),
+	       email="hpages.on.github@gmail.com",
+	       comment=c(ORCID="0009-0002-8272-4522")),
+	person("Ollivier", "Hyrien", role="fnd"))
+Imports: utils, tools, httr, S4Vectors, GenomeInfoDb, Biostrings
 Suggests: knitr
 SystemRequirements: IgBlast (on macOS arm64 only), Perl (for install_VQUEST_germline_db() only)
 VignetteBuilder: knitr
 Collate:
 	utils.R
+	get_igblast_root.R
 	install_igblast.R
 	VQUEST-utils.R
 	make_igblast_germline_db_from_NCBI.R

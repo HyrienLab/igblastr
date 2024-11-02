@@ -1,23 +1,8 @@
-.get_igblast_root <- function()
-{
-    igblast_root <- Sys.getenv("IGBLAST_ROOT")
-    if (!nzchar(igblast_root))
-        stop(wmsg("environment variable IGBLAST_ROOT must be set"))
-    igblast_root
-}
-
-.get_igblastn_exe <- function(igblast_root)
-{
-    igblastn_exe <- file.path(igblast_root, "bin", "igblastn")
-    if (!file.exists(igblastn_exe))
-        stop(wmsg("invalid IGBLAST_ROOT"))
-    igblastn_exe
-}
 
 igblastn <- function(query, args=character())
 {
-    igblast_root <- .get_igblast_root()
-    igblastn_exe <- .get_igblastn_exe(igblast_root)
+    igblast_root <- get_igblast_root()
+    igblastn_exe <- get_igblast_exe("igblastn")
 
     if (!isSingleNonWhiteString(query))
         stop(wmsg("'query' must be a single string ",

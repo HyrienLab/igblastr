@@ -8,6 +8,7 @@ import(GenomeInfoDb)
 import(Biostrings)
 
 export(
+    use_igblast, get_igblast_root,
     install_igblast,
     download_VQUEST_germline_sequences,
     download_VQUEST_germline_sequences_to_cache,
