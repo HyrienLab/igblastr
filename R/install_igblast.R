@@ -34,7 +34,7 @@
         stop(wmsg("'release' must be a single (non-empty) string"))
     if (!(release %in% all_releases)) {
         all_in_1string <- paste0("\"", all_releases, "\"", collapse=", ")
-        stop(wmsg("'release' must be \"LATEST\" (recommended) or ",
+        stop(wmsg("'release' must be \"LATEST\" (recommended), or ",
                   "one of the IgBlast release versions listed at ",
                   .IGBLAST_ALL_RELEASES_FTP_DIR, " (e.g. \"1.21.0\")."),
              "\n  ",
@@ -134,12 +134,15 @@
     }
     msg <- c(what, " is already installed in ", igblast_root, "/")
     what_to_do <- " 'force=TRUE' to reinstall."
-    if (igblast_root == get_internal_igblast_root()) {
+    internal_igblast_root <- get_internal_igblast_root()
+    is_already_in_use <- !is.na(internal_igblast_root) &&
+                         igblast_root == internal_igblast_root
+    if (is_already_in_use) {
         what_to_do <- c("Use", what_to_do)
     } else {
         rootbasename <- basename(igblast_root)
-        what_to_do <- c("Call 'use_igblast(\"", rootbasename, "\")' ",
-                        "to use this installation (see '?use_igblast' ",
+        what_to_do <- c("Call 'set_igblast_root(\"", rootbasename, "\")' ",
+                        "to use this installation (see '?set_igblast_root' ",
                         "for the details), or use", what_to_do)
     }
     stop(wmsg(msg), "\n  ", wmsg(what_to_do))

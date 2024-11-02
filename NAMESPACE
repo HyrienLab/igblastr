@@ -8,12 +8,21 @@ import(GenomeInfoDb)
 import(Biostrings)
 
 export(
-    use_igblast, get_igblast_root,
+    ## From get_igblast_root.R:
+    get_igblast_root, set_igblast_root,
+
+    ## From install_igblast.R:
     install_igblast,
+
+    ## From VQUEST-utils.R:
     download_VQUEST_germline_sequences,
     download_VQUEST_germline_sequences_to_cache,
+
+    ## From make_igblast_germline_db_from_NCBI.R:
     make_igblast_germline_db_from_NCBI,
     make_igblast_germline_db_from_VQUEST,
+
+    ## From igblastn.R:
     igblastn
 )
 
