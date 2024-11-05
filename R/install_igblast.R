@@ -116,8 +116,8 @@
 .projected_igblast_root <- function(tarball_name)
 {
     local_executables_dir <- igblastr_local_executables_dir()
-    rootbasename <- .infer_rootbasename_from_igblast_tarball_name(tarball_name)
-    file.path(local_executables_dir, rootbasename)
+    version <- .infer_version_from_igblast_tarball_name(tarball_name)
+    file.path(local_executables_dir, version)
 }
 
 .stop_on_existing_installation <- function(release, igblast_root)
@@ -135,8 +135,8 @@
     if (is_already_in_use) {
         what_to_do <- c("Use", what_to_do)
     } else {
-        rootbasename <- basename(igblast_root)
-        what_to_do <- c("Call 'set_igblast_root(\"", rootbasename, "\")' ",
+        version <- basename(igblast_root)
+        what_to_do <- c("Call 'set_igblast_root(\"", version, "\")' ",
                         "to use this installation (see '?set_igblast_root' ",
                         "for the details), or use", what_to_do)
     }
@@ -156,16 +156,39 @@
     destfile
 }
 
+### Returns the version of IgBlast being installed which is also the basename
+### of its installation directory.
 .extract_to_local_executables_dir <- function(tarfile, tarball_name)
 {
+    ## Create 'local_executables_dir' if it doesn't exist yet.
     local_executables_dir <- igblastr_local_executables_dir()
-    ## untar() will create 'local_executables_dir' if it doesn't exist yet.
-    code <- suppressWarnings(untar(tarfile, exdir=local_executables_dir))
+    if (!dir.exists(local_executables_dir))
+        dir.create(local_executables_dir)
+
+    ## Create <local_executables_dir>/tmpexdir
+    tempexdir <- file.path(local_executables_dir, "tmpexdir")
+    if (dir.exists(tempexdir))
+        unlink(tempexdir, recursive=TRUE, force=TRUE)
+    dir.create(tempexdir)
+    on.exit(unlink(tempexdir, recursive=TRUE, force=TRUE))
+
+    ## untar() tarfile in <local_executables_dir>/tmpexdir
+    code <- suppressWarnings(untar(tarfile, exdir=tempexdir))
     if (code != 0L)
         stop(wmsg("Anomaly: something went wrong during ",
                   "extraction of '", tarfile, "' (the local copy of ",
                   "'", tarball_name, "') to '", local_executables_dir, "'."))
-    .infer_rootbasename_from_igblast_tarball_name(tarball_name)
+
+    ## Get igblast rootbasename and version.
+    rootbasename <- .infer_rootbasename_from_igblast_tarball_name(tarball_name)
+    version <- .infer_version_from_igblast_tarball_name(tarball_name)
+
+    ## Move <local_executables_dir>/tmpexdir/<rootbasename> to
+    ## <local_executables_dir>/<version>
+    from <- file.path(tempexdir, rootbasename)
+    to <- file.path(local_executables_dir, version)
+    file.rename(from, to)
+    version
 }
 
 ### TODO: Bad things will happen if more than one R process run
@@ -201,10 +224,11 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
     tmptarfile <- .download_tarball(ftp_dir, tarball_name, ...)
     ## Note that bad things will happen if another R process is running
     ## the two steps below at the same time!
-    rootbasename <- .extract_to_local_executables_dir(tmptarfile, tarball_name)
-    igblast_root <- set_internal_igblast_root(rootbasename)
+    version <- .extract_to_local_executables_dir(tmptarfile, tarball_name)
+    igblast_root <- set_internal_igblast_root(version)
     stopifnot(identical(igblast_root, proj_igblast_root))  # sanity check
-    message("IgBlast successfully installed at '", igblast_root, "'.")
+    message("IgBlast ", version, " successfully installed ",
+            "at '", igblast_root, "'.")
     invisible(igblast_root)
 }
 
