@@ -6,6 +6,11 @@
 .IGBLAST_ALL_RELEASES_FTP_DIR <-
     "ftp.ncbi.nih.gov/blast/executables/igblast/release/"
 
+.IGBLAST_TARBALL_NAME_PREFIX <- "ncbi-igblast-"
+
+.get_igblast_tarball_name_pattern <- function()
+    sprintf("^(%s([.0-9]+)).*$", .IGBLAST_TARBALL_NAME_PREFIX)
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### A small set of low-level utils to help find the precompiled IgBlast
@@ -47,23 +52,6 @@
     paste0(.IGBLAST_ALL_RELEASES_FTP_DIR, release, "/")
 }
 
-### Returns a single string in the "<OS name>-<arch>" format, or
-### an NA_character_ if this information is not available.
-### For example, it will return:
-###   - "Linux-x86_64" on Intel Linux,
-###   - "windows-x64" on Intel Windows,
-###   - "Darwin-x86_64" on Intel Mac,
-###   - "Darwin-arm64" on ARM Mac (Mac Silicon).
-.get_platform <- function()
-{
-    sys_info <- Sys.info()
-    sysname <- sys_info[["sysname"]]
-    machine <- sys_info[["machine"]]
-    if (!isSingleNonWhiteString(sysname) || !isSingleNonWhiteString(machine))
-        return(NA_character_)
-    paste0(sysname, "-", machine)
-}
-
 .how_to_install_manually <- function(what)
 {
     msg <- c("Please download and install ", what, " manually from ",
@@ -73,29 +61,30 @@
     paste(msg, collapse="")
 }
 
-.infer_precompiled_tarball_suffix_from_platform <- function(platform, ftp_dir)
+.infer_precompiled_tarball_suffix_from_OS_arch <- function(OS_arch, ftp_dir)
 {
     fmt <- paste0("No pre-compiled IgBlast tarball (.tar.gz) ",
                   "available at ", ftp_dir, " for %s.")
-    if (is.na(platform))
+    if (anyNA(OS_arch))
         stop(wmsg(sprintf(fmt, "your OS/arch")))
-    err_msg <- sprintf(fmt, platform)
-    switch(platform,
+    OS_arch <- paste(OS_arch, collapse="-")
+    err_msg <- sprintf(fmt, OS_arch)
+    switch(OS_arch,
         `Linux-x86_64`="x64-linux.tar.gz",
-        `windows-x64`="x64-win64.tar.gz",
+        `Windows-x86-64`="x64-win64.tar.gz",
         `Darwin-x86_64`="x64-macosx.tar.gz",
-        `Darwin-arm64`=stop(wmsg(c(
+        `Darwin-arm64`=stop(wmsg(
             err_msg, " ",
             .how_to_install_manually("ncbi-igblast-X.Y.Z+.dmg")
-        ))),
+        )),
         stop(wmsg(err_msg))
     )
 }
 
-.get_precompiled_tarball_name <- function(ftp_dir, platform)
+.get_precompiled_tarball_name <- function(ftp_dir, OS_arch)
 {
-    suffix <- .infer_precompiled_tarball_suffix_from_platform(platform, ftp_dir)
-    pattern <- paste0("ncbi-igblast-.*-", suffix)
+    suffix <- .infer_precompiled_tarball_suffix_from_OS_arch(OS_arch, ftp_dir)
+    pattern <- paste0(.IGBLAST_TARBALL_NAME_PREFIX, ".*-", suffix)
     listing <- try(suppressWarnings(list_ftp_dir(ftp_dir)), silent=TRUE)
     if (inherits(listing, "try-error"))
         stop(wmsg("Cannot open URL '", ftp_dir, "'. ",
@@ -107,21 +96,27 @@
     listing[[idx[[1L]]]]
 }
 
+.infer_rootbasename_from_igblast_tarball_name <- function(tarball_name)
+{
+    pattern <- .get_igblast_tarball_name_pattern()
+    sub(pattern, "\\1", tarball_name)
+}
+
+.infer_version_from_igblast_tarball_name <- function(tarball_name)
+{
+    pattern <- .get_igblast_tarball_name_pattern()
+    sub(pattern, "\\2", tarball_name)
+}
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### install_igblast()
 ###
 
-.infer_igblast_rootbasename_from_tarball_name <- function(tarball_name)
-{
-    pattern <- "^(ncbi-igblast-[^-]*)-.*$"
-    sub(pattern, "\\1", tarball_name)
-}
-
 .projected_igblast_root <- function(tarball_name)
 {
     local_executables_dir <- igblastr_local_executables_dir()
-    rootbasename <- .infer_igblast_rootbasename_from_tarball_name(tarball_name)
+    rootbasename <- .infer_rootbasename_from_igblast_tarball_name(tarball_name)
     file.path(local_executables_dir, rootbasename)
 }
 
@@ -170,7 +165,7 @@
         stop(wmsg("Anomaly: something went wrong during ",
                   "extraction of '", tarfile, "' (the local copy of ",
                   "'", tarball_name, "') to '", local_executables_dir, "'."))
-    .infer_igblast_rootbasename_from_tarball_name(tarball_name)
+    .infer_rootbasename_from_igblast_tarball_name(tarball_name)
 }
 
 ### TODO: Bad things will happen if more than one R process run
@@ -183,8 +178,8 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
     ftp_dir <- .get_release_ftp_dir(release)
     if (!isTRUEorFALSE(force))
         stop(wmsg("'force' must be TRUE or FALSE"))
-    platform <- .get_platform()
-    tarball_name <- .get_precompiled_tarball_name(ftp_dir, platform)
+    OS_arch <- get_OS_arch()
+    tarball_name <- .get_precompiled_tarball_name(ftp_dir, OS_arch)
     proj_igblast_root <- .projected_igblast_root(tarball_name)
     if (dir.exists(proj_igblast_root)) {
         if (!force)

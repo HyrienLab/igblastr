@@ -28,19 +28,19 @@ install_igblast(release="LATEST", force=FALSE, ...)
     is already installed.
   }
   \item{...}{
-    Extra arguments passed to the internal call to \code{download.file()}.
+    Extra arguments to be passed to the internal call to \code{download.file()}.
     See \code{?download.file} in the \pkg{utils} package for more information.
   }
 }
 
 \value{
-  The path to the root of the IgBlast installation as an invisible string.
+  The path to the root of the IgBlast installation, as an invisible string.
 }
 
 \seealso{
   \itemize{
     \item IgBLAST is described at
-          \url{https://www.ncbi.nlm.nih.gov/pubmed/23671333}.
+          \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
   }
 }
 

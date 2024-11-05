@@ -1,7 +1,7 @@
 Package: igblastr
 Title: An R wrapper for IgBlast
 Description: The igblastr package provides an interface to NCBI's IgBlast.
-Version: 0.0.1
+Version: 0.0.5
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(

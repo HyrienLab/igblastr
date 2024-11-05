@@ -37,11 +37,20 @@
     bin_dir
 }
 
+.required_igblast_root_bin_files <- function(OS)
+{
+    files <- c("igblastn", "igblastp", "makeblastdb")
+    files <- add_exe_suffix_on_Windows(files, OS=OS)
+    c(files, "edit_imgt_file.pl")
+}
+
 ### Guaranteed to return the path to a working executable.
-.make_igblast_cmd_path <- function(igblast_root, cmd=c("igblastn", "igblastp"))
+.make_igblast_cmd_path <- function(igblast_root,
+                                   cmd=c("igblastn", "igblastp"),
+                                   OS=get_OS_arch()[["OS"]])
 {
     bin_dir <- .get_igblast_root_bin(igblast_root)
-    cmd <- match.arg(cmd)
+    cmd <- add_exe_suffix_on_Windows(match.arg(cmd), OS=OS)
     cmd_path <- file.path(bin_dir, cmd)
     if (!file.exists(cmd_path)) {
         details <- c("No '", cmd, "' command in 'bin' subdirectory.")
@@ -61,8 +70,8 @@
     bin_dir <- .get_igblast_root_bin(igblast_root)
     ## Check content of 'bin_dir'.
     bin_files <- list.files(bin_dir)
-    required_bin_files <- c("igblastn", "igblastp",
-                            "makeblastdb", "edit_imgt_file.pl")
+    OS <- get_OS_arch()[["OS"]]
+    required_bin_files <- .required_igblast_root_bin_files(OS)
     for (file in required_bin_files) {
         if (!(file %in% bin_files)) {
             details <- c("No '", file, "' file in 'bin' subdirectory.")
@@ -71,29 +80,19 @@
     }
     ## We ignore the returned path. Only purpose is to check that the
     ## igblastn and igblastp executables work.
-    .make_igblast_cmd_path(igblast_root, cmd="igblastn")
-    .make_igblast_cmd_path(igblast_root, cmd="igblastn")
+    .make_igblast_cmd_path(igblast_root, cmd="igblastn", OS=OS)
+    .make_igblast_cmd_path(igblast_root, cmd="igblastn", OS=OS)
     igblast_root
-}
-
-.what_to_do_if_igblast_not_found <- function()
-{
-    paste0("Please use install_igblast() to download and ",
-           "install a pre-compiled IgBlast from NCBI FTP site. ",
-           "See '?install_igblast' for the details. ",
-           "Alternatively you can set environment variable ",
-           "IGBLAST_ROOT to point to an existing IgBlast ",
-           "installation on your machine. See '?IGBLAST_ROOT' ",
-           "for more information.")
 }
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Set or get the "external" (i.e. not igblastr-controlled) IgBlast
+### Set or get the "external" (i.e. not igblastr-managed) IgBlast
 ### installation to use
 ###
 
 ### Returns the path to an "external" IgBlast installation, if any.
+### Otherwise, returns NA_character_.
 ### Note that the path is returned with the "obtained_via" attribute on it.
 ### The value of the attribute is a single string describing how the path
 ### was obtained, that is, whether it's coming from global
@@ -101,13 +100,11 @@
 ### Checks the returned installation.
 .get_external_igblast_root <- function()
 {
-    ## Looking for an external installation.
     igblast_root <- getOption("igblast_root")
     if (is.null(igblast_root)) {
         igblast_root <- Sys.getenv("IGBLAST_ROOT")
         if (!nzchar(igblast_root))
-            stop("No IgBlast installation found.\n  ",
-                 wmsg(.what_to_do_if_igblast_not_found()))
+            return(NA_character_)
         obtained_via <- "Sys.getenv(\"IGBLAST_ROOT\")"
         if (!isSingleNonWhiteString(igblast_root))
             stop(wmsg("Anomaly: '", obtained_via, "' should ",
@@ -133,7 +130,7 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Set or get the "internal" (i.e. igblastr-controlled) IgBlast
+### Set or get the "internal" (i.e. igblastr-managed) IgBlast
 ### installation to use
 ###
 
@@ -180,6 +177,18 @@ get_internal_igblast_root <- function()
 ### get_igblast_root() and set_igblast_root()
 ###
 
+### List all "internal" IgBlast installations ordered by decreasing version.
+.list_igblast_rootbasenames <- function()
+{
+    local_executables_dir <- igblastr_local_executables_dir()
+    if (!dir.exists(local_executables_dir))
+        return(character(0))
+    all_rootbasenames <- setdiff(list.files(local_executables_dir), "USING")
+    pattern <- "^ncbi-igblast-([.0-9]+)"
+    versions <- numeric_version(sub(pattern, "\\1", all_rootbasenames))
+    all_rootbasenames[order(versions, decreasing=TRUE)]
+}
+
 ### Returns the path to the IgBlast installation used by igblastr. In case
 ### of an external installation, the path is returned with the "obtained_via"
 ### attribute on it. See .get_external_igblast_root() above in this file for
@@ -188,10 +197,35 @@ get_internal_igblast_root <- function()
 ### Exported!
 get_igblast_root <- function()
 {
+    ## 1. Look for an "internal" IgBlast installation that is in use, and
+    ##    return it if any.
     igblast_root <- get_internal_igblast_root()
     if (!is.na(igblast_root))
-        return(igblast_root)      # naked path
-    .get_external_igblast_root()  # path has "obtained_via" attribute
+        return(igblast_root)  # naked path
+
+    ## 2. Look for an "external" IgBlast installation and return it if any.
+    igblast_root <- .get_external_igblast_root()
+    if (!is.na(igblast_root))
+        return(igblast_root)  # path has "obtained_via" attribute
+
+    ## 3. Look for "internal" IgBlast installations, choose the first one (i.e.
+    ##    the one with the highest version) if there are any, set it as the one
+    ##    in use, and return it.
+    all_rootbasenames <- .list_igblast_rootbasenames()
+    if (length(all_rootbasenames) != 0L) {
+        rootbasename <- all_rootbasenames[[1L]]
+        return(set_internal_igblast_root(rootbasename))
+    }
+
+    ## All the above have failed!
+    stop("No IgBlast installation found.\n  ",
+         wmsg("Please use install_igblast() to download and ",
+              "install a pre-compiled IgBlast from NCBI FTP site. ",
+              "See '?install_igblast' for the details. ",
+              "Alternatively you can set environment variable ",
+              "IGBLAST_ROOT to point to an existing IgBlast ",
+              "installation on your machine. See '?IGBLAST_ROOT' ",
+              "for more information."))
 }
 
 ### Sets the path to the IgBlast installation to use and returns it.
@@ -207,20 +241,38 @@ set_igblast_root <- function(path)
 {
     if (!isSingleNonWhiteString(path))
         stop(wmsg("'path' must be a single (non-empty) string"))
-    local_executables_dir <- igblastr_local_executables_dir()
-    if (dir.exists(local_executables_dir)) {
-        igblast_root <- file.path(local_executables_dir, path)
-        if (dir.exists(igblast_root))
+    if (dir.exists(path)) {
+        ## Set the path to the "external" IgBlast installation to use.
+        igblast_root <- .set_external_igblast_root(path)
+        ## Remove the USING file if any.
+        local_executables_dir <- igblastr_local_executables_dir()
+        if (dir.exists(local_executables_dir)) {
+            using_path <- file.path(local_executables_dir, "USING")
+            if (file.exists(using_path))
+                unlink(using_path)
+        }
+        return(igblast_root)
+    }
+    ## Set the path to the "internal" IgBlast installation to use.
+    all_rootbasenames <- .list_igblast_rootbasenames()
+    if (length(all_rootbasenames) == 0L) {
+        err_msg2 <- c("If there's no IgBlast installation on your ",
+                      "machine that you can point 'path' at, then use ",
+                      "install_igblast() to download and install a ",
+                      "pre-compiled IgBlast from NCBI FTP site. ",
+                      "See '?install_igblast' for the details.")
+    } else {
+        if (path %in% all_rootbasenames)
             return(set_internal_igblast_root(path))
+        all_in_1string <- paste0("\"", all_rootbasenames, "\"", collapse=", ")
+        err_msg2 <- c("Valid \"root basenames\": ", all_in_1string, ".")
     }
-    igblast_root <- .set_external_igblast_root(path)
-    ## Remove the USING file if any.
-    if (dir.exists(local_executables_dir)) {
-        using_path <- file.path(local_executables_dir, "USING")
-        if (file.exists(using_path))
-            unlink(using_path)
-    }
-    igblast_root
+    err_msg1 <- c("'path' must be either the path to an existing directory ",
+                  "that contains a valid externally managed IgBlast ",
+                  "installation, or it must be a valid \"root basename\" ",
+                  "i.e. the \"root basename\" of an existing igblastr-managed ",
+                  "IgBlast installation.")
+    stop(wmsg(err_msg1), "\n  ", wmsg(err_msg2))
 }
 
 
