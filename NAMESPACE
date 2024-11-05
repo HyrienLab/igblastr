@@ -7,9 +7,29 @@ import(S4Vectors)
 import(GenomeInfoDb)
 import(Biostrings)
 
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S3 methods
+###
+
+S3method(print, igblast_info)
+
+### We also export them thru the export() directive so that (a) they can be
+### called directly, (b) tab-completion on the name of the generic shows them,
+### and (c) methods() doesn't asterisk them.
+
+export(
+    print.igblast_info
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export non-generic functions
+###
+
 export(
     ## From get_igblast_root.R:
-    get_igblast_root, set_igblast_root,
+    get_igblast_root, set_igblast_root, igblast_version, igblast_info,
 
     ## From install_igblast.R:
     install_igblast,
