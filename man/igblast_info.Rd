@@ -11,7 +11,7 @@
 
 \description{
   Get and report information about the IgBLAST installation used
-  by \pkg{igblastr}.
+  by the \pkg{igblastr} package.
 }
 
 \usage{
@@ -30,9 +30,9 @@ set_igblast_root(version_or_path)
 }
 
 \details{
-  \code{set_igblast_root} can be used to set the path to the IgBLAST
-  installation to use. This can be either an \emph{internal} or
-  an \emph{external} installation.
+  \code{set_igblast_root} can be used to set or change the path to
+  the IgBLAST installation to use. This can be an \emph{internal} or
+  \emph{external} installation.
 
   In the former case, \code{version_or_path} should be the version
   of an existing \emph{internal} installation. The setting will be
@@ -40,24 +40,26 @@ set_igblast_root(version_or_path)
 
   In the latter case, it should be the full path (absolute or relative)
   to the \emph{root directory} of a valid \emph{external} installation.
-  Note that the setting won't be persistent, that is, it won't be
-  remembered when you quit R. See \code{?IGBLAST_ROOT} for how to set
+  Note that the setting won't be persistent i.e. it won't be
+  remembered across R sessions. See \code{?IGBLAST_ROOT} for how to set
   the \emph{external} IgBLAST installation to use in \pkg{igblastr} in
   a persistent manner.
 }
 
 \value{
-  \code{igblast_info()} returns the information about the IgBLAST used
-  by \pkg{igblastr} in a named list.
+  \code{igblast_info()} returns a named list containing various
+  information about the IgBLAST used by \pkg{igblastr}.
 
-  \code{igblast_version()} returns the version of the IgBLAST used
-  by \pkg{igblastr} in a single string.
+  \code{igblast_version()} returns a single string containing the
+  version of the IgBLAST used by \pkg{igblastr}.
 
-  \code{get_igblast_root()} returns the path to the \emph{root directory}
-  of the IgBLAST installation used by \pkg{igblastr}.
+  \code{get_igblast_root()} returns a single string containing the path
+  to the \emph{root directory} of the IgBLAST installation used by
+  \pkg{igblastr}.
 
-  \code{set_igblast_root()} returns the path to the \emph{root directory}
-  of the newly selected IgBLAST installation, as an invisible string.
+  \code{set_igblast_root()} returns a single string containing the path
+  to the \emph{root directory} of the newly selected IgBLAST installation.
+  The string is returned invisibly.
 }
 
 \seealso{

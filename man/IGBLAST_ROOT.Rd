@@ -30,7 +30,7 @@
 
   This can be done within your current R session with
   \code{Sys.setenv(IGBLAST_ROOT="path/to/igblast_root")}
-  for testing. However, this won't be remembered when you quit R!
+  for testing. However, this won't be remembered across R sessions.
 
   To set IGBLAST_ROOT in a persistent manner, define it outside R.
   The exact way to do this is OS-dependent e.g. on Linux and Mac you
