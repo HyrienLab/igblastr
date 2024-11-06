@@ -139,7 +139,7 @@
 ### basename of its installation directory.
 .extract_to_internal_roots <- function(downloaded_file, ncbi_igblast_name)
 {
-    ## Create 'internal_roots' if it doesn't exist yet.
+    ## Create "internal roots" folder if it doesn't exist yet.
     internal_roots <- get_internal_igblast_roots()
     if (!dir.exists(internal_roots))
         dir.create(internal_roots, recursive=TRUE)
@@ -158,8 +158,8 @@
 
 ### TODO: Bad things will happen if more than one R process run
 ### install_igblast() concurrently. Standard way to address this
-### is to put a lock on the get_internal_igblast_roots() folder
-### to get exclusive write access to it for the duration of the
+### is to put a lock on the "internal roots" folder to get
+### exclusive write access to it for the duration of the
 ### .extract_to_internal_roots() and set_internal_igblast_root() steps.
 install_igblast <- function(release="LATEST", force=FALSE, ...)
 {
@@ -173,14 +173,22 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
         if (!force)
             .stop_on_existing_installation(release, proj_igblast_root)
     }
+
     downloaded_file <- download_ftp_file(ftp_dir, ncbi_igblast_name, ...)
+
     ## Note that bad things will happen if another R process is running
-    ## the two steps below at the same time!
+    ## this step at the same time!
+    message("Installing IgBlast at ", proj_igblast_root, " ... ",
+            appendLF=FALSE)
     version <- .extract_to_internal_roots(downloaded_file, ncbi_igblast_name)
+    message("ok")
+
+    ## Note that bad things will happen if another R process is running
+    ## this step at the same time!
     igblast_root <- set_internal_igblast_root(version)
+
     stopifnot(identical(igblast_root, proj_igblast_root))  # sanity check
-    message("IgBlast ", version, " successfully installed ",
-            "at '", igblast_root, "'.")
+    message("IgBlast ", version, " successfully installed.")
     invisible(igblast_root)
 }
 
