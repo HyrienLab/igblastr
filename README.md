@@ -28,11 +28,11 @@ WORK IN PROGRESS!
 
 #### Use an existing installation of IgBlast
 
-    Sys.setenv(IGBLAST_ROOT, "path/to/igblast/root")
+    Sys.setenv(IGBLAST_ROOT="path/to/igblast/root")
 
 Note: Environment variable `IGBLAST_ROOT` should preferrably be set
-in a more persistent fashion outside R e.g. by defining it in the
-user's `.profile` (on Unix/Mac).
+in a more persistent manner outside R e.g. by defining it in the
+user's `.profile` (on Unix/Mac). See `?IGBLAST_ROOT`.
 
 
 #### or install a pre-compiled IgBlast binary

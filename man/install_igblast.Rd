@@ -39,6 +39,8 @@ install_igblast(release="LATEST", force=FALSE, ...)
 
 \seealso{
   \itemize{
+    \item \link{IGBLAST_ROOT} to use an \emph{external} IgBlast installation.
+
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
   }
@@ -46,6 +48,8 @@ install_igblast(release="LATEST", force=FALSE, ...)
 
 \examples{
 install_igblast(force=TRUE)
+
+igblast_info()
 }
 
 \keyword{utilities}
