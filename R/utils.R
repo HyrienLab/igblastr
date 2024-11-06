@@ -1,5 +1,30 @@
+### =========================================================================
+### Various general purpose low-level utilities
+### -------------------------------------------------------------------------
+###
+### Nothing in this file is exported.
+
 
 isSingleNonWhiteString <- function(x) isSingleString(x) && !grepl("^\\s*$", x)
+
+urlExists <- function(url)
+{
+    response <- try(HEAD(url, user_agent("igblastr")), silent=TRUE)
+    if (inherits(response, "try-error"))
+        stop(as.character(response), "  Please check your internet connection.")
+    response$status_code != 404L
+}
+
+getUrlContent <- function(url)
+{
+    response <- try(GET(url, user_agent("igblastr")), silent=TRUE)
+    if (inherits(response, "try-error"))
+        stop(as.character(response), "  Please check your internet connection.")
+    if (response$status_code == 404L)
+        stop(wmsg("Not Found (HTTP 404): ", url))
+    stop_for_status(response)
+    content(response)
+}
 
 ### Returns the OS (e.g. Linux, Windows, or Darwin) and arch (e.g. x86_64
 ### or arm64) in a character vector of length 2, with names "OS" and "arch".
@@ -25,23 +50,17 @@ add_exe_suffix_on_Windows <- function(files, OS=get_OS_arch()[["OS"]])
     paste0(files, ".exe")
 }
 
-urlExists <- function(url)
+### Move 'newfile' to 'oldfile' after nuking 'oldfile' if needed.
+### Works with files or directories.
+replace_file <- function(oldfile, newfile)
 {
-    response <- try(HEAD(url, user_agent("igblastr")), silent=TRUE)
-    if (inherits(response, "try-error"))
-        stop(as.character(response), "  Please check your internet connection.")
-    response$status_code != 404L
-}
-
-getUrlContent <- function(url)
-{
-    response <- try(GET(url, user_agent("igblastr")), silent=TRUE)
-    if (inherits(response, "try-error"))
-        stop(as.character(response), "  Please check your internet connection.")
-    if (response$status_code == 404L)
-        stop(wmsg("Not Found (HTTP 404): ", url))
-    stop_for_status(response)
-    content(response)
+    stopifnot(isSingleNonWhiteString(oldfile), isSingleNonWhiteString(newfile))
+    if (!file.exists(newfile))
+        stop(wmsg(newfile, ": no such file or directory"))
+    unlink(oldfile, recursive=TRUE, force=TRUE)
+    ok <- file.rename(newfile, oldfile)
+    if (!ok)
+        stop(wmsg("failed to replace '", oldfile, "' with '", newfile, "'"))
 }
 
 system_command_works <- function(command, args=character())

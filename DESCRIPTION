@@ -15,6 +15,7 @@ SystemRequirements: IgBlast (on macOS arm64 only), Perl (for install_VQUEST_germ
 VignetteBuilder: knitr
 Collate:
 	utils.R
+	precompiled-igblast-utils.R
 	get_igblast_root.R
 	install_igblast.R
 	VQUEST-utils.R

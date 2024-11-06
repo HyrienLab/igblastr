@@ -6,11 +6,6 @@
 .IGBLAST_ALL_RELEASES_FTP_DIR <-
     "ftp.ncbi.nih.gov/blast/executables/igblast/release/"
 
-.IGBLAST_TARBALL_NAME_PREFIX <- "ncbi-igblast-"
-
-.get_igblast_tarball_name_pattern <- function()
-    sprintf("^(%s([.0-9]+)).*$", .IGBLAST_TARBALL_NAME_PREFIX)
-
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### A small set of low-level utils to help find the precompiled IgBlast
@@ -61,7 +56,7 @@
     paste(msg, collapse="")
 }
 
-.infer_precompiled_tarball_suffix_from_OS_arch <- function(OS_arch, ftp_dir)
+.infer_precompiled_suffix_from_OS_arch <- function(OS_arch, ftp_dir)
 {
     fmt <- paste0("No pre-compiled IgBlast tarball (.tar.gz) ",
                   "available at ", ftp_dir, " for %s.")
@@ -81,10 +76,10 @@
     )
 }
 
-.get_precompiled_tarball_name <- function(ftp_dir, OS_arch)
+.get_precompiled_ncbi_igblast_name <- function(ftp_dir, OS_arch)
 {
-    suffix <- .infer_precompiled_tarball_suffix_from_OS_arch(OS_arch, ftp_dir)
-    pattern <- paste0(.IGBLAST_TARBALL_NAME_PREFIX, ".*-", suffix)
+    suffix <- .infer_precompiled_suffix_from_OS_arch(OS_arch, ftp_dir)
+    pattern <- paste0(PRECOMPILED_NCBI_IGBLAST_PREFIX, ".*-", suffix)
     listing <- try(suppressWarnings(list_ftp_dir(ftp_dir)), silent=TRUE)
     if (inherits(listing, "try-error"))
         stop(wmsg("Cannot open URL '", ftp_dir, "'. ",
@@ -96,17 +91,10 @@
     listing[[idx[[1L]]]]
 }
 
-.infer_rootbasename_from_igblast_tarball_name <- function(tarball_name)
-{
-    pattern <- .get_igblast_tarball_name_pattern()
-    sub(pattern, "\\1", tarball_name)
-}
 
-.infer_version_from_igblast_tarball_name <- function(tarball_name)
-{
-    pattern <- .get_igblast_tarball_name_pattern()
-    sub(pattern, "\\2", tarball_name)
-}
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### install_igblast_dmg()
+###
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -116,7 +104,7 @@
 .projected_igblast_root <- function(tarball_name)
 {
     local_executables_dir <- igblastr_local_executables_dir()
-    version <- .infer_version_from_igblast_tarball_name(tarball_name)
+    version <- infer_version_from_ncbi_igblast_name(tarball_name)
     file.path(local_executables_dir, version)
 }
 
@@ -158,36 +146,33 @@
 
 ### Returns the version of IgBlast being installed which is also the basename
 ### of its installation directory.
-.extract_to_local_executables_dir <- function(tarfile, tarball_name)
+.extract_to_local_executables_dir <- function(tarfile, ncbi_igblast_name)
 {
     ## Create 'local_executables_dir' if it doesn't exist yet.
     local_executables_dir <- igblastr_local_executables_dir()
     if (!dir.exists(local_executables_dir))
         dir.create(local_executables_dir)
 
-    ## Create <local_executables_dir>/tmpexdir
+    ## Create <local_executables_dir>/tmpexdir/
     tempexdir <- file.path(local_executables_dir, "tmpexdir")
-    if (dir.exists(tempexdir))
-        unlink(tempexdir, recursive=TRUE, force=TRUE)
+    unlink(tempexdir, recursive=TRUE, force=TRUE)
     dir.create(tempexdir)
     on.exit(unlink(tempexdir, recursive=TRUE, force=TRUE))
 
-    ## untar() tarfile in <local_executables_dir>/tmpexdir
-    code <- suppressWarnings(untar(tarfile, exdir=tempexdir))
-    if (code != 0L)
-        stop(wmsg("Anomaly: something went wrong during ",
-                  "extraction of '", tarfile, "' (the local copy of ",
-                  "'", tarball_name, "') to '", local_executables_dir, "'."))
+    ## untar() tarfile in <local_executables_dir>/tmpexdir/
+    untar2(tarfile, ncbi_igblast_name, exdir=tempexdir)
 
     ## Get igblast rootbasename and version.
-    rootbasename <- .infer_rootbasename_from_igblast_tarball_name(tarball_name)
-    version <- .infer_version_from_igblast_tarball_name(tarball_name)
+    rootbasename <-
+        infer_rootbasename_from_ncbi_igblast_tarball_name(ncbi_igblast_name)
+    version <- infer_version_from_ncbi_igblast_name(ncbi_igblast_name)
 
-    ## Move <local_executables_dir>/tmpexdir/<rootbasename> to
-    ## <local_executables_dir>/<version>
-    from <- file.path(tempexdir, rootbasename)
-    to <- file.path(local_executables_dir, version)
-    file.rename(from, to)
+    ## Move <local_executables_dir>/tmpexdir/<rootbasename> (newdir)
+    ## to <local_executables_dir>/<version> (olddir) after nuking the
+    ## latter if needed.
+    olddir <- file.path(local_executables_dir, version)
+    newdir <- file.path(tempexdir, rootbasename)
+    replace_file(olddir, newdir)
     version
 }
 
@@ -202,8 +187,8 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
     if (!isTRUEorFALSE(force))
         stop(wmsg("'force' must be TRUE or FALSE"))
     OS_arch <- get_OS_arch()
-    tarball_name <- .get_precompiled_tarball_name(ftp_dir, OS_arch)
-    proj_igblast_root <- .projected_igblast_root(tarball_name)
+    ncbi_igblast_name <- .get_precompiled_ncbi_igblast_name(ftp_dir, OS_arch)
+    proj_igblast_root <- .projected_igblast_root(ncbi_igblast_name)
     if (dir.exists(proj_igblast_root)) {
         if (!force)
             .stop_on_existing_installation(release, proj_igblast_root)
@@ -221,10 +206,10 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
         ## successful or restore it if it's not. Same mechanism as with
         ## package installation in R.
     }
-    tmptarfile <- .download_tarball(ftp_dir, tarball_name, ...)
+    tmptarfile <- .download_tarball(ftp_dir, ncbi_igblast_name, ...)
     ## Note that bad things will happen if another R process is running
     ## the two steps below at the same time!
-    version <- .extract_to_local_executables_dir(tmptarfile, tarball_name)
+    version <- .extract_to_local_executables_dir(tmptarfile, ncbi_igblast_name)
     igblast_root <- set_internal_igblast_root(version)
     stopifnot(identical(igblast_root, proj_igblast_root))  # sanity check
     message("IgBlast ", version, " successfully installed ",
