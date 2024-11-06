@@ -149,7 +149,7 @@
                             destdir=local_executables_dir)
     } else if (grepl("\\.dmg$", ncbi_igblast_name)) {
         extract_igblast_dmg(downloaded_file, ncbi_igblast_name,
-                            destfir=local_executables_dir)
+                            destdir=local_executables_dir)
     }
     infer_igblast_version_from_ncbi_name(ncbi_igblast_name)
 }
