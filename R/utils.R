@@ -26,6 +26,35 @@ getUrlContent <- function(url)
     content(response)
 }
 
+download_ftp_file <- function(ftp_dir, filename, ...)
+{
+    url <- paste0(ftp_dir, filename)
+    destfile <- tempfile()
+    code <- try(suppressWarnings(download.file(url, destfile, ...)),
+                silent=TRUE)
+    if (inherits(code, "try-error") || code != 0L)
+        stop(wmsg("Failed to download ", filename, " ",
+                  "from ", ftp_dir, ". ",
+                  "Are you connected to the internet?"))
+    destfile
+}
+
+### A thin wrapper to untar() with more user-friendly error handling.
+### 'exdir' should be the path to an existing directory that is
+### preferrably empty.
+untar2 <- function(tarfile, original_tarball_name, exdir=".")
+{
+    stopifnot(isSingleNonWhiteString(tarfile),
+              isSingleNonWhiteString(original_tarball_name),
+              isSingleNonWhiteString(exdir),
+              dir.exists(exdir))
+    code <- suppressWarnings(untar(tarfile, exdir=exdir))
+    if (code != 0L)
+        stop(wmsg("Anomaly: something went wrong during ",
+                  "extraction of '", tarfile, "' (the local copy ",
+                  "of '", original_tarball_name, "') to '", exdir, "'."))
+}
+
 ### Returns the OS (e.g. Linux, Windows, or Darwin) and arch (e.g. x86_64
 ### or arm64) in a character vector of length 2, with names "OS" and "arch".
 ### Note that if the OS or arch cannot be obtained with Sys.info() then they

@@ -12,16 +12,9 @@ PRECOMPILED_NCBI_IGBLAST_PREFIX <- "ncbi-igblast-"
 
 ### 'name' must be the name of an IgBlast tarball (i.e. *.tar.gz file)
 ### from NCBI FTP site e.g. "ncbi-igblast-1.22.0-x64-win64.tar.gz".
-infer_rootbasename_from_ncbi_igblast_tarball_name <- function(name)
-{
-    stopifnot(isSingleNonWhiteString(name))
-    pattern <- .get_precompiled_ncbi_igblast_pattern()
-    sub(pattern, "\\1", name)
-}
-
 ### 'name' must be the name of an IgBlast tarball (i.e. *.tar.gz file)
 ### or *.dmg file from NCBI FTP site e.g. "ncbi-igblast-1.22.0+.dmg".
-infer_version_from_ncbi_igblast_name <- function(name)
+infer_igblast_version_from_ncbi_name <- function(name)
 {
     stopifnot(isSingleNonWhiteString(name))
     pattern <- .get_precompiled_ncbi_igblast_pattern()
@@ -30,23 +23,38 @@ infer_version_from_ncbi_igblast_name <- function(name)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### untar2()
+### extract_igblast_tarball()
 ###
 
-### A thin wrapper to untar() with more user-friendly error handling.
-### 'exdir' should be the path to an existing directory that is
-### preferrably empty.
-untar2 <- function(tarfile, ncbi_name, exdir=".")
+.infer_igblast_rootbasename_from_ncbi_name <- function(name)
 {
-    stopifnot(isSingleNonWhiteString(tarfile),
-              isSingleNonWhiteString(ncbi_name),
-              isSingleNonWhiteString(exdir),
-              dir.exists(exdir))
-    code <- suppressWarnings(untar(tarfile, exdir=exdir))
-    if (code != 0L)
-        stop(wmsg("Anomaly: something went wrong during ",
-                  "extraction of '", tarfile, "' (the local copy ",
-                  "of '", ncbi_name, "') to '", exdir, "'."))
+    stopifnot(isSingleNonWhiteString(name))
+    pattern <- .get_precompiled_ncbi_igblast_pattern()
+    sub(pattern, "\\1", name)
+}
+
+### 'destdir' should be the path to an existing directory.
+### Extracts and installs IgBlast in <destdir>/<version>/
+extract_igblast_tarball <- function(tarfile, ncbi_name, destdir=".")
+{
+    ## Create <destdir>/tmpexdir/
+    tempexdir <- file.path(destdir, "tmpexdir")
+    unlink(tempexdir, recursive=TRUE, force=TRUE)
+    dir.create(tempexdir)
+    on.exit(unlink(tempexdir, recursive=TRUE, force=TRUE))
+
+    ## Untar in <destdir>/tmpexdir/
+    untar2(tarfile, ncbi_name, exdir=tempexdir)
+
+    ## Get IgBlast rootbasename and version.
+    rootbasename <- .infer_igblast_rootbasename_from_ncbi_name(ncbi_name)
+    version <- infer_igblast_version_from_ncbi_name(ncbi_name)
+
+    ## Move <destdir>/tmpexdir/<rootbasename> (newdir)
+    ## to <destdir>/<version> (olddir) after nuking the latter if needed.
+    olddir <- file.path(destdir, version)
+    newdir <- file.path(tempexdir, rootbasename)
+    replace_file(olddir, newdir)
 }
 
 
@@ -79,29 +87,28 @@ untar2 <- function(tarfile, ncbi_name, exdir=".")
         stop(wmsg(out))
 }
 
-### 'exdir' should be the path to an existing directory that is
-### preferrably empty.
-extract_igblast_dmg <- function(dmgfile, ncbi_name, exdir=".")
+### 'destdir' should be the path to an existing directory.
+### Extracts and installs IgBlast in <destdir>/<version>/
+extract_igblast_dmg <- function(dmgfile, ncbi_name, destdir=".")
 {
     stopifnot(isSingleNonWhiteString(dmgfile),
               isSingleNonWhiteString(ncbi_name),
-              isSingleNonWhiteString(exdir),
-              dir.exists(exdir))
+              isSingleNonWhiteString(destdir),
+              dir.exists(destdir))
 
-    version <- infer_version_from_ncbi_igblast_name(ncbi_name)
+    version <- infer_igblast_version_from_ncbi_name(ncbi_name)
     dmg_mounting_point_name <- sub("\\.dmg$", "", ncbi_name)
     dmg_mounting_point <- file.path("/Volumes", dmg_mounting_point_name)
     pkg_basename <- paste0(dmg_mounting_point_name, ".pkg")
     pkg_path <- file.path(dmg_mounting_point, pkg_basename)
-    expand_dir <- file.path(exdir, dmg_mounting_point_name)
+    expand_dir <- file.path(destdir, dmg_mounting_point_name)
 
     .attach_dmg(dmgfile)
     on.exit(.detach_dmg(dmg_mounting_point))
     .full_expand_pkgfile(pkg_path, expand_dir)
-    olddir <- file.path(exdir, version)
+    olddir <- file.path(destdir, version)
     newdir <- file.path(expand_dir, "binaries.pkg", "Payload")
     replace_file(olddir, newdir)
     unlink(expand_dir, recursive=TRUE, force=TRUE)
-    olddir
 }
 

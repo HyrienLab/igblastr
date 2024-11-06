@@ -9,7 +9,7 @@
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### A small set of low-level utils to help find the precompiled IgBlast
-### tarball on NCBI FTP site, for a given IgBlast release and platform
+### on NCBI FTP site, for a given IgBlast release and OS/arch
 ###
 
 .get_all_releases <- function()
@@ -47,64 +47,68 @@
     paste0(.IGBLAST_ALL_RELEASES_FTP_DIR, release, "/")
 }
 
-.how_to_install_manually <- function(what)
+### Returns the suffix of the precompiled NCBI IgBlast for the specified
+### OS/arch, if that OS/arch is supported. Otherwise, returns NA_character_.
+.infer_precompiled_suffix_from_OS_arch <- function(OS_arch)
 {
-    msg <- c("Please download and install ", what, " manually from ",
-             .get_release_ftp_dir(), ", and set environment ",
-             "variable IGBLAST_ROOT accordingly. See '?IGBLAST_ROOT' ",
-             "for more information.")
-    paste(msg, collapse="")
+    OS <- tolower(OS_arch[["OS"]])
+    arch <- tolower(OS_arch[["arch"]])
+    if (grepl("^x86.64$", arch)) {
+        if (OS == "linux")   return("-x64-linux.tar.gz")
+        if (OS == "windows") return("-x64-win64.tar.gz")
+        if (OS == "darwin")  return("-x64-macosx.tar.gz")
+    } else if (arch == "arm64") {
+        if (OS == "darwin")  return(".dmg")
+    }
+    NA_character_
 }
 
-.infer_precompiled_suffix_from_OS_arch <- function(OS_arch, ftp_dir)
+.stop_on_no_precompiled_ncbi_igblast <- function(ftp_dir, OS_arch)
 {
-    fmt <- paste0("No pre-compiled IgBlast tarball (.tar.gz) ",
-                  "available at ", ftp_dir, " for %s.")
-    if (anyNA(OS_arch))
-        stop(wmsg(sprintf(fmt, "your OS/arch")))
-    OS_arch <- paste(OS_arch, collapse="-")
-    err_msg <- sprintf(fmt, OS_arch)
-    switch(OS_arch,
-        `Linux-x86_64`="x64-linux.tar.gz",
-        `Windows-x86-64`="x64-win64.tar.gz",
-        `Darwin-x86_64`="x64-macosx.tar.gz",
-        `Darwin-arm64`=stop(wmsg(
-            err_msg, " ",
-            .how_to_install_manually("ncbi-igblast-X.Y.Z+.dmg")
-        )),
-        stop(wmsg(err_msg))
-    )
+    fmt <- paste0("No pre-compiled IgBlast program available ",
+                  "at ", ftp_dir, " for %s.")
+    if (anyNA(OS_arch)) {
+        err_msg1 <- sprintf(fmt, "your OS/arch")
+    } else {
+        err_msg1 <- sprintf(fmt, paste(OS_arch, collapse="-"))
+    }
+    err_msg2 <- c("If there's an existing IgBlast installation on your ",
+                  "machine, please set environment variable IGBLAST_ROOT ",
+                  "to point to it. Otherwise, please perform your own ",
+                  "installation of IgBlast e.g. by downloading and compiling ",
+                  "the latest source tarball from ", ftp_dir, " (note that ",
+                  "compilation can take between 45 min and 1 hour!), then ",
+                  "point IGBLAST_ROOT to it. See '?IGBLAST_ROOT' for more ",
+                  "information.")
+    stop(wmsg(err_msg1), "\n  ", wmsg(err_msg2))
 }
 
 .get_precompiled_ncbi_igblast_name <- function(ftp_dir, OS_arch)
 {
-    suffix <- .infer_precompiled_suffix_from_OS_arch(OS_arch, ftp_dir)
-    pattern <- paste0(PRECOMPILED_NCBI_IGBLAST_PREFIX, ".*-", suffix)
+    suffix <- .infer_precompiled_suffix_from_OS_arch(OS_arch)
+    if (is.na(suffix))
+        .stop_on_no_precompiled_ncbi_igblast(ftp_dir, OS_arch)
+    pattern <- paste0(PRECOMPILED_NCBI_IGBLAST_PREFIX, ".*", suffix)
     listing <- try(suppressWarnings(list_ftp_dir(ftp_dir)), silent=TRUE)
     if (inherits(listing, "try-error"))
         stop(wmsg("Cannot open URL '", ftp_dir, "'. ",
                   "Are you connected to the internet?"))
     idx <- grep(paste0("^", pattern, "$"), listing)
     if (length(idx) == 0L)
-        stop(wmsg("Anomaly: no tarball with a name matching ",
+        stop(wmsg("Anomaly: no file with a name matching ",
                   pattern, " found at ", ftp_dir))
     listing[[idx[[1L]]]]
 }
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### install_igblast_dmg()
-###
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### install_igblast()
 ###
 
-.projected_igblast_root <- function(tarball_name)
+.projected_igblast_root <- function(ncbi_igblast_name)
 {
     local_executables_dir <- igblastr_local_executables_dir()
-    version <- infer_version_from_ncbi_igblast_name(tarball_name)
+    version <- infer_igblast_version_from_ncbi_name(ncbi_igblast_name)
     file.path(local_executables_dir, version)
 }
 
@@ -131,49 +135,23 @@
     stop(wmsg(msg), "\n  ", wmsg(what_to_do))
 }
 
-.download_tarball <- function(ftp_dir, tarball_file, ...)
-{
-    url <- paste0(ftp_dir, tarball_file)
-    destfile <- tempfile(fileext=".tar.gz")
-    code <- try(suppressWarnings(download.file(url, destfile, ...)),
-                silent=TRUE)
-    if (inherits(code, "try-error") || code != 0L)
-        stop(wmsg("Failed to download ", tarball_file, " ",
-                  "from ", ftp_dir, ". ",
-                  "Are you connected to the internet?"))
-    destfile
-}
-
-### Returns the version of IgBlast being installed which is also the basename
-### of its installation directory.
-.extract_to_local_executables_dir <- function(tarfile, ncbi_igblast_name)
+### Returns the version of IgBlast being installed which is also the
+### basename of its installation directory.
+.extract_to_local_executables_dir <- function(downloaded_file,
+                                              ncbi_igblast_name)
 {
     ## Create 'local_executables_dir' if it doesn't exist yet.
     local_executables_dir <- igblastr_local_executables_dir()
     if (!dir.exists(local_executables_dir))
         dir.create(local_executables_dir)
-
-    ## Create <local_executables_dir>/tmpexdir/
-    tempexdir <- file.path(local_executables_dir, "tmpexdir")
-    unlink(tempexdir, recursive=TRUE, force=TRUE)
-    dir.create(tempexdir)
-    on.exit(unlink(tempexdir, recursive=TRUE, force=TRUE))
-
-    ## untar() tarfile in <local_executables_dir>/tmpexdir/
-    untar2(tarfile, ncbi_igblast_name, exdir=tempexdir)
-
-    ## Get igblast rootbasename and version.
-    rootbasename <-
-        infer_rootbasename_from_ncbi_igblast_tarball_name(ncbi_igblast_name)
-    version <- infer_version_from_ncbi_igblast_name(ncbi_igblast_name)
-
-    ## Move <local_executables_dir>/tmpexdir/<rootbasename> (newdir)
-    ## to <local_executables_dir>/<version> (olddir) after nuking the
-    ## latter if needed.
-    olddir <- file.path(local_executables_dir, version)
-    newdir <- file.path(tempexdir, rootbasename)
-    replace_file(olddir, newdir)
-    version
+    if (grepl("\\.tar\\.gz$", ncbi_igblast_name)) {
+        extract_igblast_tarball(downloaded_file, ncbi_igblast_name,
+                            destdir=local_executables_dir)
+    } else if (grepl("\\.dmg$", ncbi_igblast_name)) {
+        extract_igblast_dmg(downloaded_file, ncbi_igblast_name,
+                            destfir=local_executables_dir)
+    }
+    infer_igblast_version_from_ncbi_name(ncbi_igblast_name)
 }
 
 ### TODO: Bad things will happen if more than one R process run
@@ -192,24 +170,12 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
     if (dir.exists(proj_igblast_root)) {
         if (!force)
             .stop_on_existing_installation(release, proj_igblast_root)
-        ## Do NOT nuke the existing installation if 'force' is TRUE.
-        ## untar() should be able to overwrite it anyways. A major
-        ## inconvenient of nuking it now is that if something goes
-        ## wrong during .download_tarball() then we'll be left with
-        ## nothing. Also if we nuke it now we should also remove
-        ## <local_executables_dir>/USING otherwise it will be pointing
-        ## to a non-existing installation if download fails.
-        ## If we really want to nuke <proj_igblast_root>, we should do
-        ## it in .extract_to_local_executables_dir() right before calling
-        ## untar(). Or, even safer, we should move <proj_igblast_root>
-        ## to a temporary place and nuke it if the new installation is
-        ## successful or restore it if it's not. Same mechanism as with
-        ## package installation in R.
     }
-    tmptarfile <- .download_tarball(ftp_dir, ncbi_igblast_name, ...)
+    downloaded_file <- download_ftp_file(ftp_dir, ncbi_igblast_name, ...)
     ## Note that bad things will happen if another R process is running
     ## the two steps below at the same time!
-    version <- .extract_to_local_executables_dir(tmptarfile, ncbi_igblast_name)
+    version <- .extract_to_local_executables_dir(downloaded_file,
+                                                 ncbi_igblast_name)
     igblast_root <- set_internal_igblast_root(version)
     stopifnot(identical(igblast_root, proj_igblast_root))  # sanity check
     message("IgBlast ", version, " successfully installed ",
