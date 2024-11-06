@@ -1,5 +1,5 @@
 ### =========================================================================
-### Low-level utilities for handling NCBI precompiled IgBlast
+### Low-level utilities for handling NCBI precompiled IgBLAST
 ### -------------------------------------------------------------------------
 ###
 ### Nothing in this file is exported.
@@ -10,7 +10,7 @@ PRECOMPILED_NCBI_IGBLAST_PREFIX <- "ncbi-igblast-"
 .get_precompiled_ncbi_igblast_pattern <- function()
     sprintf("^(%s([.0-9]+)).*$", PRECOMPILED_NCBI_IGBLAST_PREFIX)
 
-### 'name' must be the name of an IgBlast tarball (i.e. *.tar.gz file)
+### 'name' must be the name of an IgBLAST tarball (i.e. *.tar.gz file)
 ### or *.dmg file from NCBI FTP site e.g. "ncbi-igblast-1.22.0+.dmg".
 infer_igblast_version_from_ncbi_name <- function(name)
 {
@@ -24,7 +24,7 @@ infer_igblast_version_from_ncbi_name <- function(name)
 ### extract_igblast_tarball()
 ###
 
-### 'name' must be the name of an IgBlast tarball (i.e. *.tar.gz file)
+### 'name' must be the name of an IgBLAST tarball (i.e. *.tar.gz file)
 ### from NCBI FTP site e.g. "ncbi-igblast-1.22.0-x64-win64.tar.gz".
 .infer_igblast_rootbasename_from_ncbi_name <- function(name)
 {
@@ -34,7 +34,7 @@ infer_igblast_version_from_ncbi_name <- function(name)
 }
 
 ### 'destdir' should be the path to an existing directory.
-### Extracts and installs IgBlast in <destdir>/<version>/
+### Extracts and installs IgBLAST in <destdir>/<version>/
 extract_igblast_tarball <- function(tarfile, ncbi_name, destdir=".")
 {
     ## Create <destdir>/tmpexdir/
@@ -46,7 +46,7 @@ extract_igblast_tarball <- function(tarfile, ncbi_name, destdir=".")
     ## Untar in <destdir>/tmpexdir/
     untar2(tarfile, ncbi_name, exdir=tempexdir)
 
-    ## Get IgBlast rootbasename and version.
+    ## Get IgBLAST rootbasename and version.
     rootbasename <- .infer_igblast_rootbasename_from_ncbi_name(ncbi_name)
     version <- infer_igblast_version_from_ncbi_name(ncbi_name)
 
@@ -88,7 +88,7 @@ extract_igblast_tarball <- function(tarfile, ncbi_name, destdir=".")
 }
 
 ### 'destdir' should be the path to an existing directory.
-### Extracts and installs IgBlast in <destdir>/<version>/
+### Extracts and installs IgBLAST in <destdir>/<version>/
 extract_igblast_dmg <- function(dmgfile, ncbi_name, destdir=".")
 {
     stopifnot(isSingleNonWhiteString(dmgfile),

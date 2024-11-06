@@ -2,10 +2,10 @@
 
 \alias{install_igblast}
 
-\title{Install IgBlast}
+\title{Install IgBLAST}
 
 \description{
-  Download and install a pre-compiled IgBlast from NCBI FTP site for
+  Download and install a pre-compiled IgBLAST from NCBI FTP site for
   use with \pkg{igblastr}.
 }
 
@@ -15,16 +15,16 @@ install_igblast(release="LATEST", force=FALSE, ...)
 
 \arguments{
   \item{release}{
-    A single string specifying the IgBlast release version to install.
+    A single string specifying the IgBLAST release version to install.
     For example \code{"LATEST"} (recommended), or one
-    of the IgBlast release versions listed at
+    of the IgBLAST release versions listed at
     \url{ftp.ncbi.nih.gov/blast/executables/igblast/release/}
     (e.g. \code{"1.21.0"}).
     Note that old versions have not been tested and are not
     guaranteed to be compatible with the \pkg{igblastr} package.
   }
   \item{force}{
-    Set to \code{TRUE} to reinstall if the specified IgBlast release version
+    Set to \code{TRUE} to reinstall if the specified IgBLAST release version
     is already installed.
   }
   \item{...}{
@@ -34,12 +34,16 @@ install_igblast(release="LATEST", force=FALSE, ...)
 }
 
 \value{
-  The path to the root of the IgBlast installation, as an invisible string.
+  The path to the \emph{root directory} of the IgBLAST installation,
+  as an invisible string.
 }
 
 \seealso{
   \itemize{
-    \item \link{IGBLAST_ROOT} to use an \emph{external} IgBlast installation.
+    \item \link{IGBLAST_ROOT} to use an \emph{external} IgBLAST installation.
+
+    \item \code{\link{igblast_info}} to check the IgBLAST installation
+          used by the \pkg{igblastr} package.
 
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.

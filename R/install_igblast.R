@@ -8,8 +8,8 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### A small set of low-level utils to help find the precompiled IgBlast
-### on NCBI FTP site, for a given IgBlast release and OS/arch
+### A small set of low-level utils to help find the precompiled IgBLAST
+### on NCBI FTP site, for a given IgBLAST release and OS/arch
 ###
 
 .get_all_releases <- function()
@@ -35,7 +35,7 @@
     if (!(release %in% all_releases)) {
         all_in_1string <- paste0("\"", all_releases, "\"", collapse=", ")
         stop(wmsg("'release' must be \"LATEST\" (recommended), or ",
-                  "one of the IgBlast release versions listed at ",
+                  "one of the IgBLAST release versions listed at ",
                   .IGBLAST_ALL_RELEASES_FTP_DIR, " (e.g. \"1.21.0\")."),
              "\n  ",
              wmsg("All available releases: ", all_in_1string, "."),
@@ -47,7 +47,7 @@
     paste0(.IGBLAST_ALL_RELEASES_FTP_DIR, release, "/")
 }
 
-### Returns the suffix of the precompiled NCBI IgBlast for the specified
+### Returns the suffix of the precompiled NCBI IgBLAST for the specified
 ### OS/arch, if that OS/arch is supported. Otherwise, returns NA_character_.
 .infer_precompiled_suffix_from_OS_arch <- function(OS_arch)
 {
@@ -65,17 +65,17 @@
 
 .stop_on_no_precompiled_ncbi_igblast <- function(ftp_dir, OS_arch)
 {
-    fmt <- paste0("No pre-compiled IgBlast program available ",
+    fmt <- paste0("No pre-compiled IgBLAST program available ",
                   "at ", ftp_dir, " for %s.")
     if (anyNA(OS_arch)) {
         err_msg1 <- sprintf(fmt, "your OS/arch")
     } else {
         err_msg1 <- sprintf(fmt, paste(OS_arch, collapse="-"))
     }
-    err_msg2 <- c("If there's an existing IgBlast installation on your ",
+    err_msg2 <- c("If there's an existing IgBLAST installation on your ",
                   "machine, please set environment variable IGBLAST_ROOT ",
                   "to point to it. Otherwise, please perform your own ",
-                  "installation of IgBlast e.g. by downloading and compiling ",
+                  "installation of IgBLAST e.g. by downloading and compiling ",
                   "the latest source tarball from ", ftp_dir, " (note that ",
                   "compilation can take between 45 min and 1 hour!), then ",
                   "point IGBLAST_ROOT to it. See '?IGBLAST_ROOT' for more ",
@@ -115,9 +115,9 @@
 .stop_on_existing_installation <- function(release, igblast_root)
 {
     if (release == "LATEST") {
-        what <- "LATEST IgBlast"
+        what <- "LATEST IgBLAST"
     } else {
-        what <- c("IgBlast ", release)
+        what <- c("IgBLAST ", release)
     }
     msg <- c(what, " is already installed in ", igblast_root, "/")
     what_to_do <- " 'force=TRUE' to reinstall."
@@ -135,7 +135,7 @@
     stop(wmsg(msg), "\n  ", wmsg(what_to_do))
 }
 
-### Returns the version of IgBlast being installed which is also the
+### Returns the version of IgBLAST being installed which is also the
 ### basename of its installation directory.
 .extract_to_internal_roots <- function(downloaded_file, ncbi_igblast_name)
 {
@@ -178,7 +178,7 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
 
     ## Note that bad things will happen if another R process is running
     ## this step at the same time!
-    message("Installing IgBlast at ", proj_igblast_root, " ... ",
+    message("Installing IgBLAST at ", proj_igblast_root, " ... ",
             appendLF=FALSE)
     version <- .extract_to_internal_roots(downloaded_file, ncbi_igblast_name)
     message("ok")
@@ -188,7 +188,7 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
     igblast_root <- set_internal_igblast_root(version)
 
     stopifnot(identical(igblast_root, proj_igblast_root))  # sanity check
-    message("IgBlast ", version, " successfully installed.")
+    message("IgBLAST ", version, " successfully installed.")
     invisible(igblast_root)
 }
 

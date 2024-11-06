@@ -23,10 +23,10 @@ WORK IN PROGRESS!
 
 
 
-### 2. Set up IgBlast
+### 2. Set up IgBLAST
 
 
-#### Use an existing installation of IgBlast
+#### Use an existing installation of IgBLAST
 
     Sys.setenv(IGBLAST_ROOT="path/to/igblast/root")
 
@@ -35,7 +35,7 @@ in a more persistent manner outside R e.g. by defining it in the
 user's `.profile` (on Unix/Mac). See `?IGBLAST_ROOT`.
 
 
-#### or install a pre-compiled IgBlast binary
+#### or install a pre-compiled IgBLAST binary
 
     install_igblast()
 
@@ -50,11 +50,11 @@ Notes:
   by IGBLAST\_ROOT.
 
 
-#### Check IgBlast
+#### Check IgBLAST
 
     igblast_info()
 
-This will make sure that the installed IgBlast is functional. Will also
+This will make sure that the installed IgBLAST is functional. Will also
 display some info about it (e.g. `igblastn` and `igblastp` versions).
 
 

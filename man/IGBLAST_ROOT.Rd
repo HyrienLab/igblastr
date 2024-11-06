@@ -2,15 +2,15 @@
 
 \alias{IGBLAST_ROOT}
 
-\title{Use an external IgBlast installation}
+\title{Use an external IgBLAST installation}
 
 \description{
-  Set environment variable IGBLAST_ROOT to use an \emph{external}
-  installation of IgBlast.
+  Select the \emph{external} IgBLAST installation to use in \pkg{igblastr}
+  in a persistent manner.
 }
 
 \details{
-  The \pkg{igblastr} package can use 2 types of IgBlast installation:
+  The \pkg{igblastr} package can use 2 types of IgBLAST installation:
   \enumerate{
     \item Internal (a.k.a. igblastr-managed): refers to an
           installation obtained with \code{\link{install_igblast}()}.
@@ -21,10 +21,10 @@
           your machine. It can be a system-wide installation or a per-user
           installation.
   }
-  To use an \emph{external} installation of IgBlast in \pkg{igblastr},
+  To use an \emph{external} installation of IgBLAST in \pkg{igblastr},
   set environment variable IGBLAST_ROOT to the path of the installation.
   Note that this must be the path to the \emph{root directory} of the
-  IgBlast installation, that is, to a directory with a \code{bin}
+  IgBLAST installation, that is, to a directory with a \code{bin}
   subdirectory in it that has the \code{igblastn} and \code{igblastp}
   commands (\code{igblastn.exe} and \code{igblastp.exe} on Windows).
 
@@ -44,9 +44,9 @@
 \seealso{
   \itemize{
     \item \code{\link{install_igblast}} to perform an \emph{internal}
-          IgBlast installation.
+          IgBLAST installation.
 
-    \item \code{\link{igblast_info}} to check the IgBlast installation
+    \item \code{\link{igblast_info}} to check the IgBLAST installation
           used by the \pkg{igblastr} package.
 
     \item IgBLAST is described at
@@ -54,3 +54,4 @@
   }
 }
 
+\keyword{misc}

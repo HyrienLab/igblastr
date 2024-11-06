@@ -1,6 +1,7 @@
 Package: igblastr
-Title: An R wrapper for IgBlast
-Description: The igblastr package provides an interface to NCBI's IgBlast.
+Title: An R wrapper for IgBLAST
+Description: The igblastr package provides an R interface to NCBI's IgBLAST.
+	IgBLAST is described at <https://pubmed.ncbi.nlm.nih.gov/23671333/>
 Version: 0.0.5
 License: Artistic-2.0
 Encoding: UTF-8
@@ -11,12 +12,12 @@ Authors@R: c(
 	person("Ollivier", "Hyrien", role="fnd"))
 Imports: utils, tools, httr, S4Vectors, GenomeInfoDb, Biostrings
 Suggests: knitr
-SystemRequirements: IgBlast (on macOS arm64 only), Perl (for install_VQUEST_germline_db() only)
+SystemRequirements: Perl (for install_VQUEST_germline_db() only)
 VignetteBuilder: knitr
 Collate:
 	utils.R
 	precompiled-igblast-utils.R
-	get_igblast_root.R
+	igblast_info.R
 	install_igblast.R
 	VQUEST-utils.R
 	make_igblast_germline_db_from_NCBI.R
