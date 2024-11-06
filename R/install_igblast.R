@@ -143,7 +143,7 @@
     ## Create 'local_executables_dir' if it doesn't exist yet.
     local_executables_dir <- igblastr_local_executables_dir()
     if (!dir.exists(local_executables_dir))
-        dir.create(local_executables_dir)
+        dir.create(local_executables_dir, recursive=TRUE)
     if (grepl("\\.tar\\.gz$", ncbi_igblast_name)) {
         extract_igblast_tarball(downloaded_file, ncbi_igblast_name,
                             destdir=local_executables_dir)
