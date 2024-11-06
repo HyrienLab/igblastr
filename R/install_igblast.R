@@ -107,9 +107,9 @@
 
 .projected_igblast_root <- function(ncbi_igblast_name)
 {
-    local_executables_dir <- igblastr_local_executables_dir()
+    internal_roots <- get_internal_igblast_roots()
     version <- infer_igblast_version_from_ncbi_name(ncbi_igblast_name)
-    file.path(local_executables_dir, version)
+    file.path(internal_roots, version)
 }
 
 .stop_on_existing_installation <- function(release, igblast_root)
@@ -137,28 +137,30 @@
 
 ### Returns the version of IgBlast being installed which is also the
 ### basename of its installation directory.
-.extract_to_local_executables_dir <- function(downloaded_file,
-                                              ncbi_igblast_name)
+.extract_to_internal_roots <- function(downloaded_file, ncbi_igblast_name)
 {
-    ## Create 'local_executables_dir' if it doesn't exist yet.
-    local_executables_dir <- igblastr_local_executables_dir()
-    if (!dir.exists(local_executables_dir))
-        dir.create(local_executables_dir, recursive=TRUE)
-    if (grepl("\\.tar\\.gz$", ncbi_igblast_name)) {
+    ## Create 'internal_roots' if it doesn't exist yet.
+    internal_roots <- get_internal_igblast_roots()
+    if (!dir.exists(internal_roots))
+        dir.create(internal_roots, recursive=TRUE)
+    if (has_suffix(ncbi_igblast_name, ".tar.gz")) {
         extract_igblast_tarball(downloaded_file, ncbi_igblast_name,
-                            destdir=local_executables_dir)
-    } else if (grepl("\\.dmg$", ncbi_igblast_name)) {
+                            destdir=internal_roots)
+    } else if (has_suffix(ncbi_igblast_name, ".dmg")) {
         extract_igblast_dmg(downloaded_file, ncbi_igblast_name,
-                            destdir=local_executables_dir)
+                            destdir=internal_roots)
+    } else {
+        stop(wmsg("Anomaly: file to extract must be ",
+                  "a tarball (.tar.gz file) or .dmg file"))
     }
     infer_igblast_version_from_ncbi_name(ncbi_igblast_name)
 }
 
 ### TODO: Bad things will happen if more than one R process run
 ### install_igblast() concurrently. Standard way to address this
-### is to put a lock on the igblastr_local_executables_dir() folder
+### is to put a lock on the get_internal_igblast_roots() folder
 ### to get exclusive write access to it for the duration of the
-### .extract_to_local_executables_dir() and set_internal_igblast_root() steps.
+### .extract_to_internal_roots() and set_internal_igblast_root() steps.
 install_igblast <- function(release="LATEST", force=FALSE, ...)
 {
     ftp_dir <- .get_release_ftp_dir(release)
@@ -174,8 +176,7 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
     downloaded_file <- download_ftp_file(ftp_dir, ncbi_igblast_name, ...)
     ## Note that bad things will happen if another R process is running
     ## the two steps below at the same time!
-    version <- .extract_to_local_executables_dir(downloaded_file,
-                                                 ncbi_igblast_name)
+    version <- .extract_to_internal_roots(downloaded_file, ncbi_igblast_name)
     igblast_root <- set_internal_igblast_root(version)
     stopifnot(identical(igblast_root, proj_igblast_root))  # sanity check
     message("IgBlast ", version, " successfully installed ",

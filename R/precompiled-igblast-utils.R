@@ -11,8 +11,6 @@ PRECOMPILED_NCBI_IGBLAST_PREFIX <- "ncbi-igblast-"
     sprintf("^(%s([.0-9]+)).*$", PRECOMPILED_NCBI_IGBLAST_PREFIX)
 
 ### 'name' must be the name of an IgBlast tarball (i.e. *.tar.gz file)
-### from NCBI FTP site e.g. "ncbi-igblast-1.22.0-x64-win64.tar.gz".
-### 'name' must be the name of an IgBlast tarball (i.e. *.tar.gz file)
 ### or *.dmg file from NCBI FTP site e.g. "ncbi-igblast-1.22.0+.dmg".
 infer_igblast_version_from_ncbi_name <- function(name)
 {
@@ -26,6 +24,8 @@ infer_igblast_version_from_ncbi_name <- function(name)
 ### extract_igblast_tarball()
 ###
 
+### 'name' must be the name of an IgBlast tarball (i.e. *.tar.gz file)
+### from NCBI FTP site e.g. "ncbi-igblast-1.22.0-x64-win64.tar.gz".
 .infer_igblast_rootbasename_from_ncbi_name <- function(name)
 {
     stopifnot(isSingleNonWhiteString(name))

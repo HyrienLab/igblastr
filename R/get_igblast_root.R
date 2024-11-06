@@ -134,9 +134,9 @@
 ### installation to use
 ###
 
-igblastr_local_executables_dir <- function()
+get_internal_igblast_roots <- function()
 {
-    file.path(R_user_dir("igblastr", "cache"), "executables")
+    file.path(R_user_dir("igblastr", "cache"), "igblast_roots")
 }
 
 ### Sets the path to the "internal" IgBlast installation to use and
@@ -146,12 +146,12 @@ set_internal_igblast_root <- function(version)
 {
     if (!isSingleNonWhiteString(version))
         stop(wmsg("'version' must be a single (non-empty) string"))
-    local_executables_dir <- igblastr_local_executables_dir()
-    if (!dir.exists(local_executables_dir))
-        stop(wmsg("Anomaly: no '", local_executables_dir, "'."))
-    igblast_root <- file.path(local_executables_dir, version)
+    internal_roots <- get_internal_igblast_roots()
+    if (!dir.exists(internal_roots))
+        stop(wmsg("Anomaly: no '", internal_roots, "'."))
+    igblast_root <- file.path(internal_roots, version)
     .check_igblast_installation(igblast_root)
-    using_path <- file.path(local_executables_dir, "USING")
+    using_path <- file.path(internal_roots, "USING")
     writeLines(version, using_path)
     igblast_root
 }
@@ -162,10 +162,10 @@ set_internal_igblast_root <- function(version)
 ### above, this function does NOT check the returned installation.
 get_internal_igblast_root <- function()
 {
-    local_executables_dir <- igblastr_local_executables_dir()
-    #if (!dir.exists(local_executables_dir))
+    internal_roots <- get_internal_igblast_roots()
+    #if (!dir.exists(internal_roots))
     #    return(NA_character_)
-    using_path <- file.path(local_executables_dir, "USING")
+    using_path <- file.path(internal_roots, "USING")
     if (!file.exists(using_path))
         return(NA_character_)
     version <- readLines(using_path)
@@ -175,7 +175,7 @@ get_internal_igblast_root <- function()
              wmsg("File should contain exactly one line. ",
                   "Try to repair with set_igblast_root() ",
                   "(see '?set_igblast_root' for more information)."))
-    igblast_root <- file.path(local_executables_dir, version)
+    igblast_root <- file.path(internal_roots, version)
     if (!dir.exists(igblast_root))
         stop(wmsg("Anomaly: '", using_path, "' is invalid."),
              "\n  ",
@@ -194,10 +194,10 @@ get_internal_igblast_root <- function()
 ### List all "internal" IgBlast installations ordered by decreasing version.
 .list_installed_igblast_versions <- function()
 {
-    local_executables_dir <- igblastr_local_executables_dir()
-    if (!dir.exists(local_executables_dir))
+    internal_roots <- get_internal_igblast_roots()
+    if (!dir.exists(internal_roots))
         return(character(0))
-    all_versions <- setdiff(list.files(local_executables_dir), "USING")
+    all_versions <- setdiff(list.files(internal_roots), "USING")
     oo <- order(numeric_version(all_versions, strict=FALSE), decreasing=TRUE)
     all_versions[oo]
 }
@@ -284,9 +284,9 @@ set_igblast_root <- function(version_or_path)
         ## to contain a valid "external" IgBlast installation.
         igblast_root <- .set_external_igblast_root(version_or_path)
         ## Remove the USING file if any.
-        local_executables_dir <- igblastr_local_executables_dir()
-        if (dir.exists(local_executables_dir)) {
-            using_path <- file.path(local_executables_dir, "USING")
+        internal_roots <- get_internal_igblast_roots()
+        if (dir.exists(internal_roots)) {
+            using_path <- file.path(internal_roots, "USING")
             if (file.exists(using_path))
                 unlink(using_path)
         }

@@ -7,6 +7,14 @@
 
 isSingleNonWhiteString <- function(x) isSingleString(x) && !grepl("^\\s*$", x)
 
+### Vectorized.
+has_suffix <- function(x, suffix)
+{
+    stopifnot(is.character(x), isSingleString(suffix))
+    x_nc <- nchar(x)
+    substr(x, x_nc - nchar(suffix) + 1L, x_nc) == suffix
+}
+
 urlExists <- function(url)
 {
     response <- try(HEAD(url, user_agent("igblastr")), silent=TRUE)
