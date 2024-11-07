@@ -20,11 +20,75 @@
 .VQUEST_RELEASE_FILE <-
     paste0(.VQUEST_DOWNLOAD_ROOT_URL, "IMGT_vquest_release.txt")
 
+### Do not remove the trailing slash.
+.VQUEST_ARCHIVES_URL <-
+    paste0(.VQUEST_DOWNLOAD_ROOT_URL, "archives/")
+
 .IG_FILES <- paste0("IG",
     c("HV", "HD", "HJ", "KV", "KJ", "LV", "LJ"), ".fasta")
 
 .TR_FILES <- paste0("TR",
     c("AV", "AJ", "BV", "BD", "BJ", "DV", "DD", "DJ", "GV", "GJ"), ".fasta")
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### list_VQUEST_archived_zips()
+###
+
+.cached_VQUEST_archived_zips_listing <- new.env(parent=emptyenv())
+
+.make_df_from_matrix_of_tds <- function(m)
+{
+    ## Drop empty columns.
+    col_is_empty <- vapply(seq_len(ncol(m)),
+                           function(j) all(is_white_str(m[ , j])),
+                           logical(1))
+    m <- m[ , !col_is_empty, drop=FALSE]
+
+    ## Sanity checks.
+    EXPECTED_COLNAMES <- c("Name", "Last modified", "Size")
+    stopifnot(ncol(m) == 3L)
+    stopifnot(identical(tolower(colnames(m)), tolower(EXPECTED_COLNAMES)))
+
+    m <- m[has_suffix(m[ , 1L], ".zip"), , drop=FALSE]
+    df <- as.data.frame(m)
+    df[[2L]] <- as.Date(df[[2L]])
+    df
+}
+
+### Returns a data.frame with 3 columns (Name, Last modified, Size)
+### and 1 row per .zip file.
+.list_VQUEST_archived_zips <- function()
+{
+    html <- getUrlContent(.VQUEST_ARCHIVES_URL, type="text", encoding="UTF-8")
+    xml <- read_html(html)
+    #listing <- html_text(html_elements(xml, "section table tr td a"))
+    #listing[has_suffix(listing, ".zip")]
+    all_ths <- html_text(html_elements(xml, "section table tr th"))
+    all_tds <- html_text(html_elements(xml, "section table tr td"))
+    EXPECTED_NCOL <- 5L
+    m <- matrix(all_tds, ncol=EXPECTED_NCOL, byrow=TRUE)
+    colnames(m) <- all_ths[seq_len(EXPECTED_NCOL)]
+    .make_df_from_matrix_of_tds(m)
+}
+
+### If 'as.df' is TRUE then the listing is returned as a data.frame
+### with 3 columns (Name, Last modified, Size) and 1 row per .zip file.
+list_VQUEST_archived_zips <- function(as.df=FALSE, recache=FALSE)
+{
+    if (!isTRUEorFALSE(as.df))
+        stop(wmsg("'as.df' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(recache))
+        stop(wmsg("'recache' must be TRUE or FALSE"))
+    listing <- .cached_VQUEST_archived_zips_listing[["LISTING"]]
+    if (is.null(listing) || recache) {
+        listing <- .list_VQUEST_archived_zips()
+        .cached_VQUEST_archived_zips_listing[["LISTING"]] <- listing
+    }
+    if (!as.df)
+        listing <- listing[ , 1L]
+    listing
+}
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

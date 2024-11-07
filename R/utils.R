@@ -5,7 +5,11 @@
 ### Nothing in this file is exported.
 
 
-isSingleNonWhiteString <- function(x) isSingleString(x) && !grepl("^\\s*$", x)
+### "\xc2\xa0" is some kind of weird white space that sometimes creeps
+### in when scrapping dirty HTML documents found on the internet.
+is_white_str <- function(x) grepl("^\\s*$", x) | x == "\xc2\xa0"
+
+isSingleNonWhiteString <- function(x) isSingleString(x) && !is_white_str(x)
 
 ### Vectorized.
 has_suffix <- function(x, suffix)
@@ -23,7 +27,7 @@ urlExists <- function(url)
     response$status_code != 404L
 }
 
-getUrlContent <- function(url)
+getUrlContent <- function(url, type=NULL, encoding=NULL)
 {
     response <- try(GET(url, user_agent("igblastr")), silent=TRUE)
     if (inherits(response, "try-error"))
@@ -31,7 +35,7 @@ getUrlContent <- function(url)
     if (response$status_code == 404L)
         stop(wmsg("Not Found (HTTP 404): ", url))
     stop_for_status(response)
-    content(response)
+    content(response, type=type, encoding=encoding)
 }
 
 download_ftp_file <- function(ftp_dir, filename, ...)

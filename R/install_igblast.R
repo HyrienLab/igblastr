@@ -12,7 +12,7 @@
 ### on NCBI FTP site, for a given IgBLAST release and OS/arch
 ###
 
-.get_all_releases <- function()
+.list_ncbi_igblast_releases <- function()
 {
     all_releases_ftp_dir <- .IGBLAST_ALL_RELEASES_FTP_DIR
     listing <- try(suppressWarnings(list_ftp_dir(all_releases_ftp_dir)),
@@ -29,7 +29,7 @@
 
 .get_release_ftp_dir <- function(release="LATEST")
 {
-    all_releases <- .get_all_releases()
+    all_releases <- .list_ncbi_igblast_releases()
     if (!isSingleNonWhiteString(release))
         stop(wmsg("'release' must be a single (non-empty) string"))
     if (!(release %in% all_releases)) {
