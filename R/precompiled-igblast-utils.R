@@ -81,7 +81,7 @@ extract_igblast_tarball <- function(tarfile, ncbi_name, destdir=".")
                   "to ", expand_dir, " (destination exists)"))
     args <- c("--expand-full", pkgfile, expand_dir)
     out <- suppressWarnings(system2("pkgutil", args=args,
-            stdout=TRUE, stderr=TRUE))
+                                    stdout=TRUE, stderr=TRUE))
     status <- attr(out, "status")
     if (!(is.null(status) || isTRUE(all.equal(status, 0L))))
         stop(wmsg(out))

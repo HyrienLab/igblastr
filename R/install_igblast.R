@@ -112,7 +112,7 @@
     file.path(internal_roots, version)
 }
 
-.stop_on_existing_installation <- function(release, igblast_root)
+.stop_on_existing_igblast_root <- function(release, igblast_root)
 {
     if (release == "LATEST") {
         what <- "LATEST IgBLAST"
@@ -171,7 +171,7 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
     proj_igblast_root <- .projected_igblast_root(ncbi_igblast_name)
     if (dir.exists(proj_igblast_root)) {
         if (!force)
-            .stop_on_existing_installation(release, proj_igblast_root)
+            .stop_on_existing_igblast_root(release, proj_igblast_root)
     }
 
     downloaded_file <- download_as_tempfile(ftp_dir, ncbi_igblast_name, ...)

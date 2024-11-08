@@ -45,6 +45,7 @@ export(
     make_igblast_germline_db_from_VQUEST,
 
     ## From install_VQUEST_germline_db.R:
+    install_VQUEST_release_in_local_store,
     install_VQUEST_germline_db,
 
     ## From igblastn.R:

@@ -115,3 +115,27 @@ system_command_works <- function(command, args=character())
     is.null(status) || isTRUE(all.equal(status, 0L))
 }
 
+concatenate_files <- function(files, out=stdout(), n=50000L)
+{
+    stopifnot(is.character(files))
+    if (is.character(out)) {
+        out <- file(out, "wb")
+        on.exit(close(out))
+    }
+    for (f in files) {
+        con <- file(f, "rb")
+        while (TRUE) {
+            bytes <- readBin(con, what=raw(), n=n)
+            if (length(bytes) == 0L)
+                break
+            writeBin(bytes, out)
+        }
+        close(con)
+    }
+}
+
+get_germline_dbs_path <- function()
+{
+    file.path(R_user_dir("igblastr", "cache"), "germline_dbs")
+}
+
