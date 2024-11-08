@@ -32,11 +32,31 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### list_VQUEST_archived_zips()
-### list_VQUEST_germline_db_releases()
+### .get_latest_VQUEST_release()
+### .list_archived_VQUEST_zips()
+### .list_archived_VQUEST_releases()
+### .normalize_VQUEST_release()
 ###
 
-.cached_VQUEST_archived_zips_listing <- new.env(parent=emptyenv())
+.VQUEST_cache <- new.env(parent=emptyenv())
+
+.fetch_latest_VQUEST_release <- function()
+{
+    content <- getUrlContent(.VQUEST_RELEASE_FILE)
+    sub("^([^ ]*)(.*)$", "\\1", content)
+}
+
+.get_latest_VQUEST_release <- function(recache=FALSE)
+{
+    if (!isTRUEorFALSE(recache))
+        stop(wmsg("'recache' must be TRUE or FALSE"))
+    release <- .VQUEST_cache[["LATEST_RELEASE"]]
+    if (is.null(release) || recache) {
+        release <- .fetch_latest_VQUEST_release()
+        .VQUEST_cache[["LATEST_RELEASE"]] <- release
+    }
+    release
+}
 
 .make_df_from_matrix_of_tds <- function(m)
 {
@@ -59,7 +79,7 @@
 
 ### Returns a data.frame with 3 columns (Name, Last modified, Size)
 ### and 1 row per .zip file.
-.list_VQUEST_archived_zips <- function()
+.fetch_list_of_archived_VQUEST_zips <- function()
 {
     html <- getUrlContent(.VQUEST_ARCHIVES_URL, type="text", encoding="UTF-8")
     xml <- read_html(html)
@@ -75,53 +95,38 @@
 
 ### If 'as.df' is TRUE then the listing is returned as a data.frame
 ### with 3 columns (Name, Last modified, Size) and 1 row per .zip file.
-list_VQUEST_archived_zips <- function(as.df=FALSE, recache=FALSE)
+.list_archived_VQUEST_zips <- function(as.df=FALSE, recache=FALSE)
 {
     if (!isTRUEorFALSE(as.df))
         stop(wmsg("'as.df' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(recache))
         stop(wmsg("'recache' must be TRUE or FALSE"))
-    listing <- .cached_VQUEST_archived_zips_listing[["LISTING"]]
+    listing <- .VQUEST_cache[["ARCHIVES_TABLE"]]
     if (is.null(listing) || recache) {
-        listing <- .list_VQUEST_archived_zips()
-        .cached_VQUEST_archived_zips_listing[["LISTING"]] <- listing
+        listing <- .fetch_list_of_archived_VQUEST_zips()
+        .VQUEST_cache[["ARCHIVES_TABLE"]] <- listing
     }
     if (!as.df)
         listing <- listing[ , 1L]
     listing
 }
 
-list_VQUEST_germline_db_releases <- function(recache=FALSE)
+.list_archived_VQUEST_releases <- function(recache=FALSE)
 {
-    all_zips <- list_VQUEST_archived_zips(recache=recache)
+    all_zips <- .list_archived_VQUEST_zips(recache=recache)
     sort(sub("^[^0-9]*([-0-9]+).*$", "\\1", all_zips), decreasing=TRUE)
 }
 
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### get_local_VQUEST_store()
-###
-
-get_local_VQUEST_store <- function()
+.normalize_VQUEST_release <- function(release="LATEST")
 {
-    file.path(R_user_dir("igblastr", "cache"), "store", "VQUEST-releases")
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### normalize_VQUEST_release()
-###
-
-normalize_VQUEST_release <- function(release="LATEST")
-{
-    all_releases <- list_VQUEST_germline_db_releases()
     if (!isSingleNonWhiteString(release))
         stop(wmsg("'release' must be a single (non-empty) string"))
     if (release == "LATEST")
-        return(all_releases[[1L]])
-    if (release %in% all_releases)
         return(release)
-    all_in_1string <- paste0("\"", all_releases, "\"", collapse=", ")
+    archived_releases <- .list_archived_VQUEST_releases()
+    if (release %in% archived_releases)
+        return(release)
+    all_in_1string <- paste0("\"", archived_releases, "\"", collapse=", ")
     stop(wmsg("'release' must be \"LATEST\" (recommended), or ",
               "one of the release numbers available at ",
               .VQUEST_ARCHIVES_URL, ", e.g. \"202405-2\"."),
@@ -135,13 +140,41 @@ normalize_VQUEST_release <- function(release="LATEST")
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### download_and_unzip_VQUEST_archived_zip()
+### get_local_VQUEST_store()
 ###
 
-.get_VQUEST_archived_zip_from_release <- function(release)
+get_local_VQUEST_store <- function(release=NULL)
+{
+    path <- file.path(R_user_dir("igblastr", "cache"),
+                      "store", "VQUEST-releases")
+    if (!is.null(release)) {
+        release <- .normalize_VQUEST_release(release)
+        if (release == "LATEST")
+            release <- .get_latest_VQUEST_release()
+        path <- file.path(path, release)
+    }
+    path
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### download_and_unzip_VQUEST_release()
+###
+
+.download_and_unzip_latest_VQUEST_zip <- function(exdir, ...)
+{
+    release <- .get_latest_VQUEST_release()
+    refdir_zip_filename <- "IMGT_V-QUEST_reference_directory.zip"
+    refdir_zip <- download_as_tempfile(.VQUEST_DOWNLOAD_ROOT_URL,
+                                       refdir_zip_filename, ...)
+    unlink(exdir, recursive=TRUE, force=TRUE)
+    unzip(refdir_zip, exdir=exdir)
+}
+
+.get_archived_VQUEST_zip_from_release <- function(release)
 {
     stopifnot(isSingleNonWhiteString(release))
-    all_zips <- list_VQUEST_archived_zips()
+    all_zips <- .list_archived_VQUEST_zips()
     idx <- grep(release, all_zips, fixed=TRUE)
     if (length(idx) == 0L)
         stop(wmsg("Anomaly: no .zip file found at ",
@@ -152,33 +185,39 @@ normalize_VQUEST_release <- function(release="LATEST")
     all_zips[[idx]]
 }
 
-### 'destdir' will be created if it doesn't exist.
-.unzip_VQUEST_archived_zip <- function(zipfile, release, destdir=".")
+.unzip_archived_VQUEST_zip <- function(zipfile, release, exdir)
 {
-    exdir <- file.path(destdir, release)
-    if (dir.exists(exdir))
-        unlink(exdir, recursive=TRUE, force=TRUE)
-    dir.create(exdir, recursive=TRUE)
+    unlink(exdir, recursive=TRUE, force=TRUE)
     unzip(zipfile, exdir=exdir, junkpaths=TRUE)
     refdir_zip <- file.path(exdir, "IMGT_V-QUEST_reference_directory.zip")
     unzip(refdir_zip, exdir=exdir)
     unlink(refdir_zip)
-    exdir
 }
 
-### Download and unzip in local "VQUEST store".
-download_and_unzip_VQUEST_archived_zip <- function(release="LATEST", ...)
+.download_and_unzip_archived_VQUEST_zip <- function(release, exdir, ...)
 {
-    release <- normalize_VQUEST_release(release)
-    zip_filename <- .get_VQUEST_archived_zip_from_release(release)
-    zipfile <- download_as_tempfile(.VQUEST_ARCHIVES_URL, zip_filename, ...)
-    local_store <- get_local_VQUEST_store()
-    .unzip_VQUEST_archived_zip(zipfile, release, destdir=local_store)
+    archived_zip_filename <- .get_archived_VQUEST_zip_from_release(release)
+    archived_zipfile <- download_as_tempfile(.VQUEST_ARCHIVES_URL,
+                                             archived_zip_filename, ...)
+    .unzip_archived_VQUEST_zip(archived_zipfile, release, exdir)
+}
+
+### Download and unzip in 'exdir'.
+download_and_unzip_VQUEST_release <- function(release, exdir, ...)
+{
+    if (dir.exists(exdir))
+        unlink(exdir, recursive=TRUE, force=TRUE)
+    if (release == "LATEST") {
+        .download_and_unzip_latest_VQUEST_zip(exdir, ...)
+    } else {
+        .download_and_unzip_archived_VQUEST_zip(release, exdir, ...)
+    }
 }
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-###
+### normalize_VQUEST_organism()
+### find_organism_in_VQUEST_store()
 ###
 
 normalize_VQUEST_organism <- function(organism)
@@ -195,18 +234,16 @@ normalize_VQUEST_organism <- function(organism)
     sort(list.files(refdir))
 }
 
-find_organism_in_VQUEST_store <- function(organism, release)
+find_organism_in_VQUEST_store <- function(organism, local_store)
 {
-    local_store <- get_local_VQUEST_store()
-    refdir <- file.path(local_store, release,
-                        "IMGT_V-QUEST_reference_directory")
+    refdir <- file.path(local_store, "IMGT_V-QUEST_reference_directory")
     all_organisms <- .list_organisms_in_VQUEST_store(refdir)
     idx <- match(tolower(organism), tolower(all_organisms))
     if (!is.na(idx))
         return(file.path(refdir, all_organisms[[idx]]))
     all_in_1string <- paste0("\"", all_organisms, "\"", collapse=", ")
     stop(wmsg(organism, ": organism not found in ",
-              "VQUEST release ", release, "."),
+              "VQUEST release ", basename(local_store), "."),
          "\n  ",
          wmsg("Available organisms: ", all_in_1string, "."))
 }
@@ -216,13 +253,6 @@ find_organism_in_VQUEST_store <- function(organism, release)
 ### Helper functions to support download_VQUEST_germline_sequences() and
 ### download_VQUEST_germline_sequences_to_cache()
 ###
-
-### Unused at the moment.
-.get_VQUEST_current_release <- function()
-{
-    content <- getUrlContent(.VQUEST_RELEASE_FILE)
-    sub("^([^ ]*)(.*)$", "\\1", content)
-}
 
 .get_VQUEST_orgdir_url <- function(organism)
 {
