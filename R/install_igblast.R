@@ -40,7 +40,7 @@
              "\n  ",
              wmsg("All available releases: ", all_in_1string, "."),
              "\n  ",
-             wmsg("Note that old versions have not been tested and ",
+             wmsg("Note that old releases have not been tested and ",
                   "are not guaranteed to be compatible with the ",
                   "igblastr package."))
     }
@@ -174,7 +174,7 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
             .stop_on_existing_installation(release, proj_igblast_root)
     }
 
-    downloaded_file <- download_ftp_file(ftp_dir, ncbi_igblast_name, ...)
+    downloaded_file <- download_as_tempfile(ftp_dir, ncbi_igblast_name, ...)
 
     ## Note that bad things will happen if another R process is running
     ## this step at the same time!

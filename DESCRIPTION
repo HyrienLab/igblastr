@@ -22,5 +22,6 @@ Collate:
 	VQUEST-utils.R
 	make_igblast_germline_db_from_NCBI.R
 	make_igblast_germline_db_from_VQUEST.R
+	install_VQUEST_germline_db.R
 	igblastn.R
 	zzz.R

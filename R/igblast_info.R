@@ -130,14 +130,19 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Set or get the "internal" (i.e. igblastr-managed) IgBLAST
-### installation to use
+### get_internal_igblast_roots()
 ###
 
 get_internal_igblast_roots <- function()
 {
     file.path(R_user_dir("igblastr", "cache"), "igblast_roots")
 }
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Set or get the "internal" (i.e. igblastr-managed) IgBLAST
+### installation to use
+###
 
 ### Sets the path to the "internal" IgBLAST installation to use and
 ### returns it.

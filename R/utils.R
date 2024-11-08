@@ -38,15 +38,15 @@ getUrlContent <- function(url, type=NULL, encoding=NULL)
     content(response, type=type, encoding=encoding)
 }
 
-download_ftp_file <- function(ftp_dir, filename, ...)
+download_as_tempfile <- function(dir_url, filename, ...)
 {
-    url <- paste0(ftp_dir, filename)
+    url <- paste0(dir_url, filename)
     destfile <- tempfile()
     code <- try(suppressWarnings(download.file(url, destfile, ...)),
                 silent=TRUE)
     if (inherits(code, "try-error") || code != 0L)
         stop(wmsg("Failed to download ", filename, " ",
-                  "from ", ftp_dir, ". ",
+                  "from ", dir_url, ". ",
                   "Are you connected to the internet?"))
     destfile
 }
