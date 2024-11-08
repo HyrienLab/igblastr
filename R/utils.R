@@ -38,6 +38,9 @@ getUrlContent <- function(url, type=NULL, encoding=NULL)
     content(response, type=type, encoding=encoding)
 }
 
+### Note that in case of user interrupt (CTRL+C) we can end up with a
+### partial download and corrupted file! Can we achieve atomic behavior?
+### TODO: Try to make the behavior atomic, under any circumstance.
 download_as_tempfile <- function(dir_url, filename, ...)
 {
     url <- paste0(dir_url, filename)
@@ -132,10 +135,5 @@ concatenate_files <- function(files, out=stdout(), n=50000L)
         }
         close(con)
     }
-}
-
-get_germline_dbs_path <- function()
-{
-    file.path(R_user_dir("igblastr", "cache"), "germline_dbs")
 }
 

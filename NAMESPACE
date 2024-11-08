@@ -36,16 +36,14 @@ export(
     ## From install_igblast.R:
     install_igblast,
 
-    ## From VQUEST-utils.R:
-    download_VQUEST_germline_sequences,
-    download_VQUEST_germline_sequences_to_cache,
+    ## From use_germline_db.R:
+    list_germline_dbs,
+    use_germline_db,
 
-    ## From make_igblast_germline_db_from_NCBI.R:
-    make_igblast_germline_db_from_NCBI,
-    make_igblast_germline_db_from_VQUEST,
+    ## From install_NCBI_germline_db.R:
+    install_NCBI_germline_db,
 
     ## From install_VQUEST_germline_db.R:
-    install_VQUEST_release_in_local_store,
     install_VQUEST_germline_db,
 
     ## From igblastn.R:

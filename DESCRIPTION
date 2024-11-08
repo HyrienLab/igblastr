@@ -19,9 +19,9 @@ Collate:
 	precompiled-igblast-utils.R
 	igblast_info.R
 	install_igblast.R
+	use_germline_db.R
 	VQUEST-utils.R
-	make_igblast_germline_db_from_NCBI.R
-	make_igblast_germline_db_from_VQUEST.R
+	install_NCBI_germline_db.R
 	install_VQUEST_germline_db.R
 	igblastn.R
 	zzz.R

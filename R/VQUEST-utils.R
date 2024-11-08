@@ -2,12 +2,7 @@
 ### Low-level utilities to retrieve data from the VQUEST download site
 ### -------------------------------------------------------------------------
 ###
-### The two main functions defined in this file are:
-###   - download_VQUEST_germline_sequences()
-###   - download_VQUEST_germline_sequences_to_cache()
-###
-### Both functions are exported. Nothing else is.
-###
+### Nothing in this file is exported.
 
 
 ### Do not remove the trailing slash.
@@ -250,7 +245,7 @@ find_organism_in_VQUEST_store <- function(organism, local_store)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### create_VQUEST_db()
+### create_VQUEST_germline_db()
 ###
 
 .stop_on_existing_VQUEST_db <- function(db_name)
@@ -336,8 +331,12 @@ find_organism_in_VQUEST_store <- function(organism, local_store)
     stop("not ready yet")
 }
 
-create_VQUEST_db <- function(organism_path, db_path,
-                             db_type=c("IG", "TR", "IG-TR"), force=FALSE)
+### Executes the instructions given at
+###   https://ncbi.github.io/igblast/cook/How-to-set-up.html
+### to create the VQUEST germline db.
+create_VQUEST_germline_db <- function(organism_path, db_path,
+                                      db_type=c("IG", "TR", "IG-TR"),
+                                      force=FALSE)
 {
     db_type <- match.arg(db_type)
     if (!isTRUEorFALSE(force))
@@ -347,174 +346,16 @@ create_VQUEST_db <- function(organism_path, db_path,
         if (!force)
             .stop_on_existing_VQUEST_db(basename(db_path))
     }
-    unlink(db_path, recursive=TRUE, force=TRUE)
-    dir.create(db_path, recursive=TRUE)
     FUN <- switch(db_type,
         "IG"   =.build_VQUEST_IG_db,
         "TR"   =.build_VQUEST_TR_db,
         "IG-TR"=.build_VQUEST_IG_TR_db,
         stop(db_type, ": invalid 'db_type'")
     )
-    FUN(organism_path, db_path, edit_fasta_script)
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Helper functions to support download_VQUEST_germline_sequences() and
-### download_VQUEST_germline_sequences_to_cache()
-###
-
-### Do not remove the trailing slash.
-.VQUEST_REFERENCE_DIRECTORY_URL <-
-    paste0(.VQUEST_DOWNLOAD_ROOT_URL, .VQUEST_REFERENCE_DIRECTORY, "/")
-
-.get_VQUEST_orgdir_url <- function(organism)
-{
-    organism <- normalize_VQUEST_organism(organism)
-    orgdir_url <- paste0(.VQUEST_REFERENCE_DIRECTORY_URL, organism, "/")
-    if (!urlExists(orgdir_url))
-        stop(organism, ": no such organism\n  ",
-             wmsg("See ", .VQUEST_REFERENCE_DIRECTORY_URL, " for ",
-                  "the list of supported organisms."))
-    orgdir_url
-}
-
-.VQUEST_reference_directory_cache_root <- function()
-    file.path(R_user_dir("igblastr", "cache"), .VQUEST_REFERENCE_DIRECTORY)
-
-VQUEST_orgdir_cache <- function(organism)
-{
-    organism <- normalize_VQUEST_organism(organism)
-    file.path(.VQUEST_reference_directory_cache_root(), organism)
-}
-
-### 'orgdir_url', 'dry.run', and 'destdir' are trusted.
-### In particular:
-### - 'orgdir_url' is trusted to have the trailing slash, which
-###   it should if it was obtained with .get_VQUEST_orgdir_url().
-### - 'destdir' is trusted to exist.
-.download_IG_or_TR_files <- function(orgdir_url, subdir=c("IG", "TR"),
-                                     dry.run=FALSE, destdir=".",
-                                     method, quiet=FALSE)
-{
-    subdir <- match.arg(subdir)
-    files <- switch(subdir, "IG"=.IG_FILES, "TR"=.TR_FILES)
-    subdir_url <- paste0(orgdir_url, subdir, "/")
-    downloaded_files <- character(0)
-    for (file in files) {
-        file_url <- paste0(subdir_url, file)
-        ## Not all organisms have all the IG or TR files.
-        if (urlExists(file_url)) {
-            if (!dry.run) {
-                destfile <- file.path(destdir, file)
-                download.file(file_url, destfile, method, quiet)
-            }
-            downloaded_files <- c(downloaded_files, file)
-        }
-    }
-    downloaded_files
-}
-
-### Thin wrapper to .download_IG_or_TR_files() above that creates the IG
-### or TR subdir inside 'destdir' and download the files to it.
-### We're trying to achieve atomic behavior: in case of error during download,
-### the IG or TR subdir is removed. So we get everything or nothing!
-### However, note that in case of user interrupt (CTRL+C), we can end up
-### with a partial download and corrupted files!
-### FIXME: Make the behavior **really** atomic, under any circumstances.
-### Like for .download_IG_or_TR_files() above, 'orgdir_url' and 'destdir'
-### are trusted.
-.download_IG_or_TR_subdir <- function(orgdir_url, subdir=c("IG", "TR"),
-                                      destdir=".", method, quiet=FALSE)
-{
-    subdir <- match.arg(subdir)
-    destsubdir <- file.path(destdir, subdir)
-    unlink(destsubdir, recursive=TRUE)
-    if (!suppressWarnings(dir.create(destsubdir)))
-        stop(wmsg("failed to create '", destsubdir, "'"))
-    files <- try(.download_IG_or_TR_files(orgdir_url, subdir=subdir,
-                                          destdir=destsubdir,
-                                          method=method, quiet=quiet))
-    if (inherits(files, "try-error")) {
-        unlink(destsubdir, recursive=TRUE)
-        stop(as.character(files))
-    }
-    files
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### download_VQUEST_germline_sequences()
-###
-
-### Exported!
-download_VQUEST_germline_sequences <-
-    function(organism="Homo_sapiens", subdir=c("IG", "TR", "both"),
-             dry.run=FALSE, destdir=".", method, quiet=FALSE)
-{
-    orgdir_url <- .get_VQUEST_orgdir_url(organism)
-    subdir <- match.arg(subdir)
-    if (!isTRUEorFALSE(dry.run))
-        stop(wmsg("'dry.run' must be TRUE or FALSE"))
-    if (!isSingleString(destdir))
-        stop(wmsg("'destdir' must be a single string"))
-    if (!dir.exists(destdir))
-        stop(wmsg("'destdir' must be the path to an existing directory"))
-    if (missing(method))
-        method <- getOption("download.file.method", "auto")
-
-    if (subdir == "both") {
-        IG_files <- .download_IG_or_TR_files(orgdir_url, subdir="IG",
-                                             dry.run=dry.run, destdir=destdir,
-                                             method=method, quiet=quiet)
-        TR_files <- .download_IG_or_TR_files(orgdir_url, subdir="TR",
-                                             dry.run=dry.run, destdir=destdir,
-                                             method=method, quiet=quiet)
-        files <- c(IG_files, TR_files)
-    } else {
-        files <- .download_IG_or_TR_files(orgdir_url, subdir=subdir,
-                                          dry.run=dry.run, destdir=destdir,
-                                          method=method, quiet=quiet)
-    }
-    if (dry.run) files else invisible(files)
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### download_VQUEST_germline_sequences_to_cache()
-###
-
-### Exported!
-download_VQUEST_germline_sequences_to_cache <-
-    function(organism="Homo_sapiens", subdir=c("IG", "TR", "both"),
-             method, quiet=FALSE)
-{
-    organism <- normalize_VQUEST_organism(organism)
-    orgdir_url <- .get_VQUEST_orgdir_url(organism)
-    subdir <- match.arg(subdir)
-    if (missing(method))
-        method <- getOption("download.file.method", "auto")
-
-    orgdir_cache <- VQUEST_orgdir_cache(organism)
-    if (!dir.exists(orgdir_cache)) {
-        dir.create(orgdir_cache, recursive=TRUE)
-        destfile <- file.path(orgdir_cache, basename(.VQUEST_RELEASE_FILE_URL))
-        download.file(.VQUEST_RELEASE_FILE_URL, destfile, method, quiet=quiet)
-    }
-
-    if (subdir == "both") {
-        IG_files <- .download_IG_or_TR_subdir(orgdir_url, subdir="IG",
-                                              destdir=orgdir_cache,
-                                              method=method, quiet=quiet)
-        TR_files <- .download_IG_or_TR_subdir(orgdir_url, subdir="TR",
-                                              destdir=orgdir_cache,
-                                              method=method, quiet=quiet)
-        files <- c(IG_files, TR_files)
-    } else {
-        files <- .download_IG_or_TR_subdir(orgdir_url, subdir=subdir,
-                                           destdir=orgdir_cache,
-                                           method=method, quiet=quiet)
-    }
-    files
+    tmp_db_path <- file.path(dirname(db_path), paste0(".", basename(db_path)))
+    dir.create(tmp_db_path, recursive=TRUE)
+    on.exit(unlink(tmp_db_path, recursive=TRUE, force=TRUE))
+    FUN(organism_path, tmp_db_path, edit_fasta_script)
+    replace_file(db_path, tmp_db_path)
 }
 

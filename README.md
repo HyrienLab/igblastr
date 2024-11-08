@@ -88,7 +88,7 @@ Notes:
 - `install_VQUEST_germline_db()` will manage installation of the dbs available
   at https://www.imgt.org/download/V-QUEST/. It will require Perl!
   The following naming scheme will be used for the names of the installed dbs:
-  `VQUEST_<version>_<organism>_<IG|TR|full>`.
+  `VQUEST-<release>.<organism>.<IG|TR|IG-TR>`.
 
 
 #### List the installed germline dbs

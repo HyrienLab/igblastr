@@ -21,7 +21,7 @@
                  "(path obtained with '", obtained_via, "')")
 
     }
-    stop(wmsg(msg), ". ", wmsg(details))
+    stop(wmsg(msg), ".\n  ", wmsg(details))
 }
 
 ### Returns "<igblast_root>/bin". Guaranteed to return a valid path.
@@ -32,7 +32,7 @@
                                       "Directory does not exist.")
     bin_dir <- file.path(igblast_root, "bin")
     if (!dir.exists(bin_dir))
-        .stop_on_invalid_installation(igblast_root,
+        .stop_on_invalid_igblast_root(igblast_root,
                                       "Directory has no 'bin' subdirectory.")
     bin_dir
 }
@@ -175,14 +175,14 @@ get_internal_igblast_root <- function()
         return(NA_character_)
     version <- readLines(using_path)
     if (length(version) != 1L)
-        stop(wmsg("Anomaly: '", using_path, "' is corrupted."),
+        stop(wmsg("Anomaly: file '", using_path, "' is corrupted."),
              "\n  ",
              wmsg("File should contain exactly one line. ",
                   "Try to repair with set_igblast_root() ",
                   "(see '?set_igblast_root' for more information)."))
     igblast_root <- file.path(internal_roots, version)
     if (!dir.exists(igblast_root))
-        stop(wmsg("Anomaly: '", using_path, "' is invalid."),
+        stop(wmsg("Anomaly: file '", using_path, "' is invalid."),
              "\n  ",
              wmsg("File content ('", version, "') is not the version ",
                   "of an igblastr-managed installation of IgBLAST. ",
@@ -319,7 +319,8 @@ get_edit_imgt_file_Perl_script <- function()
     bin_dir <- .get_igblast_root_bin(igblast_root)
     script <- file.path(bin_dir, "edit_imgt_file.pl")
     if (!file.exists(script)) {
-        details <- c("Perl script 'edit_imgt_file.pl' not found ",
+        details <- c("Perl script 'edit_imgt_file.pl' (needed ",
+                     "by install_VQUEST_germline_db()) not found ",
                      "in 'bin' subdirectory.")
         .stop_on_invalid_igblast_root(igblast_root, details)
     }
