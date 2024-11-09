@@ -4,7 +4,7 @@
 ###
 ### Execute in R the instructions given at
 ###   https://ncbi.github.io/igblast/cook/How-to-set-up.html
-### to make a V-QUEST germline db. Perl is required.
+### to make a V-QUEST germline db. Perl required!
 ###
 ### Nothing in this file is exported.
 
@@ -86,14 +86,21 @@
     c(IG_files, TR_files)
 }
 
-.edit_VQUEST_fasta <- function(script, infile, outfile)
+### Note that running the Perl script with 'script ...' runs on Linux and
+### Mac but not on Windows. So we run it with 'perl script ...' instead
+### which seems to run everywhere.
+.edit_VQUEST_fasta <- function(script, infile, outfile, errfile)
 {
-    args <- c(infile, ">", outfile)
-    out <- suppressWarnings(system2(script, args=args,
-                                    stdout=TRUE, stderr=TRUE))
-    status <- attr(out, "status")
-    if (!(is.null(status) || isTRUE(all.equal(status, 0L))))
-        stop(wmsg(out))
+    ## This does not work on Windows!
+    #status <- system2(script, args=infile, stdout=outfile, stderr=errfile)
+    status <- system2("perl", args=c(script, infile),
+                      stdout=outfile, stderr=errfile)
+    errmsg <- readLines(errfile)
+    if (length(errmsg) != 0L)
+        stop(paste(errmsg, collapse="\n"))
+    if (status != 0)
+        stop(wmsg("command '", script, " ", infile, "' failed"))
+    unlink(errfile)
 }
 
 .process_VQUEST_fasta_files <-
@@ -108,7 +115,8 @@
     unedited_file <- file.path(before_edit_dir, paste0(group, ".fasta"))
     concatenate_files(files, unedited_file)
     edited_file <- file.path(destdir, paste0(group, ".fasta"))
-    .edit_VQUEST_fasta(edit_fasta_script, unedited_file, edited_file)
+    errfile <- file.path(destdir, paste0(group, ".edit_error.txt"))
+    .edit_VQUEST_fasta(edit_fasta_script, unedited_file, edited_file, errfile)
 }
 
 .build_VQUEST_IG_db <- function(organism_path, db_path, edit_fasta_script)
