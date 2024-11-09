@@ -70,6 +70,9 @@ set_igblast_root(version_or_path)
     \item \link{IGBLAST_ROOT} to select the \emph{external} IgBLAST
           installation to use in \pkg{igblastr} in a persistent manner.
 
+    \item The \code{\link{igblastn}} function to invoke the igblastn
+          command from R.
+
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
   }

@@ -18,18 +18,13 @@
 .VQUEST_ARCHIVES_URL <-
     paste0(.VQUEST_DOWNLOAD_ROOT_URL, "archives/")
 
-.IG_FILES <- paste0("IG",
-    c("HV", "HD", "HJ", "KV", "KJ", "LV", "LJ"), ".fasta")
-
 .TR_FILES <- paste0("TR",
     c("AV", "AJ", "BV", "BD", "BJ", "DV", "DD", "DJ", "GV", "GJ"), ".fasta")
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### get_latest_VQUEST_release()
-### .list_archived_VQUEST_zips()
-### .list_archived_VQUEST_releases()
-### .normalize_VQUEST_release()
+### list_archived_VQUEST_zips()
 ###
 
 .VQUEST_cache <- new.env(parent=emptyenv())
@@ -89,7 +84,7 @@ get_latest_VQUEST_release <- function(recache=FALSE)
 
 ### If 'as.df' is TRUE then the listing is returned as a data.frame
 ### with 3 columns (Name, Last modified, Size) and 1 row per .zip file.
-.list_archived_VQUEST_zips <- function(as.df=FALSE, recache=FALSE)
+list_archived_VQUEST_zips <- function(as.df=FALSE, recache=FALSE)
 {
     if (!isTRUEorFALSE(as.df))
         stop(wmsg("'as.df' must be TRUE or FALSE"))
@@ -103,51 +98,6 @@ get_latest_VQUEST_release <- function(recache=FALSE)
     if (!as.df)
         listing <- listing[ , 1L]
     listing
-}
-
-.list_archived_VQUEST_releases <- function(recache=FALSE)
-{
-    all_zips <- .list_archived_VQUEST_zips(recache=recache)
-    sort(sub("^[^0-9]*([-0-9]+).*$", "\\1", all_zips), decreasing=TRUE)
-}
-
-.normalize_VQUEST_release <- function(release="LATEST")
-{
-    if (!isSingleNonWhiteString(release))
-        stop(wmsg("'release' must be a single (non-empty) string"))
-    if (release == "LATEST")
-        return(release)
-    archived_releases <- .list_archived_VQUEST_releases()
-    if (release %in% archived_releases)
-        return(release)
-    all_in_1string <- paste0("\"", archived_releases, "\"", collapse=", ")
-    stop(wmsg("'release' must be \"LATEST\" (recommended), or ",
-              "one of the release numbers available at ",
-              .VQUEST_ARCHIVES_URL, ", e.g. \"202416-4\"."),
-         "\n  ",
-         wmsg("All available releases: ", all_in_1string, "."),
-         "\n  ",
-         wmsg("Note that old releases have not been tested and ",
-              "are not guaranteed to be compatible with the ",
-              "igblastr package."))
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### get_local_VQUEST_store()
-###
-
-get_local_VQUEST_store <- function(release=NULL)
-{
-    path <- file.path(R_user_dir("igblastr", "cache"),
-                      "store", "VQUEST-releases")
-    if (!is.null(release)) {
-        release <- .normalize_VQUEST_release(release)
-        if (release == "LATEST")
-            release <- get_latest_VQUEST_release()
-        path <- file.path(path, release)
-    }
-    path
 }
 
 
@@ -168,7 +118,7 @@ get_local_VQUEST_store <- function(release=NULL)
 .get_archived_VQUEST_zip_from_release <- function(release)
 {
     stopifnot(isSingleNonWhiteString(release))
-    all_zips <- .list_archived_VQUEST_zips()
+    all_zips <- list_archived_VQUEST_zips()
     idx <- grep(release, all_zips, fixed=TRUE)
     if (length(idx) == 0L)
         stop(wmsg("Anomaly: no .zip file found at ",
@@ -202,7 +152,7 @@ download_and_unzip_VQUEST_release <- function(release, exdir, ...)
 {
     if (dir.exists(exdir))
         unlink(exdir, recursive=TRUE, force=TRUE)
-    if (release == "LATEST") {
+    if (release == get_latest_VQUEST_release()) {
         .download_and_unzip_latest_VQUEST_zip(exdir, ...)
     } else {
         .download_and_unzip_archived_VQUEST_zip(release, exdir, ...)
@@ -301,7 +251,10 @@ find_organism_in_VQUEST_store <- function(organism, local_store)
 {
     group <- match.arg(group)
     files <- list_file_FUN(srcdir)
-    unedited_file <- file.path(destdir, paste0(group, "_unedited.fasta"))
+    before_edit_dir <- file.path(destdir, "before_edit")
+    if (!dir.exists(before_edit_dir))
+        dir.create(before_edit_dir, recursive=TRUE)
+    unedited_file <- file.path(before_edit_dir, paste0(group, ".fasta"))
     concatenate_files(files, unedited_file)
     edited_file <- file.path(destdir, paste0(group, ".fasta"))
     .edit_VQUEST_fasta(edit_fasta_script, unedited_file, edited_file)

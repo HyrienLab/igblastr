@@ -56,10 +56,41 @@ list_germline_dbs <- function()
     db_name
 }
 
+### Uses the 'makeblastdb' executable provided by NCBI IgBLAST to
+### process all FASTA files in the germline db, as instructed at:
+###   https://ncbi.github.io/igblast/cook/How-to-set-up.html
+### This produces 10 files for each processed file!
+.run_makeblastdb_on_fasta_file <- function(file, makeblastdb_exe)
+{
+    out_name <- sub("\\.fasta$", "", file)
+    args <- c("-parse_seqids", "-dbtype nucl",
+              paste("-in", file), paste("-out", out_name))
+    out <- suppressWarnings(system2(makeblastdb_exe, args=args,
+                                    stdout=TRUE, stderr=TRUE))
+    status <- attr(out, "status")
+    if (!(is.null(status) || isTRUE(all.equal(status, 0L))))
+        stop(wmsg(out))
+}
+
+.run_makeblastdb_on_all_fasta_files <- function(db_path)
+{
+    makeblastdb_exe <- get_igblast_exe("makeblastdb")
+
+    oldwd <- getwd()
+    setwd(db_path)
+    on.exit(setwd(oldwd))
+
+    fasta_files <- list.files(db_path, pattern="\\.fasta$")
+    for (f in fasta_files)
+        .run_makeblastdb_on_fasta_file(f, makeblastdb_exe)
+}
+
 use_germline_db <- function(db_name=NULL)
 {
     if (is.null(db_name))
         return(.get_germline_db())
+
+    ## Check 'db_name'.
     if (!isSingleNonWhiteString(db_name))
         stop(wmsg("'db_name' must be a single (non-empty) string"))
     all_db_names <- list_germline_dbs()
@@ -75,7 +106,10 @@ use_germline_db <- function(db_name=NULL)
                  "additional germline databases.")
         stop(wmsg(msg))
     }
+
     germline_dbs <- get_germline_dbs_path()
+    db_path <- file.path(germline_dbs, db_name)
+    .run_makeblastdb_on_all_fasta_files(db_path)
     using_path <- file.path(germline_dbs, "USING")
     writeLines(db_name, using_path)
     db_name

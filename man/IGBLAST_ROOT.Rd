@@ -49,6 +49,9 @@
     \item \code{\link{igblast_info}} to check the IgBLAST installation
           used by the \pkg{igblastr} package.
 
+    \item The \code{\link{igblastn}} function to invoke the igblastn
+          command from R.
+
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
   }

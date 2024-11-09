@@ -45,8 +45,8 @@
 }
 
 ### Guaranteed to return the path to a working executable.
-.make_igblast_cmd_path <- function(igblast_root,
-                                   cmd=c("igblastn", "igblastp"),
+.make_igblast_exe_path <- function(igblast_root,
+                                   cmd=c("igblastn", "igblastp", "makeblastdb"),
                                    OS=get_OS_arch()[["OS"]])
 {
     bin_dir <- .get_igblast_root_bin(igblast_root)
@@ -80,8 +80,8 @@
     }
     ## We ignore the returned path. Only purpose is to check that the
     ## igblastn and igblastp executables work.
-    .make_igblast_cmd_path(igblast_root, cmd="igblastn", OS=OS)
-    .make_igblast_cmd_path(igblast_root, cmd="igblastp", OS=OS)
+    .make_igblast_exe_path(igblast_root, cmd="igblastn", OS=OS)
+    .make_igblast_exe_path(igblast_root, cmd="igblastp", OS=OS)
     igblast_root
 }
 
@@ -303,14 +303,15 @@ set_igblast_root <- function(version_or_path)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### get_igblast_exe() and get_edit_imgt_file_Perl_script()
+### get_igblast_exe()
+### get_edit_imgt_file_Perl_script()
 ###
 
-get_igblast_exe <- function(cmd=c("igblastn", "igblastp"))
+get_igblast_exe <- function(cmd=c("igblastn", "igblastp", "makeblastdb"))
 {
     igblast_root <- get_igblast_root()
     cmd <- match.arg(cmd)
-    .make_igblast_cmd_path(igblast_root, cmd=cmd)
+    .make_igblast_exe_path(igblast_root, cmd=cmd)
 }
 
 get_edit_imgt_file_Perl_script <- function()
@@ -359,10 +360,10 @@ igblast_info <- function()
     igblast_root <- get_igblast_root()
     OS_arch <- get_OS_arch()
     OS <- OS_arch[["OS"]]
-    igblastn_exe <- .make_igblast_cmd_path(igblast_root, cmd="igblastn", OS=OS)
+    igblastn_exe <- .make_igblast_exe_path(igblast_root, cmd="igblastn", OS=OS)
     igblastn_version <- system2(igblastn_exe, "-version", stdout=TRUE)
     version <- .extract_version_from_cmd_output(igblastn_version)
-    #igblastp_exe <- .make_igblast_cmd_path(igblast_root, cmd="igblastp", OS=OS)
+    #igblastp_exe <- .make_igblast_exe_path(igblast_root, cmd="igblastp", OS=OS)
     #igblastp_version <- system2(igblastp_exe, "-version", stdout=TRUE)
     build <- igblastn_version[[2L]]  # should be same as igblastp_version[[2L]]
     build <- sub("^ *Package: ", "", build)

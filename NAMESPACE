@@ -44,6 +44,7 @@ export(
     install_NCBI_germline_db,
 
     ## From install_VQUEST_germline_db.R:
+    list_VQUEST_releases,
     install_VQUEST_germline_db,
 
     ## From igblastn.R:
