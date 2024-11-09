@@ -1,5 +1,5 @@
 ### =========================================================================
-### Low-level utilities to retrieve data from the VQUEST download site
+### Low-level utilities to retrieve data from the V-QUEST download site
 ### -------------------------------------------------------------------------
 ###
 ### Nothing in this file is exported.
@@ -17,9 +17,6 @@
 ### Do not remove the trailing slash.
 .VQUEST_ARCHIVES_URL <-
     paste0(.VQUEST_DOWNLOAD_ROOT_URL, "archives/")
-
-.TR_FILES <- paste0("TR",
-    c("AV", "AJ", "BV", "BD", "BJ", "DV", "DD", "DJ", "GV", "GJ"), ".fasta")
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -161,16 +158,8 @@ download_and_unzip_VQUEST_release <- function(release, exdir, ...)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### normalize_VQUEST_organism()
 ### find_organism_in_VQUEST_store()
 ###
-
-normalize_VQUEST_organism <- function(organism)
-{
-    if (!isSingleNonWhiteString(organism))
-        stop(wmsg("'organism' must be a single (non-empty) string"))
-    chartr(" ", "_", organism)
-}
 
 .list_organisms_in_VQUEST_store <- function(refdir)
 {
@@ -191,124 +180,5 @@ find_organism_in_VQUEST_store <- function(organism, local_store)
               "VQUEST release ", basename(local_store), "."),
          "\n  ",
          wmsg("Available organisms: ", all_in_1string, "."))
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### create_VQUEST_germline_db()
-###
-
-.stop_on_existing_VQUEST_db <- function(db_name)
-{
-    msg <- c("Germline db ", db_name, " is already installed. ",
-             "Use force=TRUE' to reinstall.")
-    stop(wmsg(msg))
-}
-
-.list_VQUEST_fasta_files <- function(IG_path, group=c("V", "D", "J"),
-                                     expected_files)
-{
-    group <- match.arg(group)
-    files <- list.files(IG_path, pattern=group)
-    if (length(files) == 0L)
-        stop(wmsg("Anomaly: no ", group, " files found in ", IG_path))
-    if (!setequal(files, expected_files))
-        warning("set of ", group, " files in ", IG_path, " is not as expected")
-    file.path(IG_path, files)
-}
-
-.list_V_files_in_VQUEST_IG <- function(IG_path)
-{
-    EXPECTED_FILES <- paste0("IG", c("HV", "KV", "LV"), ".fasta")
-    .list_VQUEST_fasta_files(IG_path, "V", EXPECTED_FILES)
-}
-
-.list_D_files_in_VQUEST_IG <- function(IG_path)
-{
-    EXPECTED_FILES <- paste0("IGHD", ".fasta")
-    .list_VQUEST_fasta_files(IG_path, "D", EXPECTED_FILES)
-}
-
-.list_J_files_in_VQUEST_IG <- function(IG_path)
-{
-    EXPECTED_FILES <- paste0("IG", c("HJ", "KJ", "LJ"), ".fasta")
-    .list_VQUEST_fasta_files(IG_path, "J", EXPECTED_FILES)
-}
-
-.edit_VQUEST_fasta <- function(script, infile, outfile)
-{
-    args <- c(infile, ">", outfile)
-    out <- suppressWarnings(system2(script, args=args,
-                                    stdout=TRUE, stderr=TRUE))
-    status <- attr(out, "status")
-    if (!(is.null(status) || isTRUE(all.equal(status, 0L))))
-        stop(wmsg(out))
-}
-
-.process_VQUEST_fasta_files <-
-    function(srcdir, destdir, list_file_FUN,
-             edit_fasta_script, group=c("V", "D", "J"))
-{
-    group <- match.arg(group)
-    files <- list_file_FUN(srcdir)
-    before_edit_dir <- file.path(destdir, "before_edit")
-    if (!dir.exists(before_edit_dir))
-        dir.create(before_edit_dir, recursive=TRUE)
-    unedited_file <- file.path(before_edit_dir, paste0(group, ".fasta"))
-    concatenate_files(files, unedited_file)
-    edited_file <- file.path(destdir, paste0(group, ".fasta"))
-    .edit_VQUEST_fasta(edit_fasta_script, unedited_file, edited_file)
-}
-
-.build_VQUEST_IG_db <- function(organism_path, db_path, edit_fasta_script)
-{
-    IG_path <- file.path(organism_path, "IG")
-    if (!dir.exists(IG_path))
-        stop(wmsg("Anomaly: directory ", IG_path, " not found"))
-
-    .process_VQUEST_fasta_files(IG_path, db_path, .list_V_files_in_VQUEST_IG,
-                                edit_fasta_script, group="V")
-    .process_VQUEST_fasta_files(IG_path, db_path, .list_D_files_in_VQUEST_IG,
-                                edit_fasta_script, group="D")
-    .process_VQUEST_fasta_files(IG_path, db_path, .list_J_files_in_VQUEST_IG,
-                                edit_fasta_script, group="J")
-}
-
-.build_VQUEST_TR_db <- function(organism_path, db_path, edit_fasta_script)
-{
-    stop("not ready yet")
-}
-
-.build_VQUEST_IG_TR_db <- function(organism_path, db_path, edit_fasta_script)
-{
-    stop("not ready yet")
-}
-
-### Executes the instructions given at
-###   https://ncbi.github.io/igblast/cook/How-to-set-up.html
-### to create the VQUEST germline db.
-create_VQUEST_germline_db <- function(organism_path, db_path,
-                                      db_type=c("IG", "TR", "IG-TR"),
-                                      force=FALSE)
-{
-    db_type <- match.arg(db_type)
-    if (!isTRUEorFALSE(force))
-        stop(wmsg("'force' must be TRUE or FALSE"))
-    edit_fasta_script <- get_edit_imgt_file_Perl_script()
-    if (dir.exists(db_path)) {
-        if (!force)
-            .stop_on_existing_VQUEST_db(basename(db_path))
-    }
-    FUN <- switch(db_type,
-        "IG"   =.build_VQUEST_IG_db,
-        "TR"   =.build_VQUEST_TR_db,
-        "IG-TR"=.build_VQUEST_IG_TR_db,
-        stop(db_type, ": invalid 'db_type'")
-    )
-    tmp_db_path <- file.path(dirname(db_path), paste0(".", basename(db_path)))
-    dir.create(tmp_db_path, recursive=TRUE)
-    on.exit(unlink(tmp_db_path, recursive=TRUE, force=TRUE))
-    FUN(organism_path, tmp_db_path, edit_fasta_script)
-    replace_file(db_path, tmp_db_path)
 }
 

@@ -7,7 +7,7 @@
 ### list_VQUEST_releases()
 ###
 
-### Returns the VQUEST releases from newest to oldest (latest first).
+### Returns the V-QUEST releases from newest to oldest (latest first).
 list_VQUEST_releases <- function(recache=FALSE)
 {
     latest_release <- get_latest_VQUEST_release(recache=recache)
@@ -27,13 +27,20 @@ list_VQUEST_releases <- function(recache=FALSE)
         stop(wmsg("'release' must be a single (non-empty) string"))
     all_releases <- list_VQUEST_releases()
     if (!(release %in% all_releases)) {
-        stop(wmsg("\"", release, "\" is not a valid VQUEST release."),
+        stop(wmsg("\"", release, "\" is not a valid V-QUEST release."),
              "\n  ",
-             wmsg("Latest release is \"", all_releases[[1L]], "\" ",
+             wmsg("Latest V-QUEST release is \"", all_releases[[1L]], "\" ",
                   "(recommended). Use list_VQUEST_releases() to list ",
                   "all releases."))
     }
     release
+}
+
+.normalize_VQUEST_organism <- function(organism)
+{
+    if (!isSingleNonWhiteString(organism))
+        stop(wmsg("'organism' must be a single (non-empty) string"))
+    chartr(" ", "_", organism)
 }
 
 .get_local_VQUEST_store <- function(release)
@@ -47,23 +54,34 @@ list_VQUEST_releases <- function(recache=FALSE)
                                           db_type=c("IG", "TR", "IG-TR"))
 {
     release <- basename(.get_local_VQUEST_store(release))
-    organism <- normalize_VQUEST_organism(organism)
+    organism <- .normalize_VQUEST_organism(organism)
     db_type <- match.arg(db_type)
     sprintf("VQUEST-%s.%s.%s", release, organism, db_type)
 }
 
+### Requires Perl.
 install_VQUEST_germline_db <- function(release, organism="Homo sapiens",
                                        db_type=c("IG", "TR", "IG-TR"),
                                        force=FALSE, ...)
 {
     ## Check arguments.
+    if (missing(release)) {
+        all_releases <- list_VQUEST_releases()
+        stop(wmsg("Argument 'release' is required and must be set ",
+                  "to a valid V-QUEST release."),
+             "\n  ",
+             wmsg("Latest V-QUEST release is \"", all_releases[[1L]], "\" ",
+                  "(recommended). Use list_VQUEST_releases() to list ",
+                  "all releases."))
+    }
+
     release <- .normalize_VQUEST_release(release)
-    organism <- normalize_VQUEST_organism(organism)
+    organism <- .normalize_VQUEST_organism(organism)
     db_type <- match.arg(db_type)
     if (!isTRUEorFALSE(force))
         stop(wmsg("'force' must be TRUE or FALSE"))
 
-    ## Download VQUEST release to local store if it's not there already.
+    ## Download V-QUEST release to local store if it's not there already.
     local_store <- .get_local_VQUEST_store(release)
     if (!dir.exists(local_store))
         download_and_unzip_VQUEST_release(release, local_store, ...)
@@ -73,10 +91,10 @@ install_VQUEST_germline_db <- function(release, organism="Homo sapiens",
     organism <- basename(organism_path)
     db_name <- .make_VQUEST_germline_db_name(release, organism, db_type)
 
-    ## Create VQUEST germline db.
+    ## Create V-QUEST germline db.
     germline_dbs <- get_germline_dbs_path()
     db_path <- file.path(germline_dbs, db_name)
-    create_VQUEST_germline_db(organism_path, db_path, db_type, force=force)
+    make_VQUEST_germline_db(organism_path, db_path, db_type, force=force)
 
     ## Success!
     message("Germline db ", db_name, " successfully installed.")

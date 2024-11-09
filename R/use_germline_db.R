@@ -1,5 +1,5 @@
 ### =========================================================================
-### list_germline_dbs()
+### use_germline_db()
 ### -------------------------------------------------------------------------
 
 
@@ -85,6 +85,17 @@ list_germline_dbs <- function()
         .run_makeblastdb_on_fasta_file(f, makeblastdb_exe)
 }
 
+.stop_on_invalid_db_name <- function(db_name)
+{
+    msg1 <- c("\"", db_name, "\" is not an installed germline db.")
+    msg2 <- c("Use list_germline_dbs() to list the germline databases ",
+              "already installed on your machine (see '?list_germline_dbs').")
+    msg3 <- c("Note that you can use any of the install_*_germline_db() ",
+              "function (e.g. install_VQUEST_germline_db()) to install ",
+              "additional germline databases.")
+   stop(wmsg(msg1), "\n  ", wmsg(msg2), "\n  ", wmsg(msg3))
+}
+
 use_germline_db <- function(db_name=NULL)
 {
     if (is.null(db_name))
@@ -96,16 +107,8 @@ use_germline_db <- function(db_name=NULL)
     all_db_names <- list_germline_dbs()
     if (length(all_db_names) == 0L)
         .stop_on_no_installed_germline_db_yet()
-    if (!(db_name %in% all_db_names)) {
-        msg <- c("\"", db_name, "\" is not an installed germline db. ",
-                 "Use list_germline_dbs() to list the germline ",
-                 "databases that are currently installed on your ",
-                 "machine (see '?list_germline_dbs'). ",
-                 "Note that you can use any of the install_*_germline_db() ",
-                 "function (e.g. install_VQUEST_germline_db()) to install ",
-                 "additional germline databases.")
-        stop(wmsg(msg))
-    }
+    if (!(db_name %in% all_db_names))
+        .stop_on_invalid_db_name(db_name)
 
     germline_dbs <- get_germline_dbs_path()
     db_path <- file.path(germline_dbs, db_name)

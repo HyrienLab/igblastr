@@ -6,9 +6,17 @@
 \title{Install a V-QUEST germline db}
 
 \description{
-  Download V-QUEST germline sequences from the IMGT website, and create a
-  small local database with the subset of sequences of a given organism.
-  The small local database can then be used with \code{\link{igblastn}()}.
+  The \code{install_VQUEST_germline_db()} function downloads V-QUEST
+  germline sequences (FASTA files) from the IMGT website, and makes
+  a small local database with the sequences of the specified organism.
+  This local database can then be used later with \code{\link{igblastn}()}.
+
+  Note that \code{install_VQUEST_germline_db()} makes the
+  local database by performing the instructions provided at
+  \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html}.
+  In particular, utility tool edit_imgt_file.pl (Perl script included
+  in the IgBLAST installation) is invoked to process the sequences.
+  This means that Perl must be available on your machine.
 }
 
 \usage{

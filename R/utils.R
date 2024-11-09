@@ -118,6 +118,8 @@ system_command_works <- function(command, args=character())
     is.null(status) || isTRUE(all.equal(status, 0L))
 }
 
+has_perl <- function() system_command_works("perl", args="-v")
+
 concatenate_files <- function(files, out=stdout(), n=50000L)
 {
     stopifnot(is.character(files))

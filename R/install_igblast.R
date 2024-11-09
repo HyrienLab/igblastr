@@ -169,10 +169,8 @@ install_igblast <- function(release="LATEST", force=FALSE, ...)
     OS_arch <- get_OS_arch()
     ncbi_igblast_name <- .get_precompiled_ncbi_igblast_name(ftp_dir, OS_arch)
     proj_igblast_root <- .projected_igblast_root(ncbi_igblast_name)
-    if (dir.exists(proj_igblast_root)) {
-        if (!force)
-            .stop_on_existing_igblast_root(release, proj_igblast_root)
-    }
+    if (dir.exists(proj_igblast_root) && !force)
+        .stop_on_existing_igblast_root(release, proj_igblast_root)
 
     downloaded_file <- download_as_tempfile(ftp_dir, ncbi_igblast_name, ...)
 

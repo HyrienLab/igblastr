@@ -325,6 +325,8 @@ get_edit_imgt_file_Perl_script <- function()
                      "in 'bin' subdirectory.")
         .stop_on_invalid_igblast_root(igblast_root, details)
     }
+    if (!has_perl())
+        stop(wmsg("Setup error: Perl not found."))
     script
 }
 
