@@ -30,8 +30,11 @@ export(
 ###
 
 export(
+    ## From get_igblast_root.R:
+    get_igblast_root, set_igblast_root,
+
     ## From igblast_info.R:
-    get_igblast_root, set_igblast_root, igblast_version, igblast_info,
+    has_igblast, igblast_version, igblast_info,
 
     ## From install_igblast.R:
     install_igblast,

@@ -46,8 +46,8 @@
     \item \code{\link{install_igblast}} to perform an \emph{internal}
           IgBLAST installation.
 
-    \item \code{\link{igblast_info}} to check the IgBLAST installation
-          used by the \pkg{igblastr} package.
+    \item \code{\link{igblast_info}} to collect basic information about
+          the IgBLAST installation used by the \pkg{igblastr} package.
 
     \item The \code{\link{igblastn}} function to invoke the igblastn
           command from R.

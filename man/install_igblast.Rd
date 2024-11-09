@@ -42,8 +42,8 @@ install_igblast(release="LATEST", force=FALSE, ...)
   \itemize{
     \item \link{IGBLAST_ROOT} to use an \emph{external} IgBLAST installation.
 
-    \item \code{\link{igblast_info}} to check the IgBLAST installation
-          used by the \pkg{igblastr} package.
+    \item \code{\link{igblast_info}} to collect basic information about
+          the IgBLAST installation used by the \pkg{igblastr} package.
 
     \item The \code{\link{igblastn}} function to invoke the igblastn
           command from R.
@@ -54,7 +54,7 @@ install_igblast(release="LATEST", force=FALSE, ...)
 }
 
 \examples{
-install_igblast(force=TRUE)
+if (!has_igblast()) install_igblast()
 
 igblast_info()
 }

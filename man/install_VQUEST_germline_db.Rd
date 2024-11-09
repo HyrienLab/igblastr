@@ -85,6 +85,8 @@ list_VQUEST_releases(recache=FALSE)
 }
 
 \examples{
+if (!has_igblast()) install_igblast()
+
 ## As of Nov 8, 2024, the latest release of V-QUEST is 202430-2:
 list_VQUEST_releases()
 
