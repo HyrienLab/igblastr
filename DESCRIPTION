@@ -10,7 +10,8 @@ Authors@R: c(
 	       email="hpages.on.github@gmail.com",
 	       comment=c(ORCID="0009-0002-8272-4522")),
 	person("Ollivier", "Hyrien", role="fnd"))
-Imports: utils, tools, httr, xml2, rvest, S4Vectors, GenomeInfoDb, Biostrings
+Imports: utils, stats, tools, httr, xml2, rvest,
+	S4Vectors, GenomeInfoDb, Biostrings
 Suggests: knitr
 SystemRequirements: Perl (for install_VQUEST_germline_db() only)
 VignetteBuilder: knitr

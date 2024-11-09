@@ -8,6 +8,13 @@ get_germline_dbs_path <- function()
     file.path(R_user_dir("igblastr", "cache"), "germline_dbs")
 }
 
+get_germline_db_path <- function(db_name)
+{
+    stopifnot(isSingleNonWhiteString(db_name), db_name != "USING")
+    germline_dbs <- get_germline_dbs_path()
+    file.path(germline_dbs, db_name)
+}
+
 list_germline_dbs <- function()
 {
     germline_dbs <- get_germline_dbs_path()
@@ -110,8 +117,7 @@ use_germline_db <- function(db_name=NULL)
     if (!(db_name %in% all_db_names))
         .stop_on_invalid_db_name(db_name)
 
-    germline_dbs <- get_germline_dbs_path()
-    db_path <- file.path(germline_dbs, db_name)
+    db_path <- get_germline_db_path(db_name)
     .run_makeblastdb_on_all_fasta_files(db_path)
     using_path <- file.path(germline_dbs, "USING")
     writeLines(db_name, using_path)

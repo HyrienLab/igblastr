@@ -8,7 +8,6 @@
 ### has_igblast()
 ###
 
-### Exported!
 has_igblast <- function()
 {
     igblast_root <- try(get_igblast_root(), silent=TRUE)
@@ -17,7 +16,9 @@ has_igblast <- function()
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### igblast_version() and igblast_info()
+### igblast_version()
+### list_igblast_internal_data()
+### igblast_info()
 ###
 
 .extract_version_from_cmd_output <- function(output)
@@ -25,7 +26,6 @@ has_igblast <- function()
     sub("^igblastn: *", "", output[[1L]])
 }
 
-### Exported!
 igblast_version <- function()
 {
     igblastn_exe <- get_igblast_exe("igblastn")
@@ -33,7 +33,15 @@ igblast_version <- function()
     .extract_version_from_cmd_output(out)
 }
 
-### Exported!
+list_igblast_internal_data <- function()
+{
+    igblast_root <- get_igblast_root()
+    internal_data <- file.path(igblast_root, "internal_data")
+    if (!dir.exists(internal_data))
+        return(character(0))
+    list.files(internal_data)
+}
+
 print.igblast_info <- function(x, ...)
 {
     x <- lapply(x, function(x) paste(x, collapse="; "))
@@ -41,7 +49,6 @@ print.igblast_info <- function(x, ...)
     cat(x, sep="\n")
 }
 
-### Exported!
 igblast_info <- function()
 {
     igblast_root <- get_igblast_root()
@@ -54,16 +61,23 @@ igblast_info <- function()
     #igblastp_version <- system2(igblastp_exe, "-version", stdout=TRUE)
     build <- igblastn_version[[2L]]  # should be same as igblastp_version[[2L]]
     build <- sub("^ *Package: ", "", build)
+    internal_data <- list_igblast_internal_data()
+    if (length(internal_data) == 0L) {
+        internal_data <- "none!"
+    } else {
+        internal_data <- paste0(internal_data, collapse=", ")
+    }
 
     ans <- list(
         igblast_root=igblast_root,
         Version=version,
         `OS/arch`=paste(OS_arch, collapse="/"),
-        Build=build
+        Build=build,
         #igblastn_exe=igblastn_exe,
         #igblastn_version=igblastn_version[[1L]],
         #igblastp_exe=igblastp_exe,
-        #igblastp_version=igblastp_version[[1L]]
+        #igblastp_version=igblastp_version[[1L]],
+        internal_data=internal_data
     )
     class(ans) <- "igblast_info"
     ans
