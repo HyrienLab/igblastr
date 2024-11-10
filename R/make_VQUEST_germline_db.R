@@ -86,23 +86,6 @@
     c(IG_files, TR_files)
 }
 
-### Note that running the Perl script with 'script ...' runs on Linux and
-### Mac but not on Windows. So we run it with 'perl script ...' instead
-### which seems to run everywhere.
-.edit_VQUEST_fasta <- function(script, infile, outfile, errfile)
-{
-    ## This does not work on Windows!
-    #status <- system2(script, args=infile, stdout=outfile, stderr=errfile)
-    status <- system2("perl", args=c(script, infile),
-                      stdout=outfile, stderr=errfile)
-    errmsg <- readLines(errfile)
-    if (length(errmsg) != 0L)
-        stop(paste(errmsg, collapse="\n"))
-    if (status != 0)
-        stop(wmsg("command '", script, " ", infile, "' failed"))
-    unlink(errfile)
-}
-
 .process_VQUEST_fasta_files <-
     function(srcdir, destdir, list_files_FUN,
              edit_fasta_script, group=c("V", "D", "J"))
@@ -115,8 +98,16 @@
     unedited_file <- file.path(before_edit_dir, paste0(group, ".fasta"))
     concatenate_files(files, unedited_file)
     edited_file <- file.path(destdir, paste0(group, ".fasta"))
-    errfile <- file.path(destdir, paste0(group, ".edit_error.txt"))
-    .edit_VQUEST_fasta(edit_fasta_script, unedited_file, edited_file, errfile)
+    errfile <- file.path(destdir, paste0(group, "_imgt_script_errors.txt"))
+
+    ## This does not work on Windows!
+    #system3(edit_fasta_script, edited_file, errfile, args=unedited_file)
+
+    ## Note that running the Perl script with 'script ...' runs on Linux
+    ## and Mac but not on Windows. So we run it with 'perl script ...'
+    ## instead. This seems to run everywhere.
+    system3("perl", edited_file, errfile,
+            args=c(edit_fasta_script, unedited_file))
 }
 
 .build_VQUEST_IG_db <- function(organism_path, db_path, edit_fasta_script)

@@ -71,11 +71,14 @@
     group <- sub("\\.fasta$", "", fasta_file)
     args <- c("-parse_seqids", "-dbtype nucl",
               paste("-in", fasta_file), paste("-out", group))
-    out <- suppressWarnings(system2(makeblastdb_exe, args=args,
-                                    stdout=TRUE, stderr=TRUE))
-    status <- attr(out, "status")
-    if (!(is.null(status) || isTRUE(all.equal(status, 0L))))
-        stop(wmsg(out))
+
+    outfile <- paste0(".", group, "_makeblastdb_output")
+    errfile <- paste0(".", group, "_makeblastdb_errors")
+    system3(makeblastdb_exe, outfile, errfile, args=args)
+
+    ## Record 'makeblastdb' version in local file.
+    verfile <- paste0(".", group, "_makeblastdb_version")
+    system3(makeblastdb_exe, verfile, errfile, args="-version")
 }
 
 
@@ -94,6 +97,7 @@ clean_germline_db <- function(db_path)
     fasta_files <- list.files(db_path, pattern="\\.fasta$")
     for (f in fasta_files)
         .clean_blastdb_files(db_path, f)
+    remove_hidden_files(db_path)
 }
 
 

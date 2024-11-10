@@ -107,6 +107,18 @@ replace_file <- function(oldfile, newfile)
         stop(wmsg("failed to replace '", oldfile, "' with '", newfile, "'"))
 }
 
+### Does not recursively search hidden files i.e. it only removes the
+### hidden files (and directories if 'include.hidden.dirs=TRUE') that
+### are located **directly** under 'path'.
+remove_hidden_files <- function(path=".", include.hidden.dirs=FALSE)
+{
+    stopifnot(isSingleNonWhiteString(path), dir.exists(path),
+              isTRUEorFALSE(include.hidden.dirs))
+    hidden_files <- list.files(path, pattern="^\\.", all.files=TRUE,
+                               full.names=TRUE, no..=TRUE)
+    unlink(hidden_files, recursive=include.hidden.dirs, force=TRUE)
+}
+
 system_command_works <- function(command, args=character())
 {
     out <- try(suppressWarnings(system2(command, args=args,
@@ -119,6 +131,19 @@ system_command_works <- function(command, args=character())
 }
 
 has_perl <- function() system_command_works("perl", args="-v")
+
+system3 <- function(command, outfile, errfile, args=character())
+{
+    status <- system2(command, args=args, stdout=outfile, stderr=errfile)
+    errmsg <- readLines(errfile)
+    if (length(errmsg) != 0L)
+        stop(paste(errmsg, collapse="\n"))
+    unlink(errfile)
+    if (status != 0) {
+        cmd_in_1string <- paste(c(command, args), collapse=" ")
+        stop(wmsg("command '", cmd_in_1string, "' failed"))
+    }
+}
 
 concatenate_files <- function(files, out=stdout(), n=50000L)
 {
