@@ -18,7 +18,7 @@ install_igblast(release="LATEST", force=FALSE, ...)
     A single string specifying the IgBLAST release version to install.
     For example \code{"LATEST"} (recommended), or one
     of the IgBLAST release versions listed at
-    \url{ftp.ncbi.nih.gov/blast/executables/igblast/release/}
+    \url{https://ftp.ncbi.nih.gov/blast/executables/igblast/release/}
     (e.g. \code{"1.21.0"}).
     Note that old versions have not been tested and are not
     guaranteed to be compatible with the \pkg{igblastr} package.
@@ -29,7 +29,8 @@ install_igblast(release="LATEST", force=FALSE, ...)
   }
   \item{...}{
     Extra arguments to be passed to the internal call to \code{download.file()}.
-    See \code{?download.file} in the \pkg{utils} package for more information.
+    See \code{?\link[utils]{download.file}} in the \pkg{utils} package for
+    more information.
   }
 }
 

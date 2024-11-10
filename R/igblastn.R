@@ -66,7 +66,7 @@
 ###
 
 ### Maps 'db_name' to one of the organism names returned by
-### list_igblast_internal_data().
+### list_igblast_organisms().
 .infer_igblast_organism_from_db_name <- function(db_name)
 {
     stopifnot(isSingleNonWhiteString(db_name))
@@ -94,12 +94,12 @@
         stop(wmsg("Don't know how to infer 'organism' from germline ",
                   "db name \"", db_name, "\". Please set the 'organism' ",
                   "argument to the name of the IgBLAST internal data to use. ",
-                  "Use list_igblast_internal_data() to list all valid names."))
+                  "Use list_igblast_organisms() to list all valid names."))
     }
-    internal_data <- list_igblast_internal_data()
+    all_organisms <- list_igblast_organisms()
     organism <- tolower(organism)
-    if (!(organism %in% list_igblast_internal_data())) {
-        all_in_1string <- paste0("\"", internal_data, "\"", collapse=", ")
+    if (!(organism %in% list_igblast_organisms())) {
+        all_in_1string <- paste0("\"", all_organisms, "\"", collapse=", ")
         stop(wmsg("'organism' must be one of ", all_in_1string))
     }
     organism

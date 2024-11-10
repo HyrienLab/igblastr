@@ -17,7 +17,7 @@ has_igblast <- function()
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### igblast_version()
-### list_igblast_internal_data()
+### list_igblast_organisms()
 ### igblast_info()
 ###
 
@@ -33,7 +33,7 @@ igblast_version <- function()
     .extract_version_from_cmd_output(out)
 }
 
-list_igblast_internal_data <- function()
+list_igblast_organisms <- function()
 {
     igblast_root <- get_igblast_root()
     internal_data <- file.path(igblast_root, "internal_data")
@@ -61,11 +61,11 @@ igblast_info <- function()
     #igblastp_version <- system2(igblastp_exe, "-version", stdout=TRUE)
     build <- igblastn_version[[2L]]  # should be same as igblastp_version[[2L]]
     build <- sub("^ *Package: ", "", build)
-    internal_data <- list_igblast_internal_data()
-    if (length(internal_data) == 0L) {
-        internal_data <- "none!"
+    all_organisms <- list_igblast_organisms()
+    if (length(all_organisms) == 0L) {
+        organisms <- "none!"
     } else {
-        internal_data <- paste0(internal_data, collapse=", ")
+        organisms <- paste0(all_organisms, collapse=", ")
     }
 
     ans <- list(
@@ -77,7 +77,7 @@ igblast_info <- function()
         #igblastn_version=igblastn_version[[1L]],
         #igblastp_exe=igblastp_exe,
         #igblastp_version=igblastp_version[[1L]],
-        internal_data=internal_data
+        organisms=organisms
     )
     class(ans) <- "igblast_info"
     ans

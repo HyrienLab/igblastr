@@ -35,7 +35,7 @@ export(
     get_igblast_root, set_igblast_root,
 
     ## From igblast_info.R:
-    has_igblast, igblast_version, list_igblast_internal_data, igblast_info,
+    has_igblast, igblast_version, list_igblast_organisms, igblast_info,
 
     ## From install_igblast.R:
     install_igblast,

@@ -1,8 +1,10 @@
 \name{igblast_info}
 
-\alias{has_igblast}
 \alias{igblast_info}
+
+\alias{has_igblast}
 \alias{igblast_version}
+\alias{list_igblast_organisms}
 
 \alias{print.igblast_info}
 
@@ -14,19 +16,27 @@
 }
 
 \usage{
-has_igblast()
 igblast_info()
+
+has_igblast()
 igblast_version()
+list_igblast_organisms()
 }
 
 \value{
-  \code{has_igblast()} returns \code{TRUE} or \code{FALSE}.
+  \code{igblast_info()} returns a named list containing basic
+  information about the IgBLAST installation used by \pkg{igblastr}.
 
-  \code{igblast_info()} returns a named list containing various
-  information about the IgBLAST used by \pkg{igblastr}.
+  \code{has_igblast()} returns \code{TRUE} or \code{FALSE}.
 
   \code{igblast_version()} returns a single string containing the
   version of the IgBLAST used by \pkg{igblastr}.
+
+  \code{list_igblast_organisms()} returns a character vector that
+  lists the organisms for which IgBLAST provides internal data.
+  Note that this is obtained by simply listing the content of the
+  \code{internal_data} directory in the IgBLAST installation
+  used by \pkg{igblastr}.
 }
 
 \seealso{
@@ -53,6 +63,8 @@ igblast_version()
 if (!has_igblast()) install_igblast()
 
 igblast_info()
+
+list_igblast_organisms()
 }
 
 \keyword{utilities}

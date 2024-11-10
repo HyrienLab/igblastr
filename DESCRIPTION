@@ -1,6 +1,7 @@
 Package: igblastr
-Title: An R wrapper for IgBLAST
-Description: The igblastr package provides an R interface to NCBI's IgBLAST.
+Title: An R Wrapper for IgBLAST
+Description: The igblastr package provides functions to conveniently install
+	and use NCBI's IgBLAST from R.
 	IgBLAST is described at <https://pubmed.ncbi.nlm.nih.gov/23671333/>.
 Version: 0.1.1
 License: Artistic-2.0
