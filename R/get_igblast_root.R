@@ -125,6 +125,7 @@ make_igblast_exe_path <- function(igblast_root,
     igblast_root <- file_path_as_absolute(path)
     .check_igblast_installation(igblast_root)
     options(igblast_root=igblast_root)
+    clean_all_germline_dbs()
     igblast_root
 }
 
@@ -158,6 +159,7 @@ set_internal_igblast_root <- function(version)
     .check_igblast_installation(igblast_root)
     using_path <- file.path(internal_roots, "USING")
     writeLines(version, using_path)
+    clean_all_germline_dbs()
     igblast_root
 }
 
@@ -193,7 +195,7 @@ get_internal_igblast_root <- function()
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### get_igblast_root() and set_igblast_root()
+### get_igblast_root()
 ###
 
 ### List all "internal" IgBLAST installations ordered by decreasing version.
@@ -248,6 +250,11 @@ get_igblast_root <- function()
     stop("No IgBLAST installation found.\n  ",
          wmsg(.what_to_do_if_no_internal_installation_yet()))
 }
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### set_igblast_root()
+###
 
 ### Sets the path to the IgBLAST installation to use and returns it.
 ### This can be either an "internal" or an "external" installation.
@@ -304,7 +311,6 @@ set_igblast_root <- function(version_or_path)
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### get_igblast_exe()
-### get_edit_imgt_file_Perl_script()
 ###
 
 get_igblast_exe <- function(cmd=c("igblastn", "igblastp", "makeblastdb"))
@@ -313,6 +319,11 @@ get_igblast_exe <- function(cmd=c("igblastn", "igblastp", "makeblastdb"))
     cmd <- match.arg(cmd)
     make_igblast_exe_path(igblast_root, cmd=cmd)
 }
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### get_edit_imgt_file_Perl_script()
+###
 
 get_edit_imgt_file_Perl_script <- function()
 {

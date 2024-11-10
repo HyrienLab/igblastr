@@ -51,6 +51,10 @@ set_igblast_root(version_or_path)
 
 \seealso{
   \itemize{
+    \item The \code{\link{igblastn}} function to run the \emph{igblastn}
+          program from R. This is the main function in the \pkg{igblastr}
+          package.
+
     \item \code{\link{install_igblast}} to perform an \emph{internal}
           IgBLAST installation.
 
@@ -59,9 +63,6 @@ set_igblast_root(version_or_path)
 
     \item \link{IGBLAST_ROOT} to set the \emph{external} IgBLAST installation
           to be used by the \pkg{igblastr} package in a persistent manner.
-
-    \item The \code{\link{igblastn}} function to invoke the igblastn
-          command from R.
 
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.

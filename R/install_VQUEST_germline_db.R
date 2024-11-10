@@ -101,6 +101,6 @@ install_VQUEST_germline_db <- function(release, organism="Homo sapiens",
     message("Call use_germline_db(\"", db_name, "\") to select it")
     message("as the germline database to use with igblastn().")
 
-    invisible(db_path)
+    invisible(db_name)
 }
 

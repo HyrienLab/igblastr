@@ -1,4 +1,4 @@
-importFrom(utils, download.file, untar, unzip)
+importFrom(utils, download.file, untar, unzip, browseURL)
 importFrom(stats, setNames)
 importFrom(tools, R_user_dir, file_path_as_absolute)
 

@@ -112,6 +112,7 @@
 .make_igblastn_germline_db_args <- function(db_name)
 {
     db_path <- get_germline_db_path(db_name)
+    compile_germline_db(db_path)
     VDJ <- c("V", "D", "J")
     setNames(file.path(db_path, VDJ), paste0("germline_db_", VDJ))
 }
@@ -127,8 +128,8 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
     igblast_root <- get_igblast_root()
     db_name <- use_germline_db()
     if (!isSingleNonWhiteString(query))
-        stop(wmsg("'query' must be a single string ",
-                  "containing the path to the input file"))
+        stop(wmsg("'query' must be a single (non-empty) string ",
+                  "that contains the path to the input file"))
     query <- file_path_as_absolute(query)
     outfmt <- .normarg_outfmt(outfmt)
     organism <- .normarg_organism(organism, db_name)

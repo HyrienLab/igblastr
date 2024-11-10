@@ -66,7 +66,7 @@ list_VQUEST_releases(recache=FALSE)
 }
 
 \value{
-  \code{install_VQUEST_germline_db()} returns the path to the local
+  \code{install_VQUEST_germline_db()} returns the name to the local
   germline db as an invisible string.
 
   \code{list_VQUEST_releases()} returns the list of V-QUEST releases
@@ -76,6 +76,10 @@ list_VQUEST_releases(recache=FALSE)
 
 \seealso{
   \itemize{
+    \item The \code{\link{igblastn}} function to run the \emph{igblastn}
+          program from R. This is the main function in the \pkg{igblastr}
+          package.
+
     \item \code{\link{use_germline_db}} to select the local germline
           db to use with \code{igblastn()}.
 
@@ -83,9 +87,6 @@ list_VQUEST_releases(recache=FALSE)
 
     \item The V-QUEST download site:
           \url{https://www.imgt.org/download/V-QUEST/}.
-
-    \item The \code{\link{igblastn}} function to invoke the igblastn
-          program from R.
 
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
