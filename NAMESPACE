@@ -52,6 +52,6 @@ export(
     install_VQUEST_germline_db,
 
     ## From igblastn.R:
-    igblastn
+    igblastn, igblastn_help
 )
 
