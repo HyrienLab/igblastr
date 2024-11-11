@@ -48,8 +48,8 @@ use_germline_db(db_name=NULL)
           program from R. This is the main function in the \pkg{igblastr}
           package.
 
-    \item \code{\link{install_VQUEST_germline_db}} to install a V-QUEST
-          germline db.
+    \item \code{\link{install_IMGT_germline_db}} to install a germline db
+          from IMGT.
 
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
@@ -59,12 +59,12 @@ use_germline_db(db_name=NULL)
 \examples{
 if (!has_igblast()) install_igblast()
 
-## Install Mouse germline db from V-QUEST:
-install_VQUEST_germline_db("202430-2", "Mus_musculus", force=TRUE)
+## Install Mouse germline db from IMGT (Perl required!):
+install_IMGT_germline_db("202430-2", "Mus_musculus", force=TRUE)
 
 list_germline_dbs()
 
-use_germline_db("VQUEST-202430-2.Mus_musculus.IG")
+use_germline_db("IMGT-202430-2.Mus_musculus.IG")
 
 use_germline_db()
 }

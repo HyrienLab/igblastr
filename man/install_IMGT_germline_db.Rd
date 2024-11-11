@@ -1,17 +1,17 @@
-\name{install_VQUEST_germline_db}
+\name{install_IMGT_germline_db}
 
-\alias{install_VQUEST_germline_db}
-\alias{list_VQUEST_releases}
+\alias{install_IMGT_germline_db}
+\alias{list_IMGT_releases}
 
-\title{Install a V-QUEST germline db}
+\title{Install a germline db from IMGT}
 
 \description{
-  The \code{install_VQUEST_germline_db()} function downloads V-QUEST
+  The \code{install_IMGT_germline_db()} function downloads IMGT/V-QUEST
   germline sequences (FASTA files) from the IMGT website, and makes
   a small local database with the sequences of the specified organism.
   This local database can then be used later with \code{\link{igblastn}()}.
 
-  Note that \code{install_VQUEST_germline_db()} makes the
+  Note that \code{install_IMGT_germline_db()} makes the
   local database by performing the instructions provided at
   \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html}.
   In particular, utility tool edit_imgt_file.pl (Perl script included
@@ -20,18 +20,18 @@
 }
 
 \usage{
-install_VQUEST_germline_db(release, organism="Homo sapiens",
-                           db_type=c("IG", "TR", "IG-TR"),
-                           force=FALSE, ...)
+install_IMGT_germline_db(release, organism="Homo sapiens",
+                         db_type=c("IG", "TR", "IG-TR"),
+                         force=FALSE, ...)
 
-list_VQUEST_releases(recache=FALSE)
+list_IMGT_releases(recache=FALSE)
 }
 
 \arguments{
   \item{release}{
-    A single string specifying the V-QUEST release to get the germline
-    sequences from.
-    Use \code{list_VQUEST_releases()} to list all releases.
+    A single string specifying the IMGT/V-QUEST release to get the
+    germline sequences from.
+    Use \code{list_IMGT_releases()} to list all releases.
   }
   \item{organism}{
     A single string specifying the organism for which to get the germline
@@ -56,20 +56,20 @@ list_VQUEST_releases(recache=FALSE)
     See \code{?download.file} in the \pkg{utils} package for more information.
   }
   \item{recache}{
-    \code{list_VQUEST_releases()} uses a caching mechanism so that the
-    list of V-QUEST releases gets downloaded only once from the IMGT
+    \code{list_IMGT_releases()} uses a caching mechanism so that the
+    list of IMGT/V-QUEST releases gets downloaded only once from the IMGT
     website during an R session (note that this caching is done in memory
     so it does not persist across sessions).
     Set \code{recache} to \code{TRUE} to force a new download (and
-    recaching) of the list of V-QUEST releases.
+    recaching) of the list of IMGT/V-QUEST releases.
   }
 }
 
 \value{
-  \code{install_VQUEST_germline_db()} returns the name to the local
+  \code{install_IMGT_germline_db()} returns the name to the local
   germline db as an invisible string.
 
-  \code{list_VQUEST_releases()} returns the list of V-QUEST releases
+  \code{list_IMGT_releases()} returns the list of IMGT/V-QUEST releases
   in a character vector. The releases are sorted from newest to oldest
   (latest release is first).
 }
@@ -85,7 +85,7 @@ list_VQUEST_releases(recache=FALSE)
 
     \item The IMGT website: \url{https://www.imgt.org/}.
 
-    \item The V-QUEST download site:
+    \item The IMGT/V-QUEST download site:
           \url{https://www.imgt.org/download/V-QUEST/}.
 
     \item IgBLAST is described at
@@ -96,19 +96,19 @@ list_VQUEST_releases(recache=FALSE)
 \examples{
 if (!has_igblast()) install_igblast()
 
-## As of Nov 8, 2024, the latest release of V-QUEST is 202430-2:
-list_VQUEST_releases()
+## As of Nov 8, 2024, the latest IMGT/V-QUEST release is 202430-2:
+list_IMGT_releases()
 
-## Download the V-QUEST 202430-2 germline sequences and store the IG
-## sequences for Mouse in a local database:
-install_VQUEST_germline_db("202430-2", organism="Mus musculus",
-                           db_type="IG", force=TRUE)
+## Download germline sequences from IMGT/V-QUEST 202430-2, and store
+## the IG sequences for Mouse in a local database:
+install_IMGT_germline_db("202430-2", organism="Mus musculus",
+                         db_type="IG", force=TRUE)
 
 ## List the local germline databases:
 list_germline_dbs()
 
-## Tell igblastn() to use VQUEST-202430-2.Mus_musculus.IG:
-use_germline_db("VQUEST-202430-2.Mus_musculus.IG")
+## Tell igblastn() to use IMGT-202430-2.Mus_musculus.IG:
+use_germline_db("IMGT-202430-2.Mus_musculus.IG")
 }
 
 \keyword{utilities}

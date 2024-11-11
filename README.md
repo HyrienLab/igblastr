@@ -1,17 +1,19 @@
+**igblastr** is an R package that provides functions to conveniently install
+and use NCBI's [IgBLAST](https://www.ncbi.nlm.nih.gov/igblast/) from R.
+
+IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
+
+
+## Typical workflow
+
+
 WORK IN PROGRESS!
+
 [Please use https://github.com/hpages/igblastr/issues to report bugs, provide
 feedback, request features, etc...]
 
 
-## Tentative workflow
-
-
-4 easy steps
-
-
-
 ### 1. Install and load igblastr
-
 
 #### Install
 
@@ -23,9 +25,7 @@ feedback, request features, etc...]
     library(igblastr)
 
 
-
 ### 2. Set up IgBLAST
-
 
 #### Install a pre-compiled IgBLAST
 
@@ -51,9 +51,7 @@ This will make sure that the installed IgBLAST is functional. It will
 also display basic information about it (e.g. `igblastn` versions).
 
 
-
 ### 3. Install germline dbs and select db to use
-
 
 #### Install germline dbs
 
@@ -61,9 +59,9 @@ At least one germline db must be installed.
 
 Several specialized functions will be provided for that e.g.:
 
-    install_NCBI_germline_db()    # not ready yet!
-    install_VQUEST_germline_db()  # see '?install_VQUEST_germline_db'
-    install_AIRR_germline_db()    # not ready yet!
+    install_NCBI_germline_db()  # not ready yet!
+    install_IMGT_germline_db()  # see '?install_IMGT_germline_db'
+    install_AIRR_germline_db()  # not ready yet!
     etc...
 
 Note:
@@ -85,9 +83,7 @@ Note:
 See `?use_germline_db`.
 
 
-
 ### 4. Use igblastn()
-
 
 See `?igblastn`.
 

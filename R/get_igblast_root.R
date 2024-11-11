@@ -332,7 +332,7 @@ get_edit_imgt_file_Perl_script <- function()
     script <- file.path(bin_dir, "edit_imgt_file.pl")
     if (!file.exists(script)) {
         details <- c("Perl script 'edit_imgt_file.pl' (needed ",
-                     "by install_VQUEST_germline_db()) not found ",
+                     "by install_IMGT_germline_db()) not found ",
                      "in 'bin' subdirectory.")
         .stop_on_invalid_igblast_root(igblast_root, details)
     }

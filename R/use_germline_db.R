@@ -28,7 +28,7 @@ list_germline_dbs <- function()
 {
     msg <- c("You don't have any installed germline database yet. ",
              "Use any of the install_*_germline_db() function (e.g. ",
-             "install_VQUEST_germline_db()) to install at least one.")
+             "install_IMGT_germline_db()) to install at least one.")
     stop(wmsg(msg))
 }
 
@@ -71,7 +71,7 @@ list_germline_dbs <- function()
     msg2 <- c("Use list_germline_dbs() to list the germline databases ",
               "already installed on your machine (see '?list_germline_dbs').")
     msg3 <- c("Note that you can use any of the install_*_germline_db() ",
-              "function (e.g. install_VQUEST_germline_db()) to install ",
+              "function (e.g. install_IMGT_germline_db()) to install ",
               "additional germline databases.")
    stop(wmsg(msg1), "\n  ", wmsg(msg2), "\n  ", wmsg(msg3))
 }

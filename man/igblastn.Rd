@@ -66,8 +66,8 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     \item \code{\link{igblast_info}} to collect basic information about
           the IgBLAST installation used by the \pkg{igblastr} package.
 
-    \item \code{\link{install_VQUEST_germline_db}} to install a V-QUEST
-          germline db.
+    \item \code{\link{install_IMGT_germline_db}} to install a germline db
+          from IMGT.
 
     \item \code{\link{use_germline_db}} to select the local germline
           db to use with \code{igblastn()}.
@@ -91,9 +91,8 @@ igblast_info()
 catnap_bnabs <- system.file(package="igblastr", "extdata",
                             "catnap_bnabs.fasta")
 
-## Install Human germline db from V-QUEST:
-db_name <- install_VQUEST_germline_db("202430-2", "Homo_sapiens",
-                                      force=TRUE)
+## Install Human germline db from IMGT (Perl required!):
+db_name <- install_IMGT_germline_db("202430-2", "Homo_sapiens", force=TRUE)
 
 ## Select germline db to use with igblastn():
 use_germline_db(db_name)
