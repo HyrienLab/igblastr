@@ -9,20 +9,20 @@
 ### Nothing in this file is exported.
 
 
-.list_VQUEST_fasta_files <- function(dirpath, group=c("V", "D", "J"),
+.list_VQUEST_fasta_files <- function(dirpath, gene_segment=c("V", "D", "J"),
                                      expected_files)
 {
-    group <- match.arg(group)
-    pattern <- paste0(group, "\\.fasta$")
+    gene_segment <- match.arg(gene_segment)
+    pattern <- paste0(gene_segment, "\\.fasta$")
     files <- list.files(dirpath, pattern=pattern)
     if (length(files) == 0L)
-        stop(wmsg("Anomaly: no ", group, " files found in ", dirpath))
+        stop(wmsg("Anomaly: no ", gene_segment, " files found in ", dirpath))
     if (!setequal(files, expected_files)) {
         if (all(files %in% expected_files)) {
-            warning("some ", group, " files are missing ",
+            warning("some ", gene_segment, " files are missing ",
                     "in ", dirpath, "/ compared to Homo_sapiens")
         } else {
-            warning("set of ", group, " files in ", dirpath, "/ not ",
+            warning("set of ", gene_segment, " files in ", dirpath, "/ not ",
                     "the same as for Homo_sapiens")
         }
     }
@@ -88,17 +88,18 @@
 
 .process_VQUEST_fasta_files <-
     function(srcdir, destdir, list_files_FUN,
-             edit_fasta_script, group=c("V", "D", "J"))
+             edit_fasta_script, gene_segment=c("V", "D", "J"))
 {
-    group <- match.arg(group)
+    gene_segment <- match.arg(gene_segment)
     files <- list_files_FUN(srcdir)
     before_edit_dir <- file.path(destdir, "before_edit")
     if (!dir.exists(before_edit_dir))
         dir.create(before_edit_dir, recursive=TRUE)
-    unedited_file <- file.path(before_edit_dir, paste0(group, ".fasta"))
+    unedited_file <- file.path(before_edit_dir, paste0(gene_segment, ".fasta"))
     concatenate_files(files, unedited_file)
-    edited_file <- file.path(destdir, paste0(group, ".fasta"))
-    errfile <- file.path(destdir, paste0(group, "_imgt_script_errors.txt"))
+    edited_file <- file.path(destdir, paste0(gene_segment, ".fasta"))
+    errfile <- file.path(destdir, paste0(gene_segment,
+                                         "_imgt_script_errors.txt"))
 
     ## This does not work on Windows!
     #system3(edit_fasta_script, edited_file, errfile, args=unedited_file)
@@ -114,35 +115,35 @@
 {
     IG_path <- file.path(organism_path, "IG")
     .process_VQUEST_fasta_files(IG_path, db_path, .list_V_files_in_VQUEST_IG,
-                                edit_fasta_script, group="V")
+                                edit_fasta_script, gene_segment="V")
     .process_VQUEST_fasta_files(IG_path, db_path, .list_D_files_in_VQUEST_IG,
-                                edit_fasta_script, group="D")
+                                edit_fasta_script, gene_segment="D")
     .process_VQUEST_fasta_files(IG_path, db_path, .list_J_files_in_VQUEST_IG,
-                                edit_fasta_script, group="J")
+                                edit_fasta_script, gene_segment="J")
 }
 
 .build_VQUEST_TR_db <- function(organism_path, db_path, edit_fasta_script)
 {
     TR_path <- file.path(organism_path, "TR")
     .process_VQUEST_fasta_files(TR_path, db_path, .list_V_files_in_VQUEST_TR,
-                                edit_fasta_script, group="V")
+                                edit_fasta_script, gene_segment="V")
     .process_VQUEST_fasta_files(TR_path, db_path, .list_D_files_in_VQUEST_TR,
-                                edit_fasta_script, group="D")
+                                edit_fasta_script, gene_segment="D")
     .process_VQUEST_fasta_files(TR_path, db_path, .list_J_files_in_VQUEST_TR,
-                                edit_fasta_script, group="J")
+                                edit_fasta_script, gene_segment="J")
 }
 
 .build_VQUEST_IG_TR_db <- function(organism_path, db_path, edit_fasta_script)
 {
     .process_VQUEST_fasta_files(organism_path, db_path,
                                 .list_V_files_in_VQUEST_IG_TR,
-                                edit_fasta_script, group="V")
+                                edit_fasta_script, gene_segment="V")
     .process_VQUEST_fasta_files(organism_path, db_path,
                                 .list_D_files_in_VQUEST_IG_TR,
-                                edit_fasta_script, group="D")
+                                edit_fasta_script, gene_segment="D")
     .process_VQUEST_fasta_files(organism_path, db_path,
                                 .list_J_files_in_VQUEST_IG_TR,
-                                edit_fasta_script, group="J")
+                                edit_fasta_script, gene_segment="J")
 }
 
 .stop_on_existing_VQUEST_db <- function(db_name)

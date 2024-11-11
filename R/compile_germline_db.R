@@ -19,8 +19,8 @@
 
 .expected_blastdb_filenames <- function(fasta_file)
 {
-    group <- sub("\\.fasta$", "", fasta_file)
-    paste0(group, ".", .BLASTDB_SUFFIXES)
+    gene_segment <- sub("\\.fasta$", "", fasta_file)
+    paste0(gene_segment, ".", .BLASTDB_SUFFIXES)
 }
 
 ### We determine whether a FASTA file needs compilation or not simply
@@ -42,17 +42,17 @@
 
 .check_blastdb_files <- function(db_path, fasta_file)
 {
-    group <- sub("\\.fasta$", "", fasta_file)
-    pattern <- paste0("^", group, "\\.n")
+    gene_segment <- sub("\\.fasta$", "", fasta_file)
+    pattern <- paste0("^", gene_segment, "\\.n")
     blastdb_files <- list.files(db_path, pattern=pattern)
     if (length(blastdb_files) == 0L)
-        stop(.wmsg2("no blastdb files found for \"", group, "\" group ",
-                    "in ", db_path, "/"))
-    expected_filenames <- paste0(group, ".", .BLASTDB_SUFFIXES)
+        stop(.wmsg2("no blastdb files found for \"", gene_segment, "\" ",
+                    "gene segment in ", db_path, "/"))
+    expected_filenames <- paste0(gene_segment, ".", .BLASTDB_SUFFIXES)
     if (setequal(blastdb_files, expected_filenames))
         return(TRUE)
     msg1 <- c("Set of blastdb files found in ", db_path, "/ ",
-              "for \"", group, "\" group is not as expected:")
+              "for \"", gene_segment, "\" gene segment is not as expected:")
     expected_in_1string <- paste0(expected_filenames, collapse=", ")
     found_in_1string <- paste0(blastdb_files, collapse=", ")
     warning(.wmsg2(msg1),
@@ -68,16 +68,16 @@
 ### This produces 10 files per FASTA file!
 .run_makeblastdb_on_fasta_file <- function(fasta_file, makeblastdb_exe)
 {
-    group <- sub("\\.fasta$", "", fasta_file)
+    gene_segment <- sub("\\.fasta$", "", fasta_file)
     args <- c("-parse_seqids", "-dbtype nucl",
-              paste("-in", fasta_file), paste("-out", group))
+              paste("-in", fasta_file), paste("-out", gene_segment))
 
-    outfile <- paste0(".", group, "_makeblastdb_output")
-    errfile <- paste0(".", group, "_makeblastdb_errors")
+    outfile <- paste0(".", gene_segment, "_makeblastdb_output")
+    errfile <- paste0(".", gene_segment, "_makeblastdb_errors")
     system3(makeblastdb_exe, outfile, errfile, args=args)
 
     ## Record 'makeblastdb' version in local file.
-    verfile <- paste0(".", group, "_makeblastdb_version")
+    verfile <- paste0(".", gene_segment, "_makeblastdb_version")
     system3(makeblastdb_exe, verfile, errfile, args="-version")
 }
 

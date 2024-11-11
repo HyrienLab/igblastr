@@ -6,6 +6,10 @@
 \title{BLAST for Ig and TCR sequences}
 
 \description{
+  WORK IN PROGRESS!
+  [Please use \url{https://github.com/hpages/igblastr/issues} to report bugs,
+  provide feedback, request features, etc...]
+
   \code{igblastn()} runs the igblastn program from R. This is the main
   function in the \pkg{igblastr} package.
 }
@@ -87,9 +91,9 @@ igblast_info()
 catnap_bnabs <- system.file(package="igblastr", "extdata",
                             "catnap_bnabs.fasta")
 
-## Install germline db from V-QUEST:
+## Install Human germline db from V-QUEST:
 db_name <- install_VQUEST_germline_db("202430-2", "Homo_sapiens",
-                                      db_type="IG", force=TRUE)
+                                      force=TRUE)
 
 ## Select germline db to use with igblastn():
 use_germline_db(db_name)

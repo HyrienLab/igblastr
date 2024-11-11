@@ -3,7 +3,10 @@ Title: An R Wrapper for IgBLAST
 Description: The igblastr package provides functions to conveniently install
 	and use NCBI's IgBLAST from R.
 	IgBLAST is described at <https://pubmed.ncbi.nlm.nih.gov/23671333/>.
-Version: 0.1.1
+	This is WORK-IN-PROGRESS! Please use
+        <https://github.com/hpages/igblastr/issues> to report bugs,
+	provide feedback, request features, etc...
+Version: 0.1.2
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
