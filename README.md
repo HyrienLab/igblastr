@@ -4,7 +4,7 @@ and use NCBI's [IgBLAST](https://www.ncbi.nlm.nih.gov/igblast/) from R.
 IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
 
 
-## Typical workflow
+## Quick start
 
 
 WORK IN PROGRESS!
