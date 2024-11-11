@@ -1,16 +1,16 @@
 **igblastr** is an R package that provides functions to conveniently install
-and use NCBI's [IgBLAST](https://www.ncbi.nlm.nih.gov/igblast/) from R.
+and use a local IgBLAST installation from R.
 
 IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
 
+Online IgBLAST: https://www.ncbi.nlm.nih.gov/igblast/
+
+Note that the package is still a WORK-IN-PROGRESS! Please use
+https://github.com/hpages/igblastr/issues> to report bugs, provide
+feedback, request features, etc...
+
 
 ## Quick start
-
-
-WORK IN PROGRESS!
-
-[Please use https://github.com/hpages/igblastr/issues to report bugs, provide
-feedback, request features, etc...]
 
 
 ### 1. Install and load igblastr
