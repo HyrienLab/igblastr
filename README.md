@@ -6,7 +6,7 @@ IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
 Online IgBLAST: https://www.ncbi.nlm.nih.gov/igblast/
 
 Note that the package is still a WORK-IN-PROGRESS! Please use
-https://github.com/hpages/igblastr/issues> to report bugs, provide
+https://github.com/hpages/igblastr/issues to report bugs, provide
 feedback, request features, etc...
 
 
