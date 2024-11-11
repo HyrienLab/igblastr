@@ -61,6 +61,7 @@ list_germline_dbs <- function()
                   "of an installed germline db. ",
                   "Try to repair with use_germline_db(\"<db_name>\"). ",
                   "See '?use_germline_db' for more information."))
+    compile_germline_db(db_path)
     db_name
 }
 

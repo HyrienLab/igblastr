@@ -6,43 +6,70 @@
 ### 'args' must be a named character vector where the names are
 ### valid 'igblastn' parameter names (e.g. "organism") and the values
 ### are the parameter values (e.g. "rabbit").
-.run_igblastn <- function(igblast_root, args,
-                          show.in.browser=FALSE, show.command.only=FALSE)
+.as_igblastn_args <- function(args)
 {
-    igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
     if (!is.character(args))
         stop(wmsg("'args' must be character vector"))
     args_names <- names(args)
     if (is.null(args_names))
         stop(wmsg("'args' must have names on it"))
+    paste0("-", args_names, " ", args)
+}
+
+.show_igblastn_command <- function(igblastn_exe, args, show.in.browser=FALSE)
+{
+    cmd <- c(igblastn_exe, args)
+    cmd_in_1string <- paste(cmd, collapse=" ")
+    outfile <- if (show.in.browser) tempfile() else ""
+    cat(cmd_in_1string, "\n", file=outfile, sep="")
+    if (show.in.browser)
+        display_local_file_in_browser(outfile)
+    cmd  # returns the command in a character vector
+}
+
+### 'args' must be a named character vector. See .as_igblastn_args() above
+### for details.
+.run_igblastn <- function(igblast_root, outfmt, args,
+                          show.in.browser=FALSE, show.command.only=FALSE)
+{
+    igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
+    args <- c(paste("-outfmt", outfmt), .as_igblastn_args(args))
+
     if (!isTRUEorFALSE(show.in.browser))
         stop(wmsg("'show.in.browser' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(show.command.only))
         stop(wmsg("'show.command.only' must be TRUE or FALSE"))
 
-    if (show.in.browser) {
-        stdout <- tempfile(fileext=".html")
-    } else {
-        stdout <- ""
-    }
-
-    args <- paste0("-", args_names, " ", args)
     if (show.command.only) {
-        cmd <- c(igblastn_exe, args)
-        cmd_in_1string <- paste(cmd, collapse=" ")
-        cat(cmd_in_1string, "\n", file=stdout, sep="")
-        if (show.in.browser)
-            display_local_file_in_browser(stdout)
+        cmd <- .show_igblastn_command(igblastn_exe, args,
+                                      show.in.browser=show.in.browser)
         return(invisible(cmd))  # returns the command in a character vector
     }
 
     oldwd <- getwd()
     setwd(igblast_root)
     on.exit(setwd(oldwd))
-    status <- system2(igblastn_exe, args=args, stdout=stdout)
-    if (status == 0 && show.in.browser)
-        display_local_file_in_browser(stdout)
-    invisible(status)
+
+    outfile <- tempfile()
+    status <- system2(igblastn_exe, args=args, stdout=outfile)
+    if (status != 0)
+        stop(wmsg("'igblastn' returned an error"))
+
+    if (outfmt != 19) {
+        if (show.in.browser)
+            return(display_local_file_in_browser(outfile))
+        return(cat(readLines(outfile), sep="\n"))
+    }
+
+    ## AIRR output format is tabulated.
+    df <- read.table(outfile, header=TRUE, sep="\t")
+    if (show.in.browser) {
+        temp_html <- tempfile(fileext=".html")
+        print(xtable(df), type="html", file=temp_html)
+        temp_url <- paste0("file://", temp_html)
+        browseURL(temp_url)
+    }
+    tibble(df)
 }
 
 
@@ -53,7 +80,7 @@
 .normarg_outfmt <- function(outfmt="AIRR")
 {
     if (isSingleString(outfmt) && toupper(outfmt) == "AIRR")
-        return(19)
+        return(19L)
     if (!(isSingleNumber(outfmt) && outfmt %in% c(3, 4, 7, 19)))
         stop(wmsg("'outfmt' must be \"AIRR\" or one of 3, 4, 7, 19 ",
                   "(19 means \"AIRR\")"))
@@ -112,7 +139,6 @@
 .make_igblastn_germline_db_args <- function(db_name)
 {
     db_path <- get_germline_db_path(db_name)
-    compile_germline_db(db_path)
     VDJ <- c("V", "D", "J")
     setNames(file.path(db_path, VDJ), paste0("germline_db_", VDJ))
 }
@@ -141,11 +167,12 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
     extra_args <- setNames(as.character(extra_args), names(extra_args))
     germline_db_args <- .make_igblastn_germline_db_args(db_name)
 
-    args <- c(query=query, outfmt=outfmt, organism=organism,
+    args <- c(query=query, organism=organism,
               auxiliary_data=auxiliary_data, extra_args, germline_db_args)
 
-    .run_igblastn(igblast_root, args, show.in.browser=show.in.browser,
-                                      show.command.only=show.command.only)
+    .run_igblastn(igblast_root, outfmt, args,
+                  show.in.browser=show.in.browser,
+                  show.command.only=show.command.only)
 }
 
 
@@ -157,8 +184,21 @@ igblastn_help <- function(long.help=FALSE, show.in.browser=FALSE)
 {
     if (!isTRUEorFALSE(long.help))
         stop(wmsg("'long.help' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(show.in.browser))
+        stop(wmsg("'show.in.browser' must be TRUE or FALSE"))
+
     igblast_root <- get_igblast_root()
-    args <- if (long.help) c(help="") else c(h="")
-    .run_igblastn(igblast_root, args, show.in.browser=show.in.browser)
+    igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
+    args <- if (long.help) "-help" else "-h"
+
+    oldwd <- getwd()
+    setwd(igblast_root)
+    on.exit(setwd(oldwd))
+    outfile <- if (show.in.browser) tempfile() else ""
+    status <- system2(igblastn_exe, args=args, stdout=outfile)
+    if (status != 0)
+        stop(wmsg("'igblastn' returned an error"))
+    if (show.in.browser)
+        display_local_file_in_browser(outfile)
 }
 

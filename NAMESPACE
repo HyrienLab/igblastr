@@ -1,10 +1,12 @@
-importFrom(utils, download.file, untar, unzip, browseURL)
+importFrom(utils, download.file, untar, unzip, read.table, browseURL)
 importFrom(stats, setNames)
 importFrom(tools, R_user_dir, file_path_as_absolute)
 
 importFrom(httr, GET, HEAD, content, user_agent, stop_for_status)
 importFrom(xml2, read_html)
 importFrom(rvest, html_elements, html_text)
+importFrom(xtable, xtable)
+import(tibble)
 
 import(S4Vectors)
 import(GenomeInfoDb)
