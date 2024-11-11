@@ -15,12 +15,15 @@ feedback, request features, etc...]
 
 ### 1. Install and load igblastr
 
-#### Install
+#### Install igblastr
+
+    if (!require(remotes, quietly=TRUE))
+        install.packages("remotes")
 
     library(remotes)
     install_github("hpages/igblastr")
 
-#### Load
+#### Load igblastr
 
     library(igblastr)
 
@@ -48,7 +51,7 @@ user's `.profile` (on Unix/Mac). See `?IGBLAST_ROOT`.
     igblast_info()
 
 This will make sure that the installed IgBLAST is functional. It will
-also display basic information about it (e.g. `igblastn` versions).
+also display basic information about it (e.g. `igblastn` version).
 
 
 ### 3. Install germline dbs and select db to use
