@@ -23,8 +23,9 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
 
 \arguments{
   \item{query}{
-    A single string containing the path to a FASTA file with your query
-    sequences.
+    A single string containing the path to a FASTA file with your
+    query sequences. Alternatively \code{query} can be a named
+    \link[Biostrings]{DNAStringSet} object.
   }
   \item{outfmt}{
     TODO
@@ -71,6 +72,9 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
 
     \item \code{\link{use_germline_db}} to select the local germline
           db to use with \code{igblastn()}.
+
+    \item \link[Biostrings]{DNAStringSet} objects implemented in the
+          \pkg{Biostrings} package.
 
     \item \code{\link{list_igblast_organisms}()} to list the organisms
           supported by IgBLAST.

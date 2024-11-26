@@ -74,6 +74,27 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### .normarg_query()
+###
+
+.normarg_query <- function(query)
+{
+    if (isSingleNonWhiteString(query))
+        return(file_path_as_absolute(query))
+    if (is(query, "DNAStringSet")) {
+        if (is.null(names(query)))
+            stop(wmsg("DNAStringSet object 'query' must have names"))
+        filepath <- tempfile(fileext=".fasta")
+        writeXStringSet(query, filepath)
+        return(filepath)
+    }
+    stop(wmsg("'query' must be a single (non-empty) string ",
+              "that contains the path to the input file. ",
+              "Alternatively it can be a named DNAStringSet object."))
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .normarg_outfmt()
 ###
 
@@ -153,10 +174,7 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
 {
     igblast_root <- get_igblast_root()
     db_name <- use_germline_db()
-    if (!isSingleNonWhiteString(query))
-        stop(wmsg("'query' must be a single (non-empty) string ",
-                  "that contains the path to the input file"))
-    query <- file_path_as_absolute(query)
+    query <- .normarg_query(query)
     outfmt <- .normarg_outfmt(outfmt)
     organism <- .normarg_organism(organism, db_name)
     auxiliary_data <- file.path(igblast_root, "optional_file",
