@@ -43,17 +43,15 @@ list_IMGT_releases <- function(recache=FALSE)
     chartr(" ", "_", organism)
 }
 
-.get_local_IMGT_store <- function(release)
+.get_IMGT_release_local_store <- function(release)
 {
-    path <- file.path(R_user_dir("igblastr", "cache"),
-                      "store", "IMGT-releases")
-    file.path(path, release)
+    igblastr_cache <- R_user_dir("igblastr", "cache")
+    path <- file.path(igblastr_cache, "store", "IMGT-releases", release)
 }
 
 .form_IMGT_germline_db_name <- function(release, organism="Homo sapiens",
                                         db_type=c("IG", "TR", "IG-TR"))
 {
-    release <- basename(.get_local_IMGT_store(release))
     organism <- .normalize_IMGT_organism(organism)
     db_type <- match.arg(db_type)
     sprintf("IMGT-%s.%s.%s", release, organism, db_type)
@@ -61,8 +59,8 @@ list_IMGT_releases <- function(recache=FALSE)
 
 ### Requires Perl.
 install_IMGT_germline_db <- function(release, organism="Homo sapiens",
-                                       db_type=c("IG", "TR", "IG-TR"),
-                                       force=FALSE, ...)
+                                     db_type=c("IG", "TR", "IG-TR"),
+                                     force=FALSE, ...)
 {
     ## Check arguments.
     if (missing(release)) {
@@ -82,7 +80,7 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
         stop(wmsg("'force' must be TRUE or FALSE"))
 
     ## Download IMGT/V-QUEST release to local store if it's not there already.
-    local_store <- .get_local_IMGT_store(release)
+    local_store <- .get_IMGT_release_local_store(release)
     if (!dir.exists(local_store))
         download_and_unzip_IMGT_release(release, local_store, ...)
 

@@ -182,3 +182,90 @@ find_organism_in_IMGT_store <- function(organism, local_store)
          wmsg("Available organisms: ", all_in_1string, "."))
 }
 
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### fetch_IMGT_C_segments()
+###
+
+.VQUEST_C_SEGMENTS_URL <- "https://www.imgt.org/genedb/GENElect"
+
+### All kinds of conventions are used across the IMGT website to name
+### organisms. Picking one and sticking to it would boring I guess...
+.map_organism_to_IMGT_species <- function(organism)
+{
+    stopifnot(isSingleNonWhiteString(organism))
+    organism <- chartr("_", " ", organism)
+    IMGT_species <- c("Homo sapiens", "Mus", "Rat",
+                      "Vicugna pacos", "Oryctolagus cuniculus")
+    m <- match(tolower(organism), tolower(IMGT_species))
+    if (is.na(m)) {
+        errmsg <- c("to the best of our knowledge, IMGT does not host ",
+                    "C segments for organism ", organism)
+        m <- switch(tolower(organism),
+                    "human"=1L,
+                    "mouse"=, "mus musculus"= 2L,
+                    "rattus norvegicus"=3L,
+                    "alpaca"=4L,
+                    "rabbit"=5L,
+                    stop(wmsg(errmsg))
+        )
+    }
+    IMGT_species[m]
+}
+
+### 'fasta_lines' must be a character vector.
+### Returns FALSE if no FASTA records or if all records are empty.
+.is_dna_fasta <- function(fasta_lines)
+{
+    stopifnot(is.character(fasta_lines))
+    header_idx <- grep("^>", fasta_lines)
+    if (length(header_idx) == 0L)
+        return(FALSE)  # no FASTA records
+    dna_lines <- fasta_lines[- header_idx]
+    dna <- paste(tolower(dna_lines), collapse="")
+    if (!nzchar(dna))
+        return(FALSE)  # all records are empty
+    all(safeExplode(dna) %in% c("a", "c", "g", "t"))
+}
+
+### Fetch the C segments (as nucleotide sequences) from the links provided
+### in the tables displayed at:
+###   https://www.imgt.org/vquest/refseqh.html#constant-sets
+### Unfortunately these links redirect us to ugly HTML pages that we need
+### to scrape to extract the nucleotide sequences.
+### Note that:
+### - The IGHC group is available for Human, Mouse, Rat, Alpaca, and Rabbit.
+### - The IGKC and IGLC groups are only available for Human.
+### - The IMGT folks seem to use some kind of versioning convention for these
+###   that is undocumented, unfortunately. As of Dec 16, 2024, these sequences
+###   seem to be at version 14.1.
+fetch_IMGT_C_segments <- function(organism, group=c("IGHC", "IGKC", "IGLC"),
+                                  version="14.1")
+{
+    group <- match.arg(group)
+    species <- .map_organism_to_IMGT_species(organism)
+    stopifnot(isSingleNonWhiteString(version))
+    query <- list(query=paste(version, group), species=species)
+    html <- getUrlContent(.VQUEST_C_SEGMENTS_URL, query=query,
+                          type="text", encoding="UTF-8")
+
+    ## HTML document 'html' is expected to contain 2 <pre></pre> sections:
+    ## - The first one is a section that describes the 15 fields of the
+    ##   FASTA headers.
+    ## - The second one contains our nucleotide sequences in FASTA format.
+    ## To make the scrapping a little bit more robust we return the content
+    ## of the first <pre></pre> section that contains valid FASTA.
+    xml <- read_html(html)
+    all_pres <- html_text(html_elements(xml, "pre"))
+    for (pre in all_pres) {
+        fasta_lines <- strsplit(pre, split="\n", fixed=TRUE)[[1L]]
+        fasta_lines <- fasta_lines[nzchar(fasta_lines)]
+        if (.is_dna_fasta(fasta_lines))
+            return(fasta_lines)
+    }
+    constant_seq_url <- "https://www.imgt.org/vquest/refseqh.html#constant-sets"
+    stop(wmsg("failed to fetch the nucleotide sequences of the C segments ",
+              "for ", organism, " from the links provided in the tables ",
+              "displayed at ", constant_seq_url))
+}
+

@@ -5,7 +5,8 @@
 
 get_germline_dbs_path <- function()
 {
-    file.path(R_user_dir("igblastr", "cache"), "germline_dbs")
+    igblastr_cache <- R_user_dir("igblastr", "cache")
+    file.path(igblastr_cache, "germline_dbs")
 }
 
 get_germline_db_path <- function(db_name)

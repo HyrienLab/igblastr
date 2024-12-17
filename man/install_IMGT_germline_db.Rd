@@ -7,11 +7,11 @@
 
 \description{
   The \code{install_IMGT_germline_db()} function downloads IMGT/V-QUEST
-  germline sequences (FASTA files) from the IMGT website, and makes
+  germline sequences (FASTA files) from the IMGT website, and generates
   a small local database with the sequences of the specified organism.
   This local database can then be used later with \code{\link{igblastn}()}.
 
-  Note that \code{install_IMGT_germline_db()} makes the
+  Note that \code{install_IMGT_germline_db()} generates the
   local database by performing the instructions provided at
   \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html}.
   In particular, utility tool edit_imgt_file.pl (Perl script included

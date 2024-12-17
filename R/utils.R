@@ -27,9 +27,12 @@ urlExists <- function(url)
     response$status_code != 404L
 }
 
-getUrlContent <- function(url, type=NULL, encoding=NULL)
+getUrlContent <- function(url, query=list(), type=NULL, encoding=NULL)
 {
-    response <- try(GET(url, user_agent("igblastr")), silent=TRUE)
+    stopifnot(is.list(query))
+    if (length(query) != 0L)
+        stopifnot(!is.null(names(query)))
+    response <- try(GET(url, user_agent("igblastr"), query=query), silent=TRUE)
     if (inherits(response, "try-error"))
         stop(as.character(response), "  Please check your internet connection.")
     if (response$status_code == 404L)
