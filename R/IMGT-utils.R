@@ -200,7 +200,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
     m <- match(tolower(organism), tolower(IMGT_species))
     if (is.na(m)) {
         errmsg <- c("to the best of our knowledge, IMGT does not ",
-                    "provide C regions for organism ", organism)
+                    "provide C-regions for organism ", organism)
         m <- switch(tolower(organism),
                     "human"=1L,
                     "mouse"=, "mus musculus"= 2L,
@@ -228,7 +228,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
     all(safeExplode(dna) %in% c("a", "c", "g", "t"))
 }
 
-### Fetch the C regions (as nucleotide sequences) from the links provided
+### Fetch the C-regions (as nucleotide sequences) from the links provided
 ### in the tables displayed at:
 ###   https://www.imgt.org/vquest/refseqh.html#constant-sets
 ### Unfortunately these links redirect us to ugly HTML pages that we need
@@ -264,7 +264,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
             return(fasta_lines)
     }
     constant_seq_url <- "https://www.imgt.org/vquest/refseqh.html#constant-sets"
-    stop(wmsg("failed to fetch the nucleotide sequences of the C regions ",
+    stop(wmsg("failed to fetch the nucleotide sequences of the C-regions ",
               "for ", organism, " from the links provided in the tables ",
               "displayed at ", constant_seq_url))
 }
@@ -278,10 +278,11 @@ find_organism_in_IMGT_store <- function(organism, local_store)
 }
 
 ### Use this to populate igblastr/inst/extdata/constant_regions/IMGT/
-### See https://www.imgt.org/vquest/refseqh.html#constant-sets for what
-### we download.
+### See the table at https://www.imgt.org/vquest/refseqh.html#constant-sets
+### for what we download.
 ### Note that IMGT does not provide IGHC regions for Rat at the moment (as
-### of Dec 2024) despite the link.
+### of Dec 2024) despite the link displayed in the Nucleotides column of
+### the left table.
 download_all_C_regions_from_IMGT <- function(destdir=".")
 {
     stopifnot(isSingleNonWhiteString(destdir))
