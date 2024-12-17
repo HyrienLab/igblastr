@@ -156,8 +156,8 @@
 }
 
 make_IMGT_germline_db <- function(organism_path, db_path,
-                                    db_type=c("IG", "TR", "IG-TR"),
-                                    force=FALSE)
+                                  db_type=c("IG", "TR", "IG-TR"),
+                                  force=FALSE)
 {
     db_type <- match.arg(db_type)
     if (!isTRUEorFALSE(force))

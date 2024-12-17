@@ -184,7 +184,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### fetch_IMGT_C_segments()
+### download_all_C_regions_from_IMGT()
 ###
 
 .VQUEST_C_SEGMENTS_URL <- "https://www.imgt.org/genedb/GENElect"
@@ -199,8 +199,8 @@ find_organism_in_IMGT_store <- function(organism, local_store)
                       "Vicugna pacos", "Oryctolagus cuniculus")
     m <- match(tolower(organism), tolower(IMGT_species))
     if (is.na(m)) {
-        errmsg <- c("to the best of our knowledge, IMGT does not host ",
-                    "C segments for organism ", organism)
+        errmsg <- c("to the best of our knowledge, IMGT does not ",
+                    "provide C regions for organism ", organism)
         m <- switch(tolower(organism),
                     "human"=1L,
                     "mouse"=, "mus musculus"= 2L,
@@ -228,7 +228,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
     all(safeExplode(dna) %in% c("a", "c", "g", "t"))
 }
 
-### Fetch the C segments (as nucleotide sequences) from the links provided
+### Fetch the C regions (as nucleotide sequences) from the links provided
 ### in the tables displayed at:
 ###   https://www.imgt.org/vquest/refseqh.html#constant-sets
 ### Unfortunately these links redirect us to ugly HTML pages that we need
@@ -239,8 +239,8 @@ find_organism_in_IMGT_store <- function(organism, local_store)
 ### - The IMGT folks seem to use some kind of versioning convention for these
 ###   that is undocumented, unfortunately. As of Dec 16, 2024, these sequences
 ###   seem to be at version 14.1.
-fetch_IMGT_C_segments <- function(organism, group=c("IGHC", "IGKC", "IGLC"),
-                                  version="14.1")
+.fetch_group_of_C_regions_from_IMGT <-
+    function(organism, group=c("IGHC", "IGKC", "IGLC"), version="14.1")
 {
     group <- match.arg(group)
     species <- .map_organism_to_IMGT_species(organism)
@@ -264,8 +264,43 @@ fetch_IMGT_C_segments <- function(organism, group=c("IGHC", "IGKC", "IGLC"),
             return(fasta_lines)
     }
     constant_seq_url <- "https://www.imgt.org/vquest/refseqh.html#constant-sets"
-    stop(wmsg("failed to fetch the nucleotide sequences of the C segments ",
+    stop(wmsg("failed to fetch the nucleotide sequences of the C regions ",
               "for ", organism, " from the links provided in the tables ",
               "displayed at ", constant_seq_url))
+}
+
+.download_group_of_C_regions_from_IMGT <-
+    function(organism, destfile, group=c("IGHC", "IGKC", "IGLC"),
+             version="14.1")
+{
+    regions <- .fetch_group_of_C_regions_from_IMGT(organism, group, version)
+    writeLines(regions, destfile)
+}
+
+### Use this to populate igblastr/inst/extdata/constant_regions/IMGT/
+### See https://www.imgt.org/vquest/refseqh.html#constant-sets for what
+### we download.
+### Note that IMGT does not provide IGHC regions for Rat at the moment (as
+### of Dec 2024) despite the link.
+download_all_C_regions_from_IMGT <- function(destdir=".")
+{
+    stopifnot(isSingleNonWhiteString(destdir))
+    organism2groups <- list(human  = c("IGHC", "IGKC", "IGLC"),
+                            mouse  = "IGHC",
+                            #rat    = "IGHC",
+                            rabbit = "IGHC")
+    for (organism in names(organism2groups)) {
+        groups <- organism2groups[[organism]]
+        for (group in groups) {
+            filename <- paste0(group, ".fasta")
+            destfile <- file.path(destdir, organism, filename)
+            message("Download ", group, " regions for ", organism, " ",
+                    "to ", destfile, " ... ", appendLF=FALSE)
+            .download_group_of_C_regions_from_IMGT(organism, destfile, group)
+            message("ok")
+            nregion <- length(readDNAStringSet(destfile))
+            message("  (", nregion, " region(s) downloaded)")
+        }
+    }
 }
 
