@@ -92,7 +92,7 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
     ## Create IMGT germline db.
     germline_dbs <- get_germline_dbs_path()
     db_path <- file.path(germline_dbs, db_name)
-    make_IMGT_germline_db(organism_path, db_path, db_type, force=force)
+    create_IMGT_germline_db(organism_path, db_path, db_type, force=force)
 
     ## Success!
     message("Germline db ", db_name, " successfully installed.")

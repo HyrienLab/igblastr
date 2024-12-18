@@ -1,53 +1,14 @@
 ### =========================================================================
-### prepare_IMGT_germline_db()
+### create_IMGT_germline_db()
 ### -------------------------------------------------------------------------
 ###
-### See procedure described at
-###   https://ncbi.github.io/igblast/cook/How-to-set-up.html
-### for how to prepare a germline or C-region db from the FASTA files
-### available at IMGT.
-### This is a 3-step procedure: (1) combine, (2) edit, (3) compile.
-### The combine_and_edit_IMGT_fasta_files() function below implements
-### steps (1) and (2). Perl is required for step (2).
-### Compilation (with makeblastdb) will happen at a latter time.
-###
 ### Nothing in this file is exported.
+###
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### combine_and_edit_IMGT_fasta_files()
-###
-### This is the workhorse behind prepare_IMGT_germline_db() and
-### prepare_IMGT_c_region_db().
-###
-
-combine_and_edit_IMGT_fasta_files <-
-    function(fasta_files, destdir, edit_fasta_script,
-             gene_segment=c("V", "D", "J", "C"))
-{
-    gene_segment <- match.arg(gene_segment)
-    before_edit_dir <- file.path(destdir, "before_edit")
-    if (!dir.exists(before_edit_dir))
-        dir.create(before_edit_dir, recursive=TRUE)
-    unedited_file <- file.path(before_edit_dir, paste0(gene_segment, ".fasta"))
-    concatenate_files(fasta_files, unedited_file)
-    edited_file <- file.path(destdir, paste0(gene_segment, ".fasta"))
-    errfile <- file.path(destdir, paste0(gene_segment,
-                                         "_imgt_script_errors.txt"))
-
-    ## This does not work on Windows!
-    #system3(edit_fasta_script, edited_file, errfile, args=unedited_file)
-
-    ## Note that running the Perl script with 'script ...' runs on Linux
-    ## and Mac but not on Windows. So we run it with 'perl script ...'
-    ## instead. This seems to run everywhere.
-    system3("perl", edited_file, errfile,
-            args=c(edit_fasta_script, unedited_file))
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### prepare_IMGT_germline_db()
+### A bunch of low-level helpers to collect the various FASTA files that go
+### into a given IMGT germline db
 ###
 
 .list_IMGT_fasta_files <- function(dirpath, gene_segment=c("V", "D", "J"),
@@ -176,6 +137,11 @@ combine_and_edit_IMGT_fasta_files <-
                               edit_fasta_script, gene_segment="J")
 }
 
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### create_IMGT_germline_db()
+###
+
 .stop_on_existing_IMGT_germline_db <- function(destdir)
 {
     db_name <- basename(destdir)
@@ -187,6 +153,11 @@ combine_and_edit_IMGT_fasta_files <-
 }
 
 ### Perl required!
+###
+### Create a germline db from the FASTA files provided by IMGT for
+### a given organism. See combine_and_edit_IMGT_fasta_files() in
+### create_IMGT_c_region_db.R for the workhorse behind
+### create_IMGT_germline_db().
 ###
 ### 'organism_path' must be the path to an organism subfolder in one of
 ### the 'IMGT_V-QUEST_reference_directory' folders from the "IMGT-releases"
@@ -201,9 +172,9 @@ combine_and_edit_IMGT_fasta_files <-
 ### 'destdir' will typically be the path to a subdir of:
 ###     <igblastr-cache>
 ###     └── germline_dbs
-prepare_IMGT_germline_db <- function(organism_path, destdir,
-                                     db_type=c("IG", "TR", "IG-TR"),
-                                     force=FALSE)
+create_IMGT_germline_db <- function(organism_path, destdir,
+                                    db_type=c("IG", "TR", "IG-TR"),
+                                    force=FALSE)
 {
     db_type <- match.arg(db_type)
     if (!isTRUEorFALSE(force))

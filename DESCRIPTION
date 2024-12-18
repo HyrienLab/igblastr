@@ -30,9 +30,10 @@ Collate:
 	compile_germline_db.R
 	use_germline_db.R
 	IMGT-utils.R
-	prepare_IMGT_germline_db.R
-	prepare_IMGT_c_region_db.R
-	install_NCBI_germline_db.R
+	create_IMGT_c_region_db.R
+	create_all_c_region_dbs.R
+	create_IMGT_germline_db.R
 	install_IMGT_germline_db.R
+	install_NCBI_germline_db.R
 	igblastn.R
 	zzz.R
