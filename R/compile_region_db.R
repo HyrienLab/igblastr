@@ -1,5 +1,5 @@
 ### =========================================================================
-### compile_germline_db()
+### compile_region_db()
 ### -------------------------------------------------------------------------
 ###
 ### Nothing in this file is exported.
@@ -61,11 +61,13 @@
     FALSE
 }
 
-### "Compiles" a FASTA file, that is, uses the 'makeblastdb' executable
-### provided by NCBI IgBLAST to process all FASTA files in the germline db,
-### as instructed at:
+### Use the 'makeblastdb' executable distributed with NCBI IgBLAST to "compile"
+### a FASTA file into a db usable with igblastn(). This is the last step
+### of the 3-step procedure to create a germline or C-region db from a
+### collection of FASTA files. See
 ###   https://ncbi.github.io/igblast/cook/How-to-set-up.html
-### This produces 10 files per FASTA file!
+### for more information.
+### This "compilation" produces 10 files per FASTA file!
 .run_makeblastdb_on_fasta_file <- function(fasta_file, makeblastdb_exe)
 {
     gene_segment <- sub("\\.fasta$", "", fasta_file)
@@ -83,11 +85,11 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### clean_germline_db()
+### clean_region_db()
 ###
 
-### Remove the blastdb files produced by compile_germline_db().
-clean_germline_db <- function(db_path)
+### Remove the blastdb files produced by compile_region_db().
+clean_region_db <- function(db_path)
 {
     if (!isSingleNonWhiteString(db_path))
         stop(wmsg("'db_path' must be a single (non-empty) string"))
@@ -102,7 +104,7 @@ clean_germline_db <- function(db_path)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### compile_germline_db()
+### compile_region_db()
 ###
 
 ### Returns a named logical vector that indicates the status of all the FASTA
@@ -121,7 +123,7 @@ clean_germline_db <- function(db_path)
 ### very fast no-op if all the FASTA files in the db are already compiled.
 ### Returns the named logical vector obtained with .get_fasta_files_statuses()
 ### above.
-compile_germline_db <- function(db_path)
+compile_region_db <- function(db_path)
 {
     if (!isSingleNonWhiteString(db_path))
         stop(wmsg("'db_path' must be a single (non-empty) string"))

@@ -27,7 +27,8 @@ Collate:
 	get_igblast_root.R
 	igblast_info.R
 	install_igblast.R
-	compile_germline_db.R
+	compile_region_db.R
+	list_c_region_dbs.R
 	use_germline_db.R
 	IMGT-utils.R
 	create_IMGT_c_region_db.R
