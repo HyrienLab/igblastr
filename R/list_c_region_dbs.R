@@ -66,7 +66,7 @@ compile_all_c_region_dbs <- function()
     all_db_names <- list_c_region_dbs(names.only=TRUE)
     for (db_name in all_db_names) {
         db_path <- get_c_region_db_path(db_name)
-        compile_region_db(db_path)
+        make_blast_dbs(db_path)
     }
 }
 
@@ -76,7 +76,7 @@ clean_all_c_region_dbs <- function()
     all_db_names <- list_c_region_dbs(names.only=TRUE)
     for (db_name in all_db_names) {
         db_path <- get_c_region_db_path(db_name)
-        clean_region_db(db_path)
+        clean_blast_dbs(db_path)
     }
 }
 

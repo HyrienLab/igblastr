@@ -62,7 +62,7 @@ list_germline_dbs <- function()
                   "of an installed germline db. ",
                   "Try to repair with use_germline_db(\"<db_name>\"). ",
                   "See '?use_germline_db' for more information."))
-    compile_region_db(db_path)
+    make_blast_dbs(db_path)
     db_name
 }
 
@@ -98,7 +98,7 @@ use_germline_db <- function(db_name=NULL)
 
     germline_dbs <- get_germline_dbs_path()
     db_path <- file.path(germline_dbs, db_name)
-    compile_region_db(db_path)
+    make_blast_dbs(db_path)
 
     using_path <- file.path(germline_dbs, "USING")
     writeLines(db_name, using_path)
@@ -115,7 +115,7 @@ clean_all_germline_dbs <- function()
     all_db_names <- list_germline_dbs()
     for (db_name in all_db_names) {
         db_path <- get_germline_db_path(db_name)
-        clean_region_db(db_path)
+        clean_blast_dbs(db_path)
     }
 }
 

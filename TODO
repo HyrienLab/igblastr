@@ -13,8 +13,12 @@
 
 - Update README.md.
 
-- Bug: compiling IMGT-202430-2.Homo_sapiens.TR with compile_region_db()
-  produces the following makeblastdb error:
-    BLAST Database creation error: Error: Duplicate seq_ids are found:
-    LCL|TRAV14/DV4*01
+- Duplicate seq_ids errors: happens when running make_blast_dbs() on FASTA
+  file with duplicate seq_ids. For example:
+  - on C-region db IMGT.human:
+      BLAST Database creation error: Error: Duplicate seq_ids are found:
+      LCL|IGHA1*01
+  - on germline db IMGT-202430-2.Homo_sapiens.TR:
+      BLAST Database creation error: Error: Duplicate seq_ids are found:
+      LCL|TRAV14/DV4*01
 

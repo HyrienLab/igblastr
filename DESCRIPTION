@@ -7,7 +7,7 @@ Description: The igblastr package provides functions to conveniently install
 	Note that the package is still a WORK-IN-PROGRESS! Please use
 	<https://github.com/hpages/igblastr/issues> to report bugs,
 	provide feedback, request features, etc...
-Version: 0.1.3
+Version: 0.1.4
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
@@ -27,10 +27,11 @@ Collate:
 	get_igblast_root.R
 	igblast_info.R
 	install_igblast.R
-	compile_region_db.R
+	make_blast_dbs.R
 	list_c_region_dbs.R
 	use_germline_db.R
 	IMGT-utils.R
+	create_IMGT_region_db.R
 	create_IMGT_c_region_db.R
 	create_all_c_region_dbs.R
 	create_IMGT_germline_db.R

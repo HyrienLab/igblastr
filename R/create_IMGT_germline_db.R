@@ -88,59 +88,59 @@
     c(IG_files, TR_files)
 }
 
-.process_IMGT_fasta_files <-
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### create_IMGT_germline_db()
+###
+
+### A thin wrapper to create_IMGT_region_db().
+.create_IMGT_region_db2 <-
     function(srcdir, destdir, list_files_FUN,
              edit_fasta_script, gene_segment=c("V", "D", "J"))
 {
     gene_segment <- match.arg(gene_segment)
     fasta_files <- list_files_FUN(srcdir)
-    combine_and_edit_IMGT_fasta_files(fasta_files, destdir,
-                                      edit_fasta_script,
-                                      gene_segment=gene_segment)
+    create_IMGT_region_db(fasta_files, destdir, gene_segment=gene_segment,
+                          edit_fasta_script=edit_fasta_script)
 }
 
-.build_IMGT_IG_germline_db <- function(organism_path, destdir,
-                                       edit_fasta_script)
+.create_IMGT_IG_germline_db <- function(organism_path, destdir,
+                                        edit_fasta_script)
 {
     IG_path <- file.path(organism_path, "IG")
-    .process_IMGT_fasta_files(IG_path, destdir, .list_V_files_in_IMGT_IG,
-                              edit_fasta_script, gene_segment="V")
-    .process_IMGT_fasta_files(IG_path, destdir, .list_D_files_in_IMGT_IG,
-                              edit_fasta_script, gene_segment="D")
-    .process_IMGT_fasta_files(IG_path, destdir, .list_J_files_in_IMGT_IG,
-                              edit_fasta_script, gene_segment="J")
+    .create_IMGT_region_db2(IG_path, destdir, .list_V_files_in_IMGT_IG,
+                            edit_fasta_script, gene_segment="V")
+    .create_IMGT_region_db2(IG_path, destdir, .list_D_files_in_IMGT_IG,
+                            edit_fasta_script, gene_segment="D")
+    .create_IMGT_region_db2(IG_path, destdir, .list_J_files_in_IMGT_IG,
+                            edit_fasta_script, gene_segment="J")
 }
 
-.build_IMGT_TR_germline_db <- function(organism_path, destdir,
-                                       edit_fasta_script)
+.create_IMGT_TR_germline_db <- function(organism_path, destdir,
+                                        edit_fasta_script)
 {
     TR_path <- file.path(organism_path, "TR")
-    .process_IMGT_fasta_files(TR_path, destdir, .list_V_files_in_IMGT_TR,
-                              edit_fasta_script, gene_segment="V")
-    .process_IMGT_fasta_files(TR_path, destdir, .list_D_files_in_IMGT_TR,
-                              edit_fasta_script, gene_segment="D")
-    .process_IMGT_fasta_files(TR_path, destdir, .list_J_files_in_IMGT_TR,
-                              edit_fasta_script, gene_segment="J")
+    .create_IMGT_region_db2(TR_path, destdir, .list_V_files_in_IMGT_TR,
+                            edit_fasta_script, gene_segment="V")
+    .create_IMGT_region_db2(TR_path, destdir, .list_D_files_in_IMGT_TR,
+                            edit_fasta_script, gene_segment="D")
+    .create_IMGT_region_db2(TR_path, destdir, .list_J_files_in_IMGT_TR,
+                            edit_fasta_script, gene_segment="J")
 }
 
-.build_IMGT_IG_TR_germline_db <- function(organism_path, destdir,
-                                          edit_fasta_script)
+.create_IMGT_IG_TR_germline_db <- function(organism_path, destdir,
+                                           edit_fasta_script)
 {
-    .process_IMGT_fasta_files(organism_path, destdir,
-                              .list_V_files_in_IMGT_IG_TR,
-                              edit_fasta_script, gene_segment="V")
-    .process_IMGT_fasta_files(organism_path, destdir,
-                              .list_D_files_in_IMGT_IG_TR,
-                              edit_fasta_script, gene_segment="D")
-    .process_IMGT_fasta_files(organism_path, destdir,
-                              .list_J_files_in_IMGT_IG_TR,
-                              edit_fasta_script, gene_segment="J")
+    .create_IMGT_region_db2(organism_path, destdir,
+                            .list_V_files_in_IMGT_IG_TR,
+                            edit_fasta_script, gene_segment="V")
+    .create_IMGT_region_db2(organism_path, destdir,
+                            .list_D_files_in_IMGT_IG_TR,
+                            edit_fasta_script, gene_segment="D")
+    .create_IMGT_region_db2(organism_path, destdir,
+                            .list_J_files_in_IMGT_IG_TR,
+                            edit_fasta_script, gene_segment="J")
 }
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### create_IMGT_germline_db()
-###
 
 .stop_on_existing_IMGT_germline_db <- function(destdir)
 {
@@ -154,10 +154,8 @@
 
 ### Perl required!
 ###
-### Create a germline db from the FASTA files provided by IMGT for
-### a given organism. See combine_and_edit_IMGT_fasta_files() in
-### create_IMGT_c_region_db.R for the workhorse behind
-### create_IMGT_germline_db().
+### A "germline db" is made of three "region dbs": one V-, one D-, and one
+### J-region db. Calls create_IMGT_region_db() to create each "region db".
 ###
 ### 'organism_path' must be the path to an organism subfolder in one of
 ### the 'IMGT_V-QUEST_reference_directory' folders from the "IMGT-releases"
@@ -184,7 +182,7 @@ create_IMGT_germline_db <- function(organism_path, destdir,
         .stop_on_existing_IMGT_germline_db(destdir)
 
     ## We check these 2 paths up front so we don't have to check them
-    ## later in the .build_IMGT_*_db() functions.
+    ## later in the .create_IMGT_*_db() functions.
     IG_path <- file.path(organism_path, "IG")
     if (!dir.exists(IG_path))
         stop(wmsg("Anomaly: directory ", IG_path, " not found"))
@@ -193,9 +191,9 @@ create_IMGT_germline_db <- function(organism_path, destdir,
         stop(wmsg("Anomaly: directory ", TR_path, " not found"))
 
     FUN <- switch(db_type,
-        "IG"   =.build_IMGT_IG_germline_db,
-        "TR"   =.build_IMGT_TR_germline_db,
-        "IG-TR"=.build_IMGT_IG_TR_germline_db,
+        "IG"   =.create_IMGT_IG_germline_db,
+        "TR"   =.create_IMGT_TR_germline_db,
+        "IG-TR"=.create_IMGT_IG_TR_germline_db,
         stop(db_type, ": invalid 'db_type'")
     )
 
