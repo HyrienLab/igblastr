@@ -15,6 +15,13 @@ feedback, request features, etc...
 
 ### 1. Install and load igblastr
 
+#### Install Bioconductor dependencies
+
+    if (!require("BiocManager", quietly = TRUE))
+        install.packages("BiocManager")
+
+    BiocManager::install(c('Biostrings','S4Vectors','GenomeInfoDb'))
+
 #### Install igblastr
 
     if (!require(remotes, quietly=TRUE))
