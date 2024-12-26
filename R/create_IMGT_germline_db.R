@@ -205,6 +205,8 @@ create_IMGT_germline_db <- function(organism_path, destdir,
     dir.create(tmpdestdir, recursive=TRUE)
     on.exit(unlink(tmpdestdir, recursive=TRUE, force=TRUE))
     FUN(organism_path, tmpdestdir, edit_fasta_script)
+    if (!dir.exists(dirname(destdir)))
+       dir.create(dirname(destdir))
     replace_file(destdir, tmpdestdir)
 }
 
