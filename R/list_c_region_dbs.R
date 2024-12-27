@@ -43,11 +43,11 @@
 ### get_c_region_db_path()
 ###
 
-### Set 'init.path' to TRUE to create and populate
-###   <igblastr-cached>/c_region_dbs/
-### if it doesn't exist yet.
-### Note that only when 'init.path' is set to TRUE is the returned path
-### guaranteed to exist.
+### Returns "<igblastr-cache>/c_region_dbs".
+### When 'init.path=TRUE', the returned path is created if it doesn't exist
+### yet, and populated with the builtin C-region dbs.
+### Note that the returned path is only guaranteed to exist when 'init.path'
+### is set to TRUE.
 .get_c_region_dbs_path <- function(init.path=FALSE)
 {
     stopifnot(isTRUEorFALSE(init.path))
@@ -60,6 +60,7 @@
     c_region_dbs
 }
 
+### Note that the returned path is NOT guaranteed to exist.
 ### Not exported!
 get_c_region_db_path <- function(db_name)
 {

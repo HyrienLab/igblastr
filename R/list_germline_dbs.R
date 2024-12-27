@@ -3,12 +3,18 @@
 ### -------------------------------------------------------------------------
 
 
+### Returns "<igblastr-cache>/germline_dbs".
+### Note that the returned path is guaranteed to exist.
 get_germline_dbs_path <- function()
 {
     igblastr_cache <- R_user_dir("igblastr", "cache")
-    file.path(igblastr_cache, "germline_dbs")
+    germline_dbs <- file.path(igblastr_cache, "germline_dbs")
+    if (!dir.exists(germline_dbs))
+        dir.create(germline_dbs, recursive=TRUE)
+    germline_dbs
 }
 
+### Note that the returned path is NOT guaranteed to exist.
 get_germline_db_path <- function(db_name)
 {
     stopifnot(isSingleNonWhiteString(db_name), db_name != "USING")
@@ -37,11 +43,7 @@ list_germline_dbs <- function(names.only=FALSE)
     if (!isTRUEorFALSE(names.only))
         stop(wmsg("'names.only' must be TRUE or FALSE"))
     germline_dbs <- get_germline_dbs_path()
-    if (dir.exists(germline_dbs)) {
-        all_db_names <- sort(setdiff(list.files(germline_dbs), "USING"))
-    } else {
-        all_db_names <- character(0)
-    }
+    all_db_names <- sort(setdiff(list.files(germline_dbs), "USING"))
     if (names.only)
         return(all_db_names)
     nVregions <- .count_germline_regions(all_db_names, group="V")
