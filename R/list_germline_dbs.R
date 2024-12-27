@@ -16,13 +16,39 @@ get_germline_db_path <- function(db_name)
     file.path(germline_dbs, db_name)
 }
 
-list_germline_dbs <- function()
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### list_germline_dbs()
+###
+
+.count_germline_regions <- function(all_db_names, group=c("V", "D", "J"))
 {
+    group <- match.arg(group)
+    vapply(all_db_names,
+        function(db_name) {
+            db_path <- get_germline_db_path(db_name)
+            fasta_file <- file.path(db_path, paste0(group, ".fasta"))
+            length(fasta.seqlengths(fasta_file))
+        }, integer(1), USE.NAMES=FALSE)
+}
+
+list_germline_dbs <- function(names.only=FALSE)
+{
+    if (!isTRUEorFALSE(names.only))
+        stop(wmsg("'names.only' must be TRUE or FALSE"))
     germline_dbs <- get_germline_dbs_path()
-    if (!dir.exists(germline_dbs))
-        return(character(0))
-    all_db_names <- setdiff(list.files(germline_dbs), "USING")
-    sort(all_db_names)
+    if (dir.exists(germline_dbs)) {
+        all_db_names <- sort(setdiff(list.files(germline_dbs), "USING"))
+    } else {
+        all_db_names <- character(0)
+    }
+    if (names.only)
+        return(all_db_names)
+    nVregions <- .count_germline_regions(all_db_names, group="V")
+    nDregions <- .count_germline_regions(all_db_names, group="D")
+    nJregions <- .count_germline_regions(all_db_names, group="J")
+    data.frame(db_name=all_db_names,
+               nVregions=nVregions, nDregions=nDregions, nJregions=nJregions)
 }
 
 
@@ -49,7 +75,7 @@ list_germline_dbs <- function()
 
 .get_germline_db_in_use <- function()
 {
-    all_db_names <- list_germline_dbs()
+    all_db_names <- list_germline_dbs(TRUE)
     if (length(all_db_names) == 0L)
         .stop_on_no_installed_germline_db_yet()
     germline_dbs <- get_germline_dbs_path()
@@ -79,7 +105,7 @@ use_germline_db <- function(db_name=NULL)
     ## Check 'db_name'.
     if (!isSingleNonWhiteString(db_name))
         stop(wmsg("'db_name' must be a single (non-empty) string"))
-    all_db_names <- list_germline_dbs()
+    all_db_names <- list_germline_dbs(TRUE)
     if (length(all_db_names) == 0L)
         .stop_on_no_installed_germline_db_yet()
     if (!(db_name %in% all_db_names))
@@ -101,7 +127,7 @@ use_germline_db <- function(db_name=NULL)
 
 clean_germline_blastdbs <- function()
 {
-    all_db_names <- list_germline_dbs()
+    all_db_names <- list_germline_dbs(TRUE)
     for (db_name in all_db_names) {
         db_path <- get_germline_db_path(db_name)
         clean_blastdbs(db_path)

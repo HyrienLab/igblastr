@@ -70,11 +70,11 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     \item \code{\link{install_IMGT_germline_db}} to install a germline db
           from IMGT.
 
-    \item \code{\link{use_germline_db}} to select the local germline
-          db to use with \code{igblastn()}.
+    \item \code{\link{use_germline_db}} to select the local germline db
+          to use with \code{igblastn()}.
 
-    \item \code{\link{use_c_region_db}} to select the local C-region
-          db to use with \code{igblastn()}.
+    \item \code{\link{use_c_region_db}} to select the local C-region db
+          to use with \code{igblastn()}.
 
     \item \link[Biostrings]{DNAStringSet} objects implemented in the
           \pkg{Biostrings} package.
@@ -105,7 +105,7 @@ db_name <- install_IMGT_germline_db("202430-2", "Homo_sapiens", force=TRUE)
 use_germline_db(db_name)
 
 ## Select C-region db to use with igblastn():
-use_c_region_db("IMGT.human")
+use_c_region_db("IMGT.human.IG")
 
 ## Run igblastn:
 igblastn(catnap_bnabs, show.in.browser=TRUE)

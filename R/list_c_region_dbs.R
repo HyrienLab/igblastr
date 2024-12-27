@@ -29,7 +29,7 @@
     organism_paths <- list.dirs(IMGT_c_region_dir, recursive=FALSE)
     for (organism_path in organism_paths) {
         organism <- basename(organism_path)
-        db_name <- paste0("IMGT.", organism)
+        db_name <- paste0("IMGT.", organism, ".IG")
         db_path <- file.path(destdir, db_name)
         create_IMGT_c_region_db(organism_path, db_path, force=force)
     }
@@ -73,8 +73,16 @@ get_c_region_db_path <- function(db_name)
 ### list_c_region_dbs()
 ###
 
-### TODO: If 'names.only=FALSE', return a data.frame with one db per row that
-### reports some details about each db (e.g. nb of regions in each group).
+.count_c_regions <- function(all_db_names)
+{
+    vapply(all_db_names,
+        function(db_name) {
+            db_path <- get_c_region_db_path(db_name)
+            fasta_file <- file.path(db_path, "C.fasta")
+            length(fasta.seqlengths(fasta_file))
+        }, integer(1), USE.NAMES=FALSE)
+}
+
 list_c_region_dbs <- function(names.only=FALSE)
 {
     if (!isTRUEorFALSE(names.only))
@@ -83,12 +91,7 @@ list_c_region_dbs <- function(names.only=FALSE)
     all_db_names <- sort(setdiff(list.files(c_region_dbs), "USING"))
     if (names.only)
         return(all_db_names)
-    nCregions <- vapply(all_db_names,
-        function(db_name) {
-            db_path <- get_c_region_db_path(db_name)
-            fasta_file <- file.path(db_path, "C.fasta")
-            length(fasta.seqlengths(fasta_file))
-        }, integer(1), USE.NAMES=FALSE)
+    nCregions <- .count_c_regions(all_db_names)
     data.frame(db_name=all_db_names, nCregions=nCregions)
 }
 

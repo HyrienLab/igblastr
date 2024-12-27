@@ -80,8 +80,8 @@ list_IMGT_releases(recache=FALSE)
           program from R. This is the main function in the \pkg{igblastr}
           package.
 
-    \item \code{\link{use_germline_db}} to select the local germline
-          db to use with \code{igblastn()}.
+    \item \code{\link{use_germline_db}} to select the local germline db
+          to use with \code{igblastn()}.
 
     \item The IMGT website: \url{https://www.imgt.org/}.
 
