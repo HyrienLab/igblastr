@@ -17,11 +17,11 @@ feedback, request features, etc...
 
 #### Install igblastr
 
-    if (!require(remotes, quietly=TRUE))
-        install.packages("remotes")
-
-    library(remotes)
-    install_github("hpages/igblastr")
+    if (!require("BiocManager", quietly=TRUE))
+        install.packages("BiocManager")
+    
+    BiocManager::install("remotes")
+    BiocManager::install("hpages/igblastr")
 
 #### Load igblastr
 
