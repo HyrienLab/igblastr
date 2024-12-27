@@ -43,8 +43,11 @@
 ### get_c_region_db_path()
 ###
 
-### Creates and populates <igblastr-cached>/c_region_dbs/ if it doesn't
-### exist yet. So the returned path is guaranteed to exist.
+### Set 'init.path' to TRUE to create and populate
+###   <igblastr-cached>/c_region_dbs/
+### if it doesn't exist yet.
+### Note that only when 'init.path' is set to TRUE is the returned path
+### guaranteed to exist.
 .get_c_region_dbs_path <- function(init.path=FALSE)
 {
     stopifnot(isTRUEorFALSE(init.path))
@@ -80,13 +83,13 @@ list_c_region_dbs <- function(names.only=FALSE)
     all_db_names <- sort(setdiff(list.files(c_region_dbs), "USING"))
     if (names.only)
         return(all_db_names)
-    nregions <- vapply(all_db_names,
+    nCregions <- vapply(all_db_names,
         function(db_name) {
             db_path <- get_c_region_db_path(db_name)
             fasta_file <- file.path(db_path, "C.fasta")
             length(fasta.seqlengths(fasta_file))
         }, integer(1), USE.NAMES=FALSE)
-    data.frame(db_name=all_db_names, nregions=nregions)
+    data.frame(db_name=all_db_names, nCregions=nCregions)
 }
 
 
@@ -94,12 +97,13 @@ list_c_region_dbs <- function(names.only=FALSE)
 ### use_c_region_db()
 ###
 
+### Returns "" if no db is currently in use.
 .get_c_region_db_in_use <- function()
 {
     c_region_dbs <- .get_c_region_dbs_path(TRUE)  # path guaranteed to exist
-    db_path <- get_db_in_use(c_region_dbs, not.in.use.ok=TRUE, what="C-region")
-    if (is.null(db_path))
-        return(NULL)
+    db_path <- get_db_in_use(c_region_dbs, what="C-region")
+    if (db_path == "")
+        return(db_path)
     make_blastdbs(db_path)
     basename(db_path)
 }
@@ -112,26 +116,33 @@ list_c_region_dbs <- function(names.only=FALSE)
     stop(wmsg(msg1), "\n  ", wmsg(msg2))
 }
 
-### Unlike use_germline_db(), use_c_region_db() will return NULL if no db
-### is currently in use.
+### Passing 'db_name=""' will cancel the current selection.
 use_c_region_db <- function(db_name=NULL)
 {
     if (is.null(db_name))
         return(.get_c_region_db_in_use())
 
     ## Check 'db_name'.
-    if (!isSingleNonWhiteString(db_name))
-        stop(wmsg("'db_name' must be a single (non-empty) string"))
-    all_db_names <- list_c_region_dbs(names.only=TRUE)
-    if (!(db_name %in% all_db_names))
-        .stop_on_invalid_c_region_db_name(db_name)
+    if (!isSingleString(db_name))
+        stop(wmsg("'db_name' must be a single string"))
 
-    c_region_dbs <- .get_c_region_dbs_path()  # path guaranteed to exist
-    db_path <- file.path(c_region_dbs, db_name)
-    make_blastdbs(db_path)
-
-    using_path <- file.path(c_region_dbs, "USING")
-    writeLines(db_name, using_path)
+    if (db_name == "") {
+        ## Cancel the current selection.
+        c_region_dbs <- .get_c_region_dbs_path()  # path NOT guaranteed to exist
+        if (dir.exists(c_region_dbs)) {
+            using_path <- file.path(c_region_dbs, "USING")
+            unlink(using_path)
+        }
+    } else {
+        all_db_names <- list_c_region_dbs(names.only=TRUE)
+        if (!(db_name %in% all_db_names))
+            .stop_on_invalid_c_region_db_name(db_name)
+        c_region_dbs <- .get_c_region_dbs_path()  # path guaranteed to exist
+        db_path <- file.path(c_region_dbs, db_name)
+        make_blastdbs(db_path)
+        using_path <- file.path(c_region_dbs, "USING")
+        writeLines(db_name, using_path)
+    }
     invisible(db_name)
 }
 

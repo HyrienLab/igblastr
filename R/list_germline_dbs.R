@@ -38,14 +38,24 @@ list_germline_dbs <- function()
     stop(wmsg(msg))
 }
 
+.stop_on_no_selected_germline_db_yet <- function()
+{
+    msg <- c("You haven't selected the germline database to use ",
+             "with igblastn() yet. Please select one with ",
+             "use_germline_db(\"<db_name>\"). ",
+             "See '?use_germline_db' for more information.")
+    stop(wmsg(msg))
+}
+
 .get_germline_db_in_use <- function()
 {
     all_db_names <- list_germline_dbs()
     if (length(all_db_names) == 0L)
         .stop_on_no_installed_germline_db_yet()
-
     germline_dbs <- get_germline_dbs_path()
     db_path <- get_db_in_use(germline_dbs, what="germline")
+    if (db_path == "")
+        .stop_on_no_selected_germline_db_yet()
     make_blastdbs(db_path)
     basename(db_path)
 }

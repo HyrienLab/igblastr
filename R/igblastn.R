@@ -175,8 +175,8 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
                      show.in.browser=FALSE, show.command.only=FALSE)
 {
     igblast_root <- get_igblast_root()
-    germline_db_name <- use_germline_db()  # will never be NULL
-    c_region_db_name <- use_c_region_db()  # can be NULL
+    germline_db_name <- use_germline_db()  # cannot be ""
+    c_region_db_name <- use_c_region_db()  # can be ""
     query <- .normarg_query(query)
     outfmt <- .normarg_outfmt(outfmt)
     organism <- .normarg_organism(organism, germline_db_name)
@@ -190,7 +190,7 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
 
     args <- c(query=query, organism=organism,
               auxiliary_data=auxiliary_data, extra_args, germline_db_args)
-    if (!is.null(c_region_db_name)) {
+    if (c_region_db_name != "") {
         c_region_db_path <- get_c_region_db_path(c_region_db_name)
         args <- c(args, c_region_db=file.path(c_region_db_path, "C"))
     }

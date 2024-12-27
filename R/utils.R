@@ -133,29 +133,22 @@ disambiguate_fasta_seqids <- function(filepath)
 ### get_db_in_use()
 ###
 
-get_db_in_use <- function(dbs_path, not.in.use.ok=FALSE,
-                          what=c("germline", "C-region"))
+### Returns "" if no db is currently in use.
+get_db_in_use <- function(dbs_path, what=c("germline", "C-region"))
 {
-    stopifnot(isSingleNonWhiteString(dbs_path), dir.exists(dbs_path),
-              isTRUEorFALSE(not.in.use.ok))
+    stopifnot(isSingleNonWhiteString(dbs_path), dir.exists(dbs_path))
     what <- match.arg(what)
     if (what == "germline") {
         fun <- "use_germline_db"
     } else {
         fun <- "use_c_region_db"
     }
-    see <- paste0("See '?", fun, "' for more information.")
     repair_with <- paste0("Try to repair with ", fun, "(\"<db_name>\").")
+    see <- paste0("See '?", fun, "' for more information.")
 
     using_path <- file.path(dbs_path, "USING")
-    if (!file.exists(using_path)) {
-        if (not.in.use.ok)
-            return(NULL)
-        msg <- c("You haven't selected any ", what, " db to use ",
-                 "with igblastn() yet. Please select one with ",
-                 fun, "(\"<db_name>\"). ", see)
-        stop(wmsg(msg))
-    }
+    if (!file.exists(using_path))
+        return("")
     db_name <- readLines(using_path)
     if (length(db_name) != 1L)
         stop(wmsg("Anomaly: file '", using_path, "' is corrupted."),
