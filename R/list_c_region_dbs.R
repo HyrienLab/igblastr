@@ -40,7 +40,7 @@
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .get_c_region_dbs_path()
-### .get_c_region_db_path()
+### get_c_region_db_path()
 ###
 
 ### Creates and populates <igblastr-cached>/c_region_dbs/ if it doesn't
@@ -57,7 +57,8 @@
     c_region_dbs
 }
 
-.get_c_region_db_path <- function(db_name)
+### Not exported!
+get_c_region_db_path <- function(db_name)
 {
     stopifnot(isSingleNonWhiteString(db_name), db_name != "USING")
     c_region_dbs <- .get_c_region_dbs_path(TRUE)  # path guaranteed to exist
@@ -81,7 +82,7 @@ list_c_region_dbs <- function(names.only=FALSE)
         return(all_db_names)
     nregions <- vapply(all_db_names,
         function(db_name) {
-            db_path <- .get_c_region_db_path(db_name)
+            db_path <- get_c_region_db_path(db_name)
             fasta_file <- file.path(db_path, "C.fasta")
             length(fasta.seqlengths(fasta_file))
         }, integer(1), USE.NAMES=FALSE)
@@ -96,7 +97,9 @@ list_c_region_dbs <- function(names.only=FALSE)
 .get_c_region_db_in_use <- function()
 {
     c_region_dbs <- .get_c_region_dbs_path(TRUE)  # path guaranteed to exist
-    db_path <- get_db_in_use(c_region_dbs, what="C-region")
+    db_path <- get_db_in_use(c_region_dbs, not.in.use.ok=TRUE, what="C-region")
+    if (is.null(db_path))
+        return(NULL)
     make_blastdbs(db_path)
     basename(db_path)
 }
@@ -109,6 +112,8 @@ list_c_region_dbs <- function(names.only=FALSE)
     stop(wmsg(msg1), "\n  ", wmsg(msg2))
 }
 
+### Unlike use_germline_db(), use_c_region_db() will return NULL if no db
+### is currently in use.
 use_c_region_db <- function(db_name=NULL)
 {
     if (is.null(db_name))
@@ -138,7 +143,7 @@ use_c_region_db <- function(db_name=NULL)
 ### Return the C-regions in a DNAStringSet object.
 read_c_region_db <- function(db_name)
 {
-    db_path <- .get_c_region_db_path(db_name)
+    db_path <- get_c_region_db_path(db_name)
     fasta_file <- file.path(db_path, "C.fasta")
     readDNAStringSet(fasta_file)
 }
@@ -155,7 +160,7 @@ clean_c_region_blastdbs <- function()
     if (dir.exists(c_region_dbs)) {
         all_db_names <- list_c_region_dbs(names.only=TRUE)
         for (db_name in all_db_names) {
-            db_path <- .get_c_region_db_path(db_name)
+            db_path <- get_c_region_db_path(db_name)
             clean_blastdbs(db_path)
         }
     }

@@ -133,9 +133,11 @@ disambiguate_fasta_seqids <- function(filepath)
 ### get_db_in_use()
 ###
 
-get_db_in_use <- function(dbs_path, what=c("germline", "C-region"))
+get_db_in_use <- function(dbs_path, not.in.use.ok=FALSE,
+                          what=c("germline", "C-region"))
 {
-    stopifnot(isSingleNonWhiteString(dbs_path), dir.exists(dbs_path))
+    stopifnot(isSingleNonWhiteString(dbs_path), dir.exists(dbs_path),
+              isTRUEorFALSE(not.in.use.ok))
     what <- match.arg(what)
     if (what == "germline") {
         fun <- "use_germline_db"
@@ -147,6 +149,8 @@ get_db_in_use <- function(dbs_path, what=c("germline", "C-region"))
 
     using_path <- file.path(dbs_path, "USING")
     if (!file.exists(using_path)) {
+        if (not.in.use.ok)
+            return(NULL)
         msg <- c("You haven't selected any ", what, " db to use ",
                  "with igblastn() yet. Please select one with ",
                  fun, "(\"<db_name>\"). ", see)
