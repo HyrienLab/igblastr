@@ -32,21 +32,27 @@
         stop(wmsg("'destdir' must be the path to an existing directory"))
     gene_segment <- match.arg(gene_segment)
 
-    unedited_file <- file.path(destdir, paste0(".", gene_segment, ".fasta"))
-    concatenate_files(fasta_files, unedited_file)
-    edited_file <- file.path(destdir, paste0(gene_segment, ".fasta"))
+    ## (1) Combine FASTA files.
+    combined_fasta <- file.path(destdir, paste0(".", gene_segment, ".fasta"))
+    concatenate_files(fasta_files, combined_fasta)
+
+    ## (2a) Edit combined FASTA file with 'edit_imgt_file.pl'.
+    edited_fasta <- file.path(destdir, paste0(gene_segment, ".fasta"))
     errfile <- file.path(destdir, paste0(gene_segment,
                                          "_imgt_script_errors.txt"))
 
     ## This does not work on Windows!
-    #system3(edit_fasta_script, edited_file, errfile, args=unedited_file)
+    #system3(edit_fasta_script, edited_fasta, errfile, args=combined_fasta)
 
     ## Note that running the Perl script with 'script ...' runs on Linux
     ## and Mac but not on Windows. So we run it with 'perl script ...'
     ## instead. This seems to run everywhere.
-    system3("perl", edited_file, errfile,
-            args=c(edit_fasta_script, unedited_file))
-    unlink(unedited_file, force=TRUE)
+    system3("perl", edited_fasta, errfile,
+            args=c(edit_fasta_script, combined_fasta))
+    unlink(combined_fasta, force=TRUE)
+
+    ## (2b) Mangle seq ids to make them unique if they're not.
+    disambiguate_fasta_seqids(edited_fasta)
 }
 
 

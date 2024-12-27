@@ -1,5 +1,5 @@
 ### =========================================================================
-### make_blast_dbs()
+### make_blastdbs()
 ### -------------------------------------------------------------------------
 ###
 ### Nothing in this file is exported.
@@ -85,11 +85,11 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### clean_blast_dbs()
+### clean_blastdbs()
 ###
 
-### Remove the blastdb files produced by make_blast_dbs().
-clean_blast_dbs <- function(db_path)
+### Remove the blastdb files produced by make_blastdbs().
+clean_blastdbs <- function(db_path)
 {
     if (!isSingleNonWhiteString(db_path))
         stop(wmsg("'db_path' must be a single (non-empty) string"))
@@ -104,7 +104,7 @@ clean_blast_dbs <- function(db_path)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### make_blast_dbs()
+### make_blastdbs()
 ###
 
 ### Returns a named logical vector that indicates the status of all the FASTA
@@ -123,7 +123,7 @@ clean_blast_dbs <- function(db_path)
 ### very fast no-op if all the FASTA files in the db are already compiled.
 ### Returns the named logical vector obtained with .get_fasta_files_statuses()
 ### above.
-make_blast_dbs <- function(db_path)
+make_blastdbs <- function(db_path)
 {
     if (!isSingleNonWhiteString(db_path))
         stop(wmsg("'db_path' must be a single (non-empty) string"))

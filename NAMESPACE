@@ -11,6 +11,7 @@ importFrom(xtable, xtable)
 import(tibble)
 
 import(S4Vectors)
+import(IRanges)
 import(GenomeInfoDb)
 import(Biostrings)
 
@@ -44,9 +45,14 @@ export(
     ## From install_igblast.R:
     install_igblast,
 
-    ## From use_germline_db.R:
+    ## From list_germline_dbs.R:
     list_germline_dbs,
     use_germline_db,
+
+    ## From list_c_region_dbs.R:
+    list_c_region_dbs,
+    use_c_region_db,
+    read_c_region_db,
 
     ## From install_NCBI_germline_db.R:
     install_NCBI_germline_db,

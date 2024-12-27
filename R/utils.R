@@ -12,12 +12,166 @@ is_white_str <- function(x) grepl("^\\s*$", x) | x == "\xc2\xa0"
 isSingleNonWhiteString <- function(x) isSingleString(x) && !is_white_str(x)
 
 ### Vectorized.
+has_prefix <- function(x, prefix)
+{
+    stopifnot(is.character(x), isSingleString(prefix))
+    substr(x, 1L, nchar(prefix)) == prefix
+}
+
+### Vectorized.
 has_suffix <- function(x, suffix)
 {
     stopifnot(is.character(x), isSingleString(suffix))
     x_nc <- nchar(x)
     substr(x, x_nc - nchar(suffix) + 1L, x_nc) == suffix
 }
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Low-level file manipulation
+###
+
+### Move 'newfile' to 'oldfile' after nuking 'oldfile' if needed.
+### Works with files or directories.
+replace_file <- function(oldfile, newfile)
+{
+    stopifnot(isSingleNonWhiteString(oldfile), isSingleNonWhiteString(newfile))
+    if (!file.exists(newfile))
+        stop(wmsg(newfile, ": no such file or directory"))
+    unlink(oldfile, recursive=TRUE, force=TRUE)
+    ok <- file.rename(newfile, oldfile)
+    if (!ok)
+        stop(wmsg("failed to replace '", oldfile, "' with '", newfile, "'"))
+}
+
+### Does not recursively search hidden files i.e. it only removes the
+### hidden files (and directories if 'include.hidden.dirs=TRUE') that
+### are located **directly** under 'path'.
+remove_hidden_files <- function(path=".", include.hidden.dirs=FALSE)
+{
+    stopifnot(isSingleNonWhiteString(path), dir.exists(path),
+              isTRUEorFALSE(include.hidden.dirs))
+    hidden_files <- list.files(path, pattern="^\\.", all.files=TRUE,
+                               full.names=TRUE, no..=TRUE)
+    unlink(hidden_files, recursive=include.hidden.dirs, force=TRUE)
+}
+
+concatenate_files <- function(files, out=stdout(), n=50000L)
+{
+    stopifnot(is.character(files))
+    if (is.character(out)) {
+        out <- file(out, "wb")
+        on.exit(close(out))
+    }
+    for (f in files) {
+        con <- file(f, "rb")
+        while (TRUE) {
+            bytes <- readBin(con, what=raw(), n=n)
+            if (length(bytes) == 0L)
+                break
+            writeBin(bytes, out)
+        }
+        close(con)
+    }
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### disambiguate_fasta_seqids()
+###
+
+### Similar to base::make.unique() but mangles with suffixes made of
+### lowercase letters.
+.make_pool_of_suffixes <- function(min_pool_size)
+{
+    max_pool_size <- (length(letters)**8 - 1) / (length(letters) - 1) - 1
+    if (min_pool_size > max_pool_size)
+        stop(wmsg("too many duplicate seq_ids"))
+    ans <- character(0)
+    for (i in 1:7) {
+        ans <- c(ans, mkAllStrings(letters, i))
+        if (length(ans) >= min_pool_size)
+            return(ans)
+    }
+    ## Should never happen because we checked for this condition earlier (see
+    ## above).
+    stop(wmsg("too many duplicate seq_ids"))
+}
+
+.make_unique_seqids <- function(seqids)
+{
+    stopifnot(is.character(seqids))
+    if (length(seqids) <= 1L)
+        return(seqids)
+    oo <- order(seqids)
+    seqids2 <- seqids[oo]
+    ir <- IRanges(1L, runLength(Rle(seqids2)))
+    pool_of_suffixes <- .make_pool_of_suffixes(max(width(ir)))
+    suffixes <- extractList(pool_of_suffixes, ir)  # CharacterList
+    suffixes[lengths(suffixes) == 1L] <- ""
+    unlist(suffixes, use.names=FALSE)
+    seqids2 <- paste0(seqids2, unlist(suffixes, use.names=FALSE))
+    ans <- seqids2[S4Vectors:::reverseIntegerInjection(oo, length(oo))]
+    setNames(ans, names(seqids))
+}
+
+### In-place replacement!
+disambiguate_fasta_seqids <- function(filepath)
+{
+    stopifnot(isSingleNonWhiteString(filepath))
+    fasta_lines <- readLines(filepath)
+    header_idx <- grep("^>", fasta_lines)
+    header_lines <- fasta_lines[header_idx]
+    if (anyDuplicated(header_lines)) {
+        fasta_lines[header_idx] <- .make_unique_seqids(header_lines)
+        writeLines(fasta_lines, filepath)
+    }
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### get_db_in_use()
+###
+
+get_db_in_use <- function(dbs_path, what=c("germline", "C-region"))
+{
+    stopifnot(isSingleNonWhiteString(dbs_path), dir.exists(dbs_path))
+    what <- match.arg(what)
+    if (what == "germline") {
+        fun <- "use_germline_db"
+    } else {
+        fun <- "use_c_region_db"
+    }
+    see <- paste0("See '?", fun, "' for more information.")
+    repair_with <- paste0("Try to repair with ", fun, "(\"<db_name>\").")
+
+    using_path <- file.path(dbs_path, "USING")
+    if (!file.exists(using_path)) {
+        msg <- c("You haven't selected any ", what, " db to use ",
+                 "with igblastn() yet. Please select one with ",
+                 fun, "(\"<db_name>\"). ", see)
+        stop(wmsg(msg))
+    }
+    db_name <- readLines(using_path)
+    if (length(db_name) != 1L)
+        stop(wmsg("Anomaly: file '", using_path, "' is corrupted."),
+             "\n  ",
+             wmsg("File should contain exactly one line. ",
+                  repair_with, " ", see))
+    db_path <- file.path(dbs_path, db_name)
+    if (!dir.exists(db_path))
+        stop(wmsg("Anomaly: file '", using_path, "' is invalid."),
+             "\n  ",
+             wmsg("File content ('", db_name, "') is not the name ",
+                  "of a cached ", what, " db. ",
+                  repair_with, " ", see))
+    db_path
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Miscellaneous stuff
+###
 
 urlExists <- function(url)
 {
@@ -97,31 +251,6 @@ add_exe_suffix_on_Windows <- function(files, OS=get_OS_arch()[["OS"]])
     paste0(files, ".exe")
 }
 
-### Move 'newfile' to 'oldfile' after nuking 'oldfile' if needed.
-### Works with files or directories.
-replace_file <- function(oldfile, newfile)
-{
-    stopifnot(isSingleNonWhiteString(oldfile), isSingleNonWhiteString(newfile))
-    if (!file.exists(newfile))
-        stop(wmsg(newfile, ": no such file or directory"))
-    unlink(oldfile, recursive=TRUE, force=TRUE)
-    ok <- file.rename(newfile, oldfile)
-    if (!ok)
-        stop(wmsg("failed to replace '", oldfile, "' with '", newfile, "'"))
-}
-
-### Does not recursively search hidden files i.e. it only removes the
-### hidden files (and directories if 'include.hidden.dirs=TRUE') that
-### are located **directly** under 'path'.
-remove_hidden_files <- function(path=".", include.hidden.dirs=FALSE)
-{
-    stopifnot(isSingleNonWhiteString(path), dir.exists(path),
-              isTRUEorFALSE(include.hidden.dirs))
-    hidden_files <- list.files(path, pattern="^\\.", all.files=TRUE,
-                               full.names=TRUE, no..=TRUE)
-    unlink(hidden_files, recursive=include.hidden.dirs, force=TRUE)
-}
-
 system_command_works <- function(command, args=character())
 {
     out <- try(suppressWarnings(system2(command, args=args,
@@ -145,25 +274,6 @@ system3 <- function(command, outfile, errfile, args=character())
     if (status != 0) {
         cmd_in_1string <- paste(c(command, args), collapse=" ")
         stop(wmsg("command '", cmd_in_1string, "' failed"))
-    }
-}
-
-concatenate_files <- function(files, out=stdout(), n=50000L)
-{
-    stopifnot(is.character(files))
-    if (is.character(out)) {
-        out <- file(out, "wb")
-        on.exit(close(out))
-    }
-    for (f in files) {
-        con <- file(f, "rb")
-        while (TRUE) {
-            bytes <- readBin(con, what=raw(), n=n)
-            if (length(bytes) == 0L)
-                break
-            writeBin(bytes, out)
-        }
-        close(con)
     }
 }
 

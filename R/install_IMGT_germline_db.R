@@ -69,7 +69,7 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
                   "to a valid IMGT/V-QUEST release."),
              "\n  ",
              wmsg("Latest IMGT/V-QUEST release is \"", all_releases[[1L]],
-                  "\" (recommended). Use list_VQUEST_releases() to list ",
+                  "\" (recommended). Use list_IMGT_releases() to list ",
                   "all releases."))
     }
 

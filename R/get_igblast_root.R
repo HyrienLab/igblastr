@@ -125,7 +125,8 @@ make_igblast_exe_path <- function(igblast_root,
     igblast_root <- file_path_as_absolute(path)
     .check_igblast_installation(igblast_root)
     options(igblast_root=igblast_root)
-    clean_all_germline_dbs()
+    clean_germline_blastdbs()
+    clean_c_region_blastdbs()
     igblast_root
 }
 
@@ -160,7 +161,8 @@ set_internal_igblast_root <- function(version)
     .check_igblast_installation(igblast_root)
     using_path <- file.path(internal_roots, "USING")
     writeLines(version, using_path)
-    clean_all_germline_dbs()
+    clean_germline_blastdbs()
+    clean_c_region_blastdbs()
     igblast_root
 }
 

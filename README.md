@@ -78,7 +78,7 @@ Note:
   - `airr_c_human`
   - `airr_c_mouse`
 
-#### Select the db to use with igblastn()
+#### Select the germline db to use with igblastn()
 
     list_germline_dbs()
     use_germline_db(<db-name>)
@@ -86,7 +86,20 @@ Note:
 See `?use_germline_db`.
 
 
-### 4. Use igblastn()
+### 4. Select constant region db (optional)
+
+The C-regions from IMGT are pre-installed for a few organisms:
+
+    list_c_region_dbs()
+
+Select the C-region db to use with `igblastn()`:
+
+    use_c_region_db(<db-name>)
+
+See `?use_c_region_db`.
+
+
+### 5. Use igblastn()
 
 See `?igblastn`.
 

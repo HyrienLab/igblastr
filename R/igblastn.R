@@ -115,7 +115,7 @@
 
 ### Maps 'db_name' to one of the organism names returned by
 ### list_igblast_organisms().
-.infer_igblast_organism_from_db_name <- function(db_name)
+.infer_igblast_organism_from_germline_db_name <- function(db_name)
 {
     stopifnot(isSingleNonWhiteString(db_name))
     if (grepl("Homo.sapiens", db_name, ignore.case=TRUE))
@@ -131,17 +131,19 @@
     NA_character_
 }
 
-.normarg_organism <- function(organism="auto", db_name)
+.normarg_organism <- function(organism="auto", germline_db_name)
 {
     if (!isSingleNonWhiteString(organism))
         stop(wmsg("'organism' must be a single (non-empty) string"))
     if (organism == "auto") {
-        organism <- .infer_igblast_organism_from_db_name(db_name)
+        organism <-
+            .infer_igblast_organism_from_germline_db_name(germline_db_name)
         if (!is.na(organism))
             return(organism)
         stop(wmsg("Don't know how to infer 'organism' from germline ",
-                  "db name \"", db_name, "\". Please set the 'organism' ",
-                  "argument to the name of the IgBLAST internal data to use. ",
+                  "db name \"", germline_db_name, "\". Please set ",
+                  "the 'organism' argument to the name of the IgBLAST ",
+                  "internal data to use. ",
                   "Use list_igblast_organisms() to list all valid names."))
     }
     all_organisms <- list_igblast_organisms()
@@ -157,9 +159,9 @@
 ### .make_igblastn_germline_db_args()
 ###
 
-.make_igblastn_germline_db_args <- function(db_name)
+.make_igblastn_germline_db_args <- function(germline_db_name)
 {
-    db_path <- get_germline_db_path(db_name)
+    db_path <- get_germline_db_path(germline_db_name)
     VDJ <- c("V", "D", "J")
     setNames(file.path(db_path, VDJ), paste0("germline_db_", VDJ))
 }
@@ -173,17 +175,18 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
                      show.in.browser=FALSE, show.command.only=FALSE)
 {
     igblast_root <- get_igblast_root()
-    db_name <- use_germline_db()
+    germline_db_name <- use_germline_db()
+    #c_region_db_name <- use_c_region_db()
     query <- .normarg_query(query)
     outfmt <- .normarg_outfmt(outfmt)
-    organism <- .normarg_organism(organism, db_name)
+    organism <- .normarg_organism(organism, germline_db_name)
     auxiliary_data <- file.path(igblast_root, "optional_file",
                                 paste0(organism, "_gl.aux"))
 
     ## Turn extra args into a named character vector.
     extra_args <- list(...)
     extra_args <- setNames(as.character(extra_args), names(extra_args))
-    germline_db_args <- .make_igblastn_germline_db_args(db_name)
+    germline_db_args <- .make_igblastn_germline_db_args(germline_db_name)
 
     args <- c(query=query, organism=organism,
               auxiliary_data=auxiliary_data, extra_args, germline_db_args)

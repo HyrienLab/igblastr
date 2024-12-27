@@ -1,4 +1,4 @@
-\name{use_germline_db}
+\name{list_germline_dbs}
 
 \alias{list_germline_dbs}
 \alias{use_germline_db}
@@ -6,8 +6,8 @@
 \title{Select germline db to use with igblastn()}
 
 \description{
-  Use \code{list_germline_dbs()} to list all the germline databases that are
-  already installed on your machine (a.k.a. local germline dbs).
+  Use \code{list_germline_dbs()} to list all the germline databases that
+  are installed in the cache (a.k.a. local germline dbs).
 
   Use \code{use_germline_db()} to select the local germline db to use with
   \code{\link{igblastn}()}. This choice will be remembered across R sessions.
