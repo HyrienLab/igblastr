@@ -7,8 +7,8 @@
 
 \description{
   Use \code{list_germline_dbs()} to list all the \emph{local germline dbs},
-  that is, all the germline databases that are currently installed in
-  \pkg{igblastr}'s persistent cache.
+  that is, all the germline databases currently installed in \pkg{igblastr}'s
+  persistent cache.
 
   Use \code{use_germline_db()} to select the local germline db to use with
   \code{\link{igblastn}()}. This choice will be remembered across R sessions.
@@ -24,7 +24,7 @@ use_germline_db(db_name=NULL)
   \item{names.only}{
     By default \code{list_germline_dbs()} returns the list of local
     germline dbs in a data.frame with one db per row. Set \code{names.only}
-    to \code{TRUE} to return the db names only in a character vector.
+    to \code{TRUE} to return only the db names in a character vector.
   }
   \item{db_name}{
     \code{NULL} or a single string specifying the name of the local germline
@@ -38,8 +38,9 @@ use_germline_db(db_name=NULL)
 }
 
 \details{
-  The \pkg{igblastr} package provides a small set of utilities to manage
-  local germline and C-region databases to use with \code{\link{igblastn}()}.
+  The \pkg{igblastr} package provides a small set of utilities to
+  manage the local germline and C-region databases to use with
+  \code{\link{igblastn}()}.
 
   A \emph{local germline db} contains the nucleotide sequences of the
   V-, D-, and J-regions for a given organism.
@@ -59,11 +60,13 @@ use_germline_db(db_name=NULL)
   data.frame with one db per row (if \code{names.only} is \code{FALSE}, the
   default), or in a character vector (if \code{names.only} is \code{TRUE}).
 
-  \code{use_germline_db()} returns a single string containing the name of
-  the local germline db in use with \code{\link{igblastn}()}.
-  If called with no argument, this is the name of the db that is currently
-  in use. If \code{db_name} is supplied, this is \code{db_name}. However note
-  that in this case the string is returned invisibly.
+  When called with no argument, \code{use_germline_db()} returns a single
+  string containing the name of the local germline db currently used by
+  \code{\link{igblastn}()} if any, or it raises an error if no germline db
+  has been selected yet.
+
+  When called with the \code{db_name} argument, \code{use_germline_db(db_name)}
+  returns \code{db_name} invisibly.
 }
 
 \seealso{
