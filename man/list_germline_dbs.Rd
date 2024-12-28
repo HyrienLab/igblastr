@@ -2,6 +2,7 @@
 
 \alias{list_germline_dbs}
 \alias{use_germline_db}
+\alias{read_germline_db}
 
 \title{List local germline dbs and select one to use with igblastn()}
 
@@ -12,12 +13,17 @@
 
   Use \code{use_germline_db()} to select the local germline db to use with
   \code{\link{igblastn}()}. This choice will be remembered across R sessions.
+
+  Use \code{read_germline_db()} to read the nucleotide sequences of the
+  gene regions stored in a local germline db.
 }
 
 \usage{
 list_germline_dbs(names.only=FALSE)
 
 use_germline_db(db_name=NULL)
+
+read_germline_db(db_name, region_types=NULL)
 }
 
 \arguments{
@@ -27,13 +33,29 @@ use_germline_db(db_name=NULL)
     to \code{TRUE} to return only the db names in a character vector.
   }
   \item{db_name}{
-    \code{NULL} or a single string specifying the name of the local germline
-    db to use. Use \code{list_germline_dbs()} to list all the local germline
-    dbs.
+    For \code{use_germline_db()}:
 
-    If set to \code{NULL} (the default), then \code{use_germline_db()}
-    returns the name of the local germline db that is currently in use,
-    if any. Otherwise it raises an error.
+    \code{NULL} or a single string specifying the name of the
+    local germline db to use. Use \code{list_germline_dbs()} to
+    list all the local germline dbs.
+
+    If set to \code{NULL} (the default), then
+    \code{use_germline_db()} returns the name of the local
+    germline db that is currently in use, if any. Otherwise it
+    raises an error.
+
+    For \code{read_germline_db()}:
+
+    A single string specifying the name of the local germline db
+    from which to read the V, D, and/or J regions. Use
+    \code{list_germline_dbs()} to list all the local germline dbs.
+  }
+  \item{region_types}{
+    The types of regions (V, D, and/or J) to read from the database.
+    Specified as a single string (e.g. \code{"DJ"}) or as a character
+    vector of single-letter elements (e.g. \code{c("D", "J")}).
+    By default (i.e. when \code{region_types} is \code{NULL}), all the
+    regions are returned.
   }
 }
 
@@ -42,23 +64,27 @@ use_germline_db(db_name=NULL)
   manage the local germline and C-region databases to use with
   \code{\link{igblastn}()}.
 
-  A \emph{local germline db} contains the nucleotide sequences of the
-  V-, D-, and J-regions for a given organism.
+  Terminology:
+  \itemize{
+    \item A \emph{local germline db} contains the nucleotide sequences of
+          the V, D, and J gene regions for a given organism.
+    \item A \emph{local C-region db} contains the nucleotide sequences of
+          the C regions (i.e. constant gene regions) for a given organism.
+  }
 
-  A \emph{local C-region db} contains the nucleotide sequences of the
-  C-regions for a given organism.
+  This man page documents the basic utilities to operate on local
+  germline dbs: \code{list_germline_dbs()}, \code{use_germline_db()},
+  and \code{read_germline_db()}.
 
-  This man page documents the two core utilities to manage local germline dbs:
-  \code{list_germline_dbs()} and \code{use_germline_db()}.
-
-  The core utilities to manage local C-region dbs are documented in the man
-  page for \code{\link{list_c_region_dbs}}.
+  The basic utilities to operate on local C-region dbs are documented
+  in the man page for \code{\link{list_c_region_dbs}}.
 }
 
 \value{
-  \code{list_germline_dbs()} returns the list of all local germline dbs in a
-  data.frame with one db per row (if \code{names.only} is \code{FALSE}, the
-  default), or in a character vector (if \code{names.only} is \code{TRUE}).
+  \code{list_germline_dbs()} returns the list of all local germline dbs
+  in a data.frame with one db per row (if \code{names.only} is \code{FALSE},
+  which is the default), or in a character vector (if \code{names.only}
+  is \code{TRUE}).
 
   When called with no argument, \code{use_germline_db()} returns a single
   string containing the name of the local germline db currently used by
@@ -67,6 +93,9 @@ use_germline_db(db_name=NULL)
 
   When called with the \code{db_name} argument, \code{use_germline_db(db_name)}
   returns \code{db_name} invisibly.
+
+  \code{read_germline_db()} returns the nucleotide sequences from the
+  specified germline db in a named \link[Biostrings]{DNAStringSet} object.
 }
 
 \seealso{
@@ -80,6 +109,9 @@ use_germline_db(db_name=NULL)
 
     \item \code{\link{use_c_region_db}} to select the local C-region db
           to use with \code{igblastn()}.
+
+    \item \link[Biostrings]{DNAStringSet} objects in the \pkg{Biostrings}
+          package.
 
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
@@ -99,6 +131,10 @@ list_germline_dbs(TRUE)  # return only the db names
 use_germline_db("IMGT-202430-2.Mus_musculus.IG")
 
 use_germline_db()
+
+read_germline_db("IMGT-202430-2.Mus_musculus.IG")
+read_germline_db("IMGT-202430-2.Mus_musculus.IG", region_types="D")
+read_germline_db("IMGT-202430-2.Mus_musculus.IG", region_types="DJ")
 }
 
 \keyword{utilities}

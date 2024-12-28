@@ -155,7 +155,7 @@ use_c_region_db <- function(db_name=NULL)
 ### read_c_region_db()
 ###
 
-### Returns the C-regions in a DNAStringSet object.
+### Returns the C regions in a DNAStringSet object.
 read_c_region_db <- function(db_name)
 {
     db_path <- get_c_region_db_path(db_name)

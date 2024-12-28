@@ -11,20 +11,20 @@
 ### into a given IMGT germline db
 ###
 
-.list_IMGT_fasta_files <- function(dirpath, gene_segment=c("V", "D", "J"),
+.list_IMGT_fasta_files <- function(dirpath, region_type=c("V", "D", "J"),
                                    expected_files)
 {
-    gene_segment <- match.arg(gene_segment)
-    pattern <- paste0(gene_segment, "\\.fasta$")
+    region_type <- match.arg(region_type)
+    pattern <- paste0(region_type, "\\.fasta$")
     files <- list.files(dirpath, pattern=pattern)
     if (length(files) == 0L)
-        stop(wmsg("Anomaly: no ", gene_segment, " files found in ", dirpath))
+        stop(wmsg("Anomaly: no ", region_type, " files found in ", dirpath))
     if (!setequal(files, expected_files)) {
         if (all(files %in% expected_files)) {
-            warning("some ", gene_segment, " files are missing ",
+            warning("some ", region_type, " files are missing ",
                     "in ", dirpath, "/ compared to Homo_sapiens")
         } else {
-            warning("set of ", gene_segment, " files in ", dirpath, "/ not ",
+            warning("set of ", region_type, " files in ", dirpath, "/ not ",
                     "the same as for Homo_sapiens")
         }
     }
@@ -96,11 +96,11 @@
 ### A thin wrapper to create_IMGT_region_db().
 .create_IMGT_region_db2 <-
     function(srcdir, destdir, list_files_FUN,
-             edit_fasta_script, gene_segment=c("V", "D", "J"))
+             edit_fasta_script, region_type=c("V", "D", "J"))
 {
-    gene_segment <- match.arg(gene_segment)
+    region_type <- match.arg(region_type)
     fasta_files <- list_files_FUN(srcdir)
-    create_IMGT_region_db(fasta_files, destdir, gene_segment=gene_segment,
+    create_IMGT_region_db(fasta_files, destdir, region_type=region_type,
                           edit_fasta_script=edit_fasta_script)
 }
 
@@ -109,11 +109,11 @@
 {
     IG_path <- file.path(organism_path, "IG")
     .create_IMGT_region_db2(IG_path, destdir, .list_V_files_in_IMGT_IG,
-                            edit_fasta_script, gene_segment="V")
+                            edit_fasta_script, region_type="V")
     .create_IMGT_region_db2(IG_path, destdir, .list_D_files_in_IMGT_IG,
-                            edit_fasta_script, gene_segment="D")
+                            edit_fasta_script, region_type="D")
     .create_IMGT_region_db2(IG_path, destdir, .list_J_files_in_IMGT_IG,
-                            edit_fasta_script, gene_segment="J")
+                            edit_fasta_script, region_type="J")
 }
 
 .create_IMGT_TR_germline_db <- function(organism_path, destdir,
@@ -121,11 +121,11 @@
 {
     TR_path <- file.path(organism_path, "TR")
     .create_IMGT_region_db2(TR_path, destdir, .list_V_files_in_IMGT_TR,
-                            edit_fasta_script, gene_segment="V")
+                            edit_fasta_script, region_type="V")
     .create_IMGT_region_db2(TR_path, destdir, .list_D_files_in_IMGT_TR,
-                            edit_fasta_script, gene_segment="D")
+                            edit_fasta_script, region_type="D")
     .create_IMGT_region_db2(TR_path, destdir, .list_J_files_in_IMGT_TR,
-                            edit_fasta_script, gene_segment="J")
+                            edit_fasta_script, region_type="J")
 }
 
 .create_IMGT_IG_TR_germline_db <- function(organism_path, destdir,
@@ -133,13 +133,13 @@
 {
     .create_IMGT_region_db2(organism_path, destdir,
                             .list_V_files_in_IMGT_IG_TR,
-                            edit_fasta_script, gene_segment="V")
+                            edit_fasta_script, region_type="V")
     .create_IMGT_region_db2(organism_path, destdir,
                             .list_D_files_in_IMGT_IG_TR,
-                            edit_fasta_script, gene_segment="D")
+                            edit_fasta_script, region_type="D")
     .create_IMGT_region_db2(organism_path, destdir,
                             .list_J_files_in_IMGT_IG_TR,
-                            edit_fasta_script, gene_segment="J")
+                            edit_fasta_script, region_type="J")
 }
 
 .stop_on_existing_IMGT_germline_db <- function(destdir)

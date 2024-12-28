@@ -55,7 +55,7 @@ create_IMGT_c_region_db <- function(organism_path, destdir, force=FALSE)
     dir.create(tmpdestdir, recursive=TRUE)
     on.exit(unlink(tmpdestdir, recursive=TRUE, force=TRUE))
     fasta_files <- .list_IMGT_C_fasta_files(organism_path)
-    create_IMGT_region_db(fasta_files, tmpdestdir, gene_segment="C",
+    create_IMGT_region_db(fasta_files, tmpdestdir, region_type="C",
                           edit_fasta_script=edit_fasta_script)
     replace_file(destdir, tmpdestdir)
 }

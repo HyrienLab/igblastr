@@ -187,7 +187,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
 ### download_all_C_regions_from_IMGT()
 ###
 
-.VQUEST_C_SEGMENTS_URL <- "https://www.imgt.org/genedb/GENElect"
+.IMGT_C_REGIONS_URL <- "https://www.imgt.org/genedb/GENElect"
 
 ### All kinds of conventions are used across the IMGT website to name
 ### organisms. Picking one and sticking to it would boring I guess...
@@ -200,7 +200,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
     m <- match(tolower(organism), tolower(IMGT_species))
     if (is.na(m)) {
         errmsg <- c("to the best of our knowledge, IMGT does not ",
-                    "provide C-regions for organism ", organism)
+                    "provide C regions for organism ", organism)
         m <- switch(tolower(organism),
                     "human"=1L,
                     "mouse"=, "mus musculus"= 2L,
@@ -228,7 +228,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
     all(safeExplode(dna) %in% c("a", "c", "g", "t"))
 }
 
-### Fetch the C-regions (as nucleotide sequences) from the links provided
+### Fetch the C regions (as nucleotide sequences) from the links provided
 ### in the tables displayed at:
 ###   https://www.imgt.org/vquest/refseqh.html#constant-sets
 ### Unfortunately these links redirect us to ugly HTML pages that we need
@@ -246,7 +246,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
     species <- .map_organism_to_IMGT_species(organism)
     stopifnot(isSingleNonWhiteString(version))
     query <- list(query=paste(version, group), species=species)
-    html <- getUrlContent(.VQUEST_C_SEGMENTS_URL, query=query,
+    html <- getUrlContent(.IMGT_C_REGIONS_URL, query=query,
                           type="text", encoding="UTF-8")
 
     ## HTML document 'html' is expected to contain 2 <pre></pre> sections:
@@ -264,7 +264,7 @@ find_organism_in_IMGT_store <- function(organism, local_store)
             return(fasta_lines)
     }
     constant_seq_url <- "https://www.imgt.org/vquest/refseqh.html#constant-sets"
-    stop(wmsg("failed to fetch the nucleotide sequences of the C-regions ",
+    stop(wmsg("failed to fetch the nucleotide sequences of the C regions ",
               "for ", organism, " from the links provided in the tables ",
               "displayed at ", constant_seq_url))
 }

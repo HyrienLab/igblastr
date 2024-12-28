@@ -27,13 +27,13 @@ get_germline_db_path <- function(db_name)
 ### list_germline_dbs()
 ###
 
-.count_germline_regions <- function(all_db_names, group=c("V", "D", "J"))
+.count_germline_regions <- function(all_db_names, region_type=c("V", "D", "J"))
 {
-    group <- match.arg(group)
+    region_type <- match.arg(region_type)
     vapply(all_db_names,
         function(db_name) {
             db_path <- get_germline_db_path(db_name)
-            fasta_file <- file.path(db_path, paste0(group, ".fasta"))
+            fasta_file <- file.path(db_path, paste0(region_type, ".fasta"))
             length(fasta.seqlengths(fasta_file))
         }, integer(1), USE.NAMES=FALSE)
 }
@@ -46,9 +46,9 @@ list_germline_dbs <- function(names.only=FALSE)
     all_db_names <- sort(setdiff(list.files(germline_dbs), "USING"))
     if (names.only)
         return(all_db_names)
-    nVregions <- .count_germline_regions(all_db_names, group="V")
-    nDregions <- .count_germline_regions(all_db_names, group="D")
-    nJregions <- .count_germline_regions(all_db_names, group="J")
+    nVregions <- .count_germline_regions(all_db_names, region_type="V")
+    nDregions <- .count_germline_regions(all_db_names, region_type="D")
+    nJregions <- .count_germline_regions(all_db_names, region_type="J")
     data.frame(db_name=all_db_names,
                nVregions=nVregions, nDregions=nDregions, nJregions=nJregions)
 }
@@ -127,32 +127,33 @@ use_germline_db <- function(db_name=NULL)
 ### read_germline_db()
 ###
 
-.normarg_groups <- function(groups=NULL)
+.normarg_region_types <- function(region_types=NULL)
 {
-    if (is.null(groups))
+    if (is.null(region_types))
         return(c("V", "D", "J"))
-    if (!is.character(groups) || anyNA(groups))
-        stop(wmsg("'groups' must be NULL or a character vector with no NAs"))
-    groups <- toupper(groups)
-    if (length(groups) == 1L) {
-        groups <- safeExplode(groups)
-    } else if (any(nchar(groups) != 1L)) {
-        stop(wmsg("'groups' must have single-letter elements"))
+    if (!is.character(region_types) || anyNA(region_types))
+        stop(wmsg("'region_types' must be NULL or ",
+                  "a character vector with no NAs"))
+    region_types <- toupper(region_types)
+    if (length(region_types) == 1L) {
+        region_types <- safeExplode(region_types)
+    } else if (any(nchar(region_types) != 1L)) {
+        stop(wmsg("'region_types' must have single-letter elements"))
     }
-    if (!all(groups %in% c("V", "D", "J")))
-        stop(wmsg("'groups' can only contain letters V, D, or J"))
-    groups
+    if (!all(region_types %in% c("V", "D", "J")))
+        stop(wmsg("'region_types' can only contain letters V, D, or J"))
+    region_types
 }
 
-### Returns the V-, D-, and/or J- regions in a DNAStringSet object.
-read_germline_db <- function(db_name, groups=NULL)
+### Returns the V, D, and/or J regions in a DNAStringSet object.
+read_germline_db <- function(db_name, region_types=NULL)
 {
     db_path <- get_germline_db_path(db_name)
     if (!dir.exists(db_path))
         .stop_on_invalid_germline_db_name(db_name)
-    groups <- .normarg_groups(groups)
-    fasta_files <- vapply(groups,
-        function(group) file.path(db_path, paste0(group, ".fasta")),
+    region_types <- .normarg_region_types(region_types)
+    fasta_files <- vapply(region_types,
+        function(type) file.path(db_path, paste0(type, ".fasta")),
         character(1), USE.NAMES=FALSE)
     readDNAStringSet(fasta_files)
 }
