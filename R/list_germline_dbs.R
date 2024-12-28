@@ -124,7 +124,7 @@ use_germline_db <- function(db_name=NULL)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### read_germline_db()
+### load_germline_db()
 ###
 
 .normarg_region_types <- function(region_types=NULL)
@@ -146,7 +146,7 @@ use_germline_db <- function(db_name=NULL)
 }
 
 ### Returns the V, D, and/or J regions in a DNAStringSet object.
-read_germline_db <- function(db_name, region_types=NULL)
+load_germline_db <- function(db_name, region_types=NULL)
 {
     db_path <- get_germline_db_path(db_name)
     if (!dir.exists(db_path))

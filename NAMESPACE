@@ -48,12 +48,12 @@ export(
     ## From list_germline_dbs.R:
     list_germline_dbs,
     use_germline_db,
-    read_germline_db,
+    load_germline_db,
 
     ## From list_c_region_dbs.R:
     list_c_region_dbs,
     use_c_region_db,
-    read_c_region_db,
+    load_c_region_db,
 
     ## From install_NCBI_germline_db.R:
     install_NCBI_germline_db,

@@ -2,7 +2,7 @@
 
 \alias{list_c_region_dbs}
 \alias{use_c_region_db}
-\alias{read_c_region_db}
+\alias{load_c_region_db}
 
 \title{List local C-region dbs and select one to use with igblastn()}
 
@@ -14,7 +14,7 @@
   Use \code{use_c_region_db()} to select the local C-region db to use with
   \code{\link{igblastn}()}. This choice will be remembered across R sessions.
 
-  Use \code{read_c_region_db()} to read the nucleotide sequences of the
+  Use \code{load_c_region_db()} to load the nucleotide sequences of the
   gene regions stored in a local C-region db.
 }
 
@@ -23,7 +23,7 @@ list_c_region_dbs(names.only=FALSE)
 
 use_c_region_db(db_name=NULL)
 
-read_c_region_db(db_name)
+load_c_region_db(db_name)
 }
 
 \arguments{
@@ -47,10 +47,10 @@ read_c_region_db(db_name)
     Note that the current selection can be cancelled with
     \code{use_c_region_db("")}.
 
-    For \code{read_c_region_db()}:
+    For \code{load_c_region_db()}:
 
     A single string specifying the name of the local C-region db
-    from which to read the gene regions. Use \code{list_c_region_dbs()}
+    from which to load the gene regions. Use \code{list_c_region_dbs()}
     to list all the local C-region dbs.
   }
 }
@@ -70,7 +70,7 @@ read_c_region_db(db_name)
 
   This man page documents the basic utilities to operate on local
   C-region dbs: \code{list_c_region_dbs()}, \code{use_c_region_db()},
-  and \code{read_c_region_db()}.
+  and \code{load_c_region_db()}.
 
   The basic utilities to operate on local germline dbs are documented
   in the man page for \code{\link{list_germline_dbs}}.
@@ -90,7 +90,7 @@ read_c_region_db(db_name)
   When called with the \code{db_name} argument, \code{use_c_region_db(db_name)}
   returns \code{db_name} invisibly.
 
-  \code{read_c_region_db()} returns the nucleotide sequences from the
+  \code{load_c_region_db()} returns the nucleotide sequences from the
   specified C-region db in a named \link[Biostrings]{DNAStringSet} object.
 }
 
@@ -126,8 +126,8 @@ use_c_region_db("")  # cancel the current selection
 
 use_c_region_db()
 
-read_c_region_db("IMGT.human.IG")
-read_c_region_db("IMGT.mouse.IG")
+load_c_region_db("IMGT.human.IG")
+load_c_region_db("IMGT.mouse.IG")
 }
 
 \keyword{utilities}
