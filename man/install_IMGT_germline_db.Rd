@@ -96,19 +96,18 @@ list_IMGT_releases(recache=FALSE)
 \examples{
 if (!has_igblast()) install_igblast()
 
-## As of Nov 8, 2024, the latest IMGT/V-QUEST release is 202430-2:
+## As of Dec 27, 2024, the latest IMGT/V-QUEST release is 202449-1:
 list_IMGT_releases()
 
-## Download germline sequences from IMGT/V-QUEST 202430-2, and store
+## Download germline sequences from IMGT/V-QUEST 202449-1, and store
 ## the IG sequences for Mouse in a local database:
-install_IMGT_germline_db("202430-2", organism="Mus musculus",
-                         db_type="IG", force=TRUE)
+install_IMGT_germline_db("202449-1", organism="Mus musculus", force=TRUE)
 
 ## List the local germline databases:
 list_germline_dbs()
 
-## Tell igblastn() to use IMGT-202430-2.Mus_musculus.IG:
-use_germline_db("IMGT-202430-2.Mus_musculus.IG")
+## Tell igblastn() to use IMGT-202449-1.Mus_musculus.IG:
+use_germline_db("IMGT-202449-1.Mus_musculus.IG")
 }
 
 \keyword{utilities}

@@ -18,7 +18,7 @@ Authors@R: c(
 Depends: tibble, Biostrings
 Imports: methods, utils, stats, tools, httr, xml2, rvest, xtable,
 	S4Vectors, IRanges, GenomeInfoDb
-Suggests: knitr
+Suggests: testthat, knitr
 SystemRequirements: Perl (for install_IMGT_germline_db() only)
 VignetteBuilder: knitr
 Collate:

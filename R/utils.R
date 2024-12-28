@@ -75,6 +75,15 @@ concatenate_files <- function(files, out=stdout(), n=50000L)
     }
 }
 
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### igblastr_cache()
+###
+
+igblastr_cache <- function()
+{
+    getOption("igblastr_cache", R_user_dir("igblastr", "cache"))
+}
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### disambiguate_fasta_seqids()

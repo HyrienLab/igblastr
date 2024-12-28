@@ -163,7 +163,7 @@
 ###     <igblastr-cache>
 ###     └── store
 ###         └── IMGT-releases
-###             └── 202430-2
+###             └── 202449-1
 ###                 └── IMGT_V-QUEST_reference_directory
 ###                     └──  Homo_sapiens
 ###
@@ -197,7 +197,7 @@ create_IMGT_germline_db <- function(organism_path, destdir,
         stop(db_type, ": invalid 'db_type'")
     )
 
-    ## We first make the db in a temporary folder, and if successful, we
+    ## We first make the db in a temporary folder, and, if successful, we
     ## replace 'destdir' with the temporary folder. This achieves atomicity
     ## and avoids loosing the content of the existing 'destdir' in case
     ## something goes wrong.

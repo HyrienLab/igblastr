@@ -51,11 +51,16 @@
 .get_c_region_dbs_path <- function(init.path=FALSE)
 {
     stopifnot(isTRUEorFALSE(init.path))
-    igblastr_cache <- R_user_dir("igblastr", "cache")
-    c_region_dbs <- file.path(igblastr_cache, "c_region_dbs")
+    c_region_dbs <- file.path(igblastr_cache(), "c_region_dbs")
     if (!dir.exists(c_region_dbs) && init.path) {
-        dir.create(c_region_dbs, recursive=TRUE)
-        .create_builtin_c_region_dbs(c_region_dbs)
+        ## We first create the builtin C-region dbs in a temporary folder,
+        ## and, if successful, we replace 'c_region_dbs' with the temporary
+        ## folder. This achieves atomicity in case something goes wrong.
+        tmp_c_region_dbs <- tempfile("c_region_dbs_")
+        dir.create(tmp_c_region_dbs, recursive=TRUE)
+        on.exit(unlink(tmp_c_region_dbs, recursive=TRUE, force=TRUE))
+        .create_builtin_c_region_dbs(tmp_c_region_dbs)
+        replace_file(c_region_dbs, tmp_c_region_dbs)
     }
     c_region_dbs
 }
@@ -92,8 +97,15 @@ list_c_region_dbs <- function(names.only=FALSE)
     all_db_names <- sort(setdiff(list.files(c_region_dbs), "USING"))
     if (names.only)
         return(all_db_names)
+
     nCregions <- .count_c_regions(all_db_names)
-    data.frame(db_name=all_db_names, nCregions=nCregions)
+
+    used <- character(length(all_db_names))
+    db_path <- get_db_in_use(c_region_dbs, what="C-region")
+    if (db_path != "")
+        used[all_db_names %in% basename(db_path)] <- "*"
+
+    data.frame(db_name=all_db_names, nCregions=nCregions, used=used)
 }
 
 

@@ -137,8 +137,7 @@ make_igblast_exe_path <- function(igblast_root,
 
 get_internal_igblast_roots <- function()
 {
-    igblastr_cache <- R_user_dir("igblastr", "cache")
-    file.path(igblastr_cache, "igblast_roots")
+    file.path(igblastr_cache(), "igblast_roots")
 }
 
 

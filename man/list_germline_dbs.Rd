@@ -122,19 +122,19 @@ load_germline_db(db_name, region_types=NULL)
 if (!has_igblast()) install_igblast()
 
 ## Install Mouse germline db from IMGT (Perl required!):
-install_IMGT_germline_db("202430-2", "Mus_musculus", force=TRUE)
+install_IMGT_germline_db("202449-1", "Mus_musculus", force=TRUE)
 
 list_germline_dbs()
 
 list_germline_dbs(TRUE)  # return only the db names
 
-use_germline_db("IMGT-202430-2.Mus_musculus.IG")
+use_germline_db("IMGT-202449-1.Mus_musculus.IG")
 
 use_germline_db()
 
-load_germline_db("IMGT-202430-2.Mus_musculus.IG")
-load_germline_db("IMGT-202430-2.Mus_musculus.IG", region_types="D")
-load_germline_db("IMGT-202430-2.Mus_musculus.IG", region_types="DJ")
+load_germline_db("IMGT-202449-1.Mus_musculus.IG")
+load_germline_db("IMGT-202449-1.Mus_musculus.IG", region_types="D")
+load_germline_db("IMGT-202449-1.Mus_musculus.IG", region_types="DJ")
 }
 
 \keyword{utilities}

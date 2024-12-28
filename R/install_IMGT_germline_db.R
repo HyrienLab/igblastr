@@ -45,8 +45,7 @@ list_IMGT_releases <- function(recache=FALSE)
 
 .get_IMGT_release_local_store <- function(release)
 {
-    igblastr_cache <- R_user_dir("igblastr", "cache")
-    path <- file.path(igblastr_cache, "store", "IMGT-releases", release)
+    file.path(igblastr_cache(), "store", "IMGT-releases", release)
 }
 
 .form_IMGT_germline_db_name <- function(release, organism="Homo sapiens",

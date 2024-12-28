@@ -7,8 +7,7 @@
 ### Note that the returned path is guaranteed to exist.
 get_germline_dbs_path <- function()
 {
-    igblastr_cache <- R_user_dir("igblastr", "cache")
-    germline_dbs <- file.path(igblastr_cache, "germline_dbs")
+    germline_dbs <- file.path(igblastr_cache(), "germline_dbs")
     if (!dir.exists(germline_dbs))
         dir.create(germline_dbs, recursive=TRUE)
     germline_dbs
@@ -46,11 +45,19 @@ list_germline_dbs <- function(names.only=FALSE)
     all_db_names <- sort(setdiff(list.files(germline_dbs), "USING"))
     if (names.only)
         return(all_db_names)
+
     nVregions <- .count_germline_regions(all_db_names, region_type="V")
     nDregions <- .count_germline_regions(all_db_names, region_type="D")
     nJregions <- .count_germline_regions(all_db_names, region_type="J")
+
+    used <- character(length(all_db_names))
+    db_path <- get_db_in_use(germline_dbs, what="germline")
+    if (db_path != "")
+        used[all_db_names %in% basename(db_path)] <- "*"
+
     data.frame(db_name=all_db_names,
-               nVregions=nVregions, nDregions=nDregions, nJregions=nJregions)
+               nVregions=nVregions, nDregions=nDregions, nJregions=nJregions,
+               used=used)
 }
 
 

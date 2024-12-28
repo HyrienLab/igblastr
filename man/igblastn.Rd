@@ -99,7 +99,7 @@ catnap_bnabs <- system.file(package="igblastr", "extdata",
                             "catnap_bnabs.fasta")
 
 ## Install Human germline db from IMGT (Perl required!):
-db_name <- install_IMGT_germline_db("202430-2", "Homo_sapiens", force=TRUE)
+db_name <- install_IMGT_germline_db("202449-1", "Homo_sapiens", force=TRUE)
 
 ## Select germline db to use with igblastn():
 use_germline_db(db_name)

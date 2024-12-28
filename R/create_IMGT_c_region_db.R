@@ -47,7 +47,7 @@ create_IMGT_c_region_db <- function(organism_path, destdir, force=FALSE)
     if (dir.exists(destdir) && !force)
         .stop_on_existing_IMGT_c_region_db(destdir)
 
-    ## We first make the db in a temporary folder, and if successful, we
+    ## We first make the db in a temporary folder, and, if successful, we
     ## replace 'destdir' with the temporary folder. This achieves atomicity
     ## and avoids loosing the content of the existing 'destdir' in case
     ## something goes wrong.
