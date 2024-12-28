@@ -91,11 +91,11 @@ list_germline_dbs <- function(names.only=FALSE)
 .stop_on_invalid_germline_db_name <- function(db_name)
 {
     msg1 <- c("\"", db_name, "\" is not the name of a cached germline db.")
-    msg2 <- c("Use list_germline_dbs() to list the germline databases ",
+    msg2 <- c("Use list_germline_dbs() to list the germline dbs ",
               "currently installed in the cache (see '?list_germline_dbs').")
     msg3 <- c("Note that you can use any of the install_*_germline_db() ",
               "function (e.g. install_IMGT_germline_db()) to install ",
-              "additional germline databases in the cache.")
+              "additional germline dbs in the cache.")
     stop(wmsg(msg1), "\n  ", wmsg(msg2), "\n  ", wmsg(msg3))
 }
 
@@ -120,6 +120,41 @@ use_germline_db <- function(db_name=NULL)
     using_path <- file.path(germline_dbs, "USING")
     writeLines(db_name, using_path)
     invisible(db_name)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### read_germline_db()
+###
+
+.normarg_groups <- function(groups=NULL)
+{
+    if (is.null(groups))
+        return(c("V", "D", "J"))
+    if (!is.character(groups) || anyNA(groups))
+        stop(wmsg("'groups' must be NULL or a character vector with no NAs"))
+    groups <- toupper(groups)
+    if (length(groups) == 1L) {
+        groups <- safeExplode(groups)
+    } else if (any(nchar(groups) != 1L)) {
+        stop(wmsg("'groups' must have single-letter elements"))
+    }
+    if (!all(groups %in% c("V", "D", "J")))
+        stop(wmsg("'groups' can only contain letters V, D, or J"))
+    groups
+}
+
+### Returns the V-, D-, and/or J- regions in a DNAStringSet object.
+read_germline_db <- function(db_name, groups=NULL)
+{
+    db_path <- get_germline_db_path(db_name)
+    if (!dir.exists(db_path))
+        .stop_on_invalid_germline_db_name(db_name)
+    groups <- .normarg_groups(groups)
+    fasta_files <- vapply(groups,
+        function(group) file.path(db_path, paste0(group, ".fasta")),
+        character(1), USE.NAMES=FALSE)
+    readDNAStringSet(fasta_files)
 }
 
 

@@ -115,7 +115,7 @@ list_c_region_dbs <- function(names.only=FALSE)
 .stop_on_invalid_c_region_db_name <- function(db_name)
 {
     msg1 <- c("\"", db_name, "\" is not the name of a cached C-region db.")
-    msg2 <- c("Use list_c_region_dbs() to list the C-region databases ",
+    msg2 <- c("Use list_c_region_dbs() to list the C-region dbs ",
               "currently installed in the cache (see '?list_c_region_dbs').")
     stop(wmsg(msg1), "\n  ", wmsg(msg2))
 }
@@ -155,10 +155,12 @@ use_c_region_db <- function(db_name=NULL)
 ### read_c_region_db()
 ###
 
-### Return the C-regions in a DNAStringSet object.
+### Returns the C-regions in a DNAStringSet object.
 read_c_region_db <- function(db_name)
 {
     db_path <- get_c_region_db_path(db_name)
+    if (!dir.exists(db_path))
+        .stop_on_invalid_c_region_db_name(db_name)
     fasta_file <- file.path(db_path, "C.fasta")
     readDNAStringSet(fasta_file)
 }

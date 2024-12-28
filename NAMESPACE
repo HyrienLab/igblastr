@@ -48,6 +48,7 @@ export(
     ## From list_germline_dbs.R:
     list_germline_dbs,
     use_germline_db,
+    read_germline_db,
 
     ## From list_c_region_dbs.R:
     list_c_region_dbs,
