@@ -1,10 +1,7 @@
 
-- Document use_germline_db(), list_germline_dbs().
-
-- igblastn() should return the results in a data.frame (or tibble?)
-  when 'outfmt' is set to "AIRR" (the default).
-
 - Add unit tests.
+
+- Add vignette.
 
 - Implement install_AIRR_germline_db(). Will download the germline sequences
   from https://ogrdb.airr-community.org/ (link provided by Kellie).
