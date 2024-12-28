@@ -5,6 +5,16 @@
 ### Nothing in this file is exported.
 
 
+### TODO: Move this to S4Vectors (or BiocBaseUtils).
+load_package_gracefully <- function(package, ...)
+{
+    if (!requireNamespace(package, quietly=TRUE))
+        stop("Could not load package ", package, ". Is it installed?\n\n  ",
+             wmsg("Note that ", ..., " requires the ", package, " package. ",
+                  "Please install it with:"),
+             "\n\n    BiocManager::install(\"", package, "\")")
+}
+
 ### "\xc2\xa0" is some kind of weird white space that sometimes creeps
 ### in when scrapping dirty HTML documents found on the internet.
 is_white_str <- function(x) grepl("^\\s*$", x) | x == "\xc2\xa0"
@@ -74,6 +84,7 @@ concatenate_files <- function(files, out=stdout(), n=50000L)
         close(con)
     }
 }
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### igblastr_cache()
