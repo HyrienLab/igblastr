@@ -160,7 +160,7 @@ fetch_germline_set_from_OGRDB <-
 ###   - for IGLambda_VJ (Human): IGLV.fasta, IGLJ.fasta
 ### Returns the number of files produced.
 ###
-### To download the full AIRR germline db for Human:
+### To download all the germline sequences for Human:
 ### (see https://ogrdb.airr-community.org/germline_sets/Homo%20sapiens)
 ###
 ###   download_ungapped_germline_set_from_OGRDB("Human",
@@ -170,7 +170,7 @@ fetch_germline_set_from_OGRDB <-
 ###   download_ungapped_germline_set_from_OGRDB("Human",
 ###                     set_name="IGLambda_VJ", locus="IGL")
 ###
-### --> produces a total of 7 FASTA files
+### --> produces a total of 7 FASTA files (full germline db).
 ###
 ### See download_mouse_germline_sets_from_OGRDB() below for how to
 ### conveniently download germline sets for Mouse.
@@ -282,24 +282,31 @@ download_ungapped_germline_set_from_OGRDB <-
 ### for all valid Set Names.
 ### Returns the number of files produced.
 ###
-### To download the full AIRR germline db for Mouse strain A/J:
+### To download all the germline sequences for Mouse strain A/J:
 ###
 ###   download_mouse_germline_sets_from_OGRDB(c("A/J IGKV", "A/J IGLV"))
 ###
-### --> produces a total of 4 FASTA files.
+### --> produces a total of 4 FASTA files (partial germline db).
 ###
-### To download the full AIRR germline db for Mouse strain C57BL/6:
+### To download all the germline sequences for Mouse strain C57BL/6:
 ###
 ###   download_mouse_germline_sets_from_OGRDB("C57BL/6 IGH")
 ###
-### --> produces a total of 5 FASTA files.
+### --> produces a total of 5 FASTA files (partial germline db).
 ###
-### To download the full AIRR germline db for Mouse strain C57BL/6J:
+### To download all the germline sequences for Mouse strain C57BL/6J:
 ###
 ###   set_names <- c("C57BL/6J IGKV", "C57BL/6J IGLV")
 ###   download_mouse_germline_sets_from_OGRDB(set_names)
 ###
-### --> produces a total of 4 FASTA files.
+### --> produces a total of 4 FASTA files (partial germline db).
+###
+### To download all the germline sequences for Mouse strain CAST/EiJ:
+###
+###   set_names <- c("CAST/EiJ IGH", "CAST/EiJ IGKV", "CAST/EiJ IGLV")
+###   download_mouse_germline_sets_from_OGRDB(set_names)
+###
+### --> produces a total of 7 FASTA files (full germline db).
 download_mouse_germline_sets_from_OGRDB <-
     function(set_names,
              release_version="published",

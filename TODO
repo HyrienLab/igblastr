@@ -1,3 +1,22 @@
+- Investigate the following mysteries about the germline sets provided
+  by OGRDB:
+
+  1. The OGRDB API at https://ogrdb.airr-community.org/api/ allows downloading
+     the germline sequences in 2 formats: ungapped or ungapped_ex.
+     Which format is appropriate to use with IgBLAST?
+     Note that downloading germline sets directly by clicking on
+     the "FASTA Ungapped" links here
+       https://ogrdb.airr-community.org/germline_sets/Homo%20sapiens
+     or
+       https://ogrdb.airr-community.org/germline_sets/Mus%20musculus
+     seems to retrieve the "ungapped_ex" sequences for Human and the "ungapped"
+     sequences for Mouse. Confusing!
+
+  2. For some Mouse strains, OGRDB seems to provide germline sequences
+     only for a limited number of loci/groups. For example for strain A/J,
+     only sequences from the light chain (i.e. groups IGKV, IGKJ, IGLV,
+     and IGLJ) seem to be available.
+     See https://ogrdb.airr-community.org/germline_sets/Mus%20musculus
 
 - Add unit tests.
 
