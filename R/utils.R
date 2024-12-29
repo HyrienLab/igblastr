@@ -106,7 +106,7 @@ igblastr_cache <- function()
 {
     max_pool_size <- (length(letters)**8 - 1) / (length(letters) - 1) - 1
     if (min_pool_size > max_pool_size)
-        stop(wmsg("too many duplicate seq_ids"))
+        stop(wmsg("too many duplicate seq ids"))
     ans <- character(0)
     for (i in 1:7) {
         ans <- c(ans, mkAllStrings(letters, i))
@@ -115,7 +115,7 @@ igblastr_cache <- function()
     }
     ## Should never happen because we checked for this condition earlier (see
     ## above).
-    stop(wmsg("too many duplicate seq_ids"))
+    stop(wmsg("too many duplicate seq ids"))
 }
 
 .make_unique_seqids <- function(seqids)
