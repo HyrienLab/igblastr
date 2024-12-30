@@ -62,21 +62,9 @@ At least one germline db must be installed.
 
 Several specialized functions will be provided for that e.g.:
 
-    install_NCBI_germline_db()  # not ready yet!
     install_IMGT_germline_db()  # see '?install_IMGT_germline_db'
     install_AIRR_germline_db()  # not ready yet!
     etc...
-
-Note:
-
-- `install_NCBI_germline_db()` will manage installation of the dbs available
-  at https://ftp.ncbi.nih.gov/blast/executables/igblast/release/database/.
-  These are:
-  - `ncbi_human_c_genes`
-  - `mouse_gl_VDJ`
-  - `rhesus_monkey_VJ`
-  - `airr_c_human`
-  - `airr_c_mouse`
 
 #### Select the germline db to use with igblastn()
 

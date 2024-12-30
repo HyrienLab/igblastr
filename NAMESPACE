@@ -55,12 +55,12 @@ export(
     use_c_region_db,
     load_c_region_db,
 
-    ## From install_NCBI_germline_db.R:
-    install_NCBI_germline_db,
-
     ## From install_IMGT_germline_db.R:
     list_IMGT_releases,
     install_IMGT_germline_db,
+
+    ## From install_AIRR_germline_db.R:
+    install_AIRR_germline_db,
 
     ## From igblastn.R:
     igblastn, igblastn_help

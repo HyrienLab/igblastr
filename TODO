@@ -18,14 +18,12 @@
      and IGLJ) seem to be available.
      See https://ogrdb.airr-community.org/germline_sets/Mus%20musculus
 
-- Add unit tests.
-
-- Add vignette.
-
 - Implement install_AIRR_germline_db(). Will download the germline sequences
   from https://ogrdb.airr-community.org/ (link provided by Kellie).
 
-- Implement install_NCBI_germline_db().
+- Add unit tests.
+
+- Add vignette.
 
 - Update README.md.
 

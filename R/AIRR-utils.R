@@ -7,9 +7,14 @@
 
 
 ### See short introduction to OGRDB REST API at
-### https://wordpress.vdjbase.org/index.php/ogrdb_news/downloading-germline-sets-from-the-command-line-or-api/
+###   https://wordpress.vdjbase.org/index.php/ogrdb_news/downloading-germline-sets-from-the-command-line-or-api/
 
 .OGRDB_API_URL <- "https://ogrdb.airr-community.org/api"
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### .fetch_germline_set_from_OGRDB()
+###
 
 .encode_OGRDB_API_query <- function(query)
 {
@@ -18,11 +23,6 @@
         stopifnot(!is.null(names(query)))
     vapply(query, function(x) gsub("/", "%25252f", URLencode(x)), character(1))
 }
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### fetch_germline_set_from_OGRDB()
-###
 
 ### Retrieves:
 ###     /germline/set/
@@ -33,9 +33,9 @@
 ###
 ### Typical usage:
 ###
-###   fetch_germline_set_from_OGRDB("Human", set_name="IGH_VDJ")
-###   fetch_germline_set_from_OGRDB("Mouse", species_subgroup="C57BL/6",
-###                                 set_name="C57BL/6 IGH")
+###   .fetch_germline_set_from_OGRDB("Human", set_name="IGH_VDJ")
+###   .fetch_germline_set_from_OGRDB("Mouse", species_subgroup="C57BL/6",
+###                                  set_name="C57BL/6 IGH")
 ###
 ### Note that passing "Homo_sapiens" or "Mus musculus" works and produces
 ### the same results.
@@ -79,7 +79,7 @@
 ###   - gapped_seqs <- sapply(alleles$v_gene_delineations,
 ###         function(x) if (is.null(x)) NA_character_ else x$aligned_sequence)
 ###     Note that only sequences of type V can have gaps.
-fetch_germline_set_from_OGRDB <-
+.fetch_germline_set_from_OGRDB <-
     function(species, species_subgroup=NULL, set_name,
              release_version="published",
              format=c("ungapped", "gapped", "airr",
@@ -127,7 +127,7 @@ fetch_germline_set_from_OGRDB <-
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### download_ungapped_germline_set_from_OGRDB()
+### download_germline_sequences_from_OGRDB()
 ###
 
 .infer_region_type_from_seqid <- function(seqid, locus)
@@ -146,52 +146,39 @@ fetch_germline_set_from_OGRDB <-
                                  extended=FALSE)
 {
     format <- if (extended) "airr_ex" else "airr"
-    parsed_json <- fetch_germline_set_from_OGRDB(species,
-                       species_subgroup=species_subgroup,
-                       set_name=set_name,
-                       release_version=release_version,
-                       format=format)
+    parsed_json <- .fetch_germline_set_from_OGRDB(species,
+                        species_subgroup=species_subgroup,
+                        set_name=set_name,
+                        release_version=release_version,
+                        format=format)
     stop("paranoid.mode not ready yet")
 }
 
-### Produces between 1 to 3 FASTA files depending on 'set_name':
-###   - for IGH_VDJ (Human):     IGHV.fasta, IGHD.fasta, IGHJ.fasta
-###   - for IGKappa_VJ (Human):  IGKV.fasta, IGKJ.fasta
-###   - for IGLambda_VJ (Human): IGLV.fasta, IGLJ.fasta
+### Downloads the germline sequences (ungapped) for the specified
+### species/species_subgroup/set_name/release_version.
+### Produces a subset of the following 7 FASTA files: IGHV.fasta,
+### IGHD.fasta, IGHJ.fasta, IGKV.fasta, IGKJ.fasta, IGLV.fasta, and
+### IGLJ.fasta. The exact subset produced depends on the species/set_name.
 ### Returns the number of files produced.
-###
-### To download all the germline sequences for Human:
-### (see https://ogrdb.airr-community.org/germline_sets/Homo%20sapiens)
-###
-###   download_ungapped_germline_set_from_OGRDB("Human",
-###                     set_name="IGH_VDJ", locus="IGH")
-###   download_ungapped_germline_set_from_OGRDB("Human",
-###                     set_name="IGKappa_VJ", locus="IGK")
-###   download_ungapped_germline_set_from_OGRDB("Human",
-###                     set_name="IGLambda_VJ", locus="IGL")
-###
-### --> produces a total of 7 FASTA files (full germline db).
-###
-### See download_mouse_germline_sets_from_OGRDB() below for how to
-### conveniently download germline sets for Mouse.
-download_ungapped_germline_set_from_OGRDB <-
+download_germline_sequences_from_OGRDB <-
     function(species, species_subgroup=NULL, set_name,
              locus=c("IGH", "IGK", "IGL"),
              release_version="published",
              extended=FALSE, destdir=".",
              paranoid.mode=FALSE)
 {
-    stopifnot(isTRUEorFALSE(extended),
+    stopifnot(isSingleNonWhiteString(release_version),
+              isTRUEorFALSE(extended),
               isSingleNonWhiteString(destdir),
               isTRUEorFALSE(paranoid.mode))
     locus <- match.arg(locus)
 
     format <- if (extended) "ungapped_ex" else "ungapped"
-    fasta_lines <- fetch_germline_set_from_OGRDB(species,
-                       species_subgroup=species_subgroup,
-                       set_name=set_name,
-                       release_version=release_version,
-                       format=format)
+    fasta_lines <- .fetch_germline_set_from_OGRDB(species,
+                        species_subgroup=species_subgroup,
+                        set_name=set_name,
+                        release_version=release_version,
+                        format=format)
     filepath <- tempfile(fileext=".fasta")
     writeLines(fasta_lines, filepath)
     ungapped_seqs <- readDNAStringSet(filepath)
@@ -226,7 +213,47 @@ download_ungapped_germline_set_from_OGRDB <-
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### download_mouse_germline_sets_from_OGRDB()
+### download_human_germline_sequences_from_OGRDB()
+###
+
+### Downloads the germline sequences (ungapped) for all the Human germline
+### sets. See list of Human germline sets here:
+###   https://ogrdb.airr-community.org/germline_sets/Homo%20sapiens
+### Returns the number of files produced (should be 7).
+download_human_germline_sequences_from_OGRDB <-
+    function(release_version="published",
+             extended=FALSE, destdir=".",
+             paranoid.mode=FALSE)
+{
+    stopifnot(isSingleNonWhiteString(release_version),
+              isTRUEorFALSE(extended),
+              isSingleNonWhiteString(destdir),
+              isTRUEorFALSE(paranoid.mode))
+
+    ## Produces files: IGHV.fasta, IGHD.fasta, IGHJ.fasta
+    file_count <-
+        download_germline_sequences_from_OGRDB("Human",
+                    set_name="IGH_VDJ", locus="IGH",
+                    release_version=release_version, extended=extended,
+                    destdir=destdir, paranoid.mode=paranoid.mode)
+    ## Produces files: IGKV.fasta, IGKJ.fasta
+    file_count <- file_count +
+        download_germline_sequences_from_OGRDB("Human",
+                    set_name="IGKappa_VJ", locus="IGK",
+                    release_version=release_version, extended=extended,
+                    destdir=destdir, paranoid.mode=paranoid.mode)
+    ## Produces files: IGLV.fasta, IGLJ.fasta
+    file_count <- file_count +
+        download_germline_sequences_from_OGRDB("Human",
+                    set_name="IGLambda_VJ", locus="IGL",
+                    release_version=release_version, extended=extended,
+                    destdir=destdir, paranoid.mode=paranoid.mode)
+    file_count
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### download_mouse_germline_sequences_from_OGRDB()
 ###
 
 ### 'set_names' is expected to be a vector of Set Names from
@@ -277,43 +304,45 @@ download_ungapped_germline_set_from_OGRDB <-
     ans
 }
 
-### See Germline Sets table displayed at
+### Downloads the germline sequences (ungapped) for the specified Mouse
+### germline sets. See list of Mouse germline sets here:
 ###   https://ogrdb.airr-community.org/germline_sets/Mus%20musculus
-### for all valid Set Names.
-### Returns the number of files produced.
+### Returns the number of files produced (will be typically between 4 and 7).
 ###
 ### To download all the germline sequences for Mouse strain A/J:
 ###
-###   download_mouse_germline_sets_from_OGRDB(c("A/J IGKV", "A/J IGLV"))
+###   set_names <- c("A/J IGKV", "A/J IGLV")
+###   download_mouse_germline_sequences_from_OGRDB(set_names)
 ###
-### --> produces a total of 4 FASTA files (partial germline db).
+### --> produces 4 FASTA files (partial germline db).
 ###
 ### To download all the germline sequences for Mouse strain C57BL/6:
 ###
-###   download_mouse_germline_sets_from_OGRDB("C57BL/6 IGH")
+###   download_mouse_germline_sequences_from_OGRDB("C57BL/6 IGH")
 ###
-### --> produces a total of 5 FASTA files (partial germline db).
+### --> produces 5 FASTA files (partial germline db).
 ###
 ### To download all the germline sequences for Mouse strain C57BL/6J:
 ###
 ###   set_names <- c("C57BL/6J IGKV", "C57BL/6J IGLV")
-###   download_mouse_germline_sets_from_OGRDB(set_names)
+###   download_mouse_germline_sequences_from_OGRDB(set_names)
 ###
-### --> produces a total of 4 FASTA files (partial germline db).
+### --> produces 4 FASTA files (partial germline db).
 ###
 ### To download all the germline sequences for Mouse strain CAST/EiJ:
 ###
 ###   set_names <- c("CAST/EiJ IGH", "CAST/EiJ IGKV", "CAST/EiJ IGLV")
-###   download_mouse_germline_sets_from_OGRDB(set_names)
+###   download_mouse_germline_sequences_from_OGRDB(set_names)
 ###
-### --> produces a total of 7 FASTA files (full germline db).
-download_mouse_germline_sets_from_OGRDB <-
+### --> produces 7 FASTA files (full germline db).
+download_mouse_germline_sequences_from_OGRDB <-
     function(set_names,
              release_version="published",
              extended=FALSE, destdir=".",
              paranoid.mode=FALSE)
 {
-    stopifnot(isTRUEorFALSE(extended),
+    stopifnot(isSingleNonWhiteString(release_version),
+              isTRUEorFALSE(extended),
               isSingleNonWhiteString(destdir),
               isTRUEorFALSE(paranoid.mode))
 
@@ -324,19 +353,19 @@ download_mouse_germline_sets_from_OGRDB <-
     file_count <- 0L
     for (i in seq_len(nrow(m))) {
         file_count <- file_count +
-            download_ungapped_germline_set_from_OGRDB("Mouse",
+            download_germline_sequences_from_OGRDB("Mouse",
                         species_subgroup=species_subgroups[[i]],
                         set_name=set_names[[i]], locus=loci[[i]],
                         release_version=release_version, extended=extended,
                         destdir=destdir, paranoid.mode=paranoid.mode)
     }
     file_count <- file_count +
-        download_ungapped_germline_set_from_OGRDB("Mouse",
+        download_germline_sequences_from_OGRDB("Mouse",
                     set_name="IGKJ (all strains)", locus="IGK",
                     release_version=release_version, extended=extended,
                     destdir=destdir, paranoid.mode=paranoid.mode)
     file_count <- file_count +
-        download_ungapped_germline_set_from_OGRDB("Mouse",
+        download_germline_sequences_from_OGRDB("Mouse",
                     set_name="IGLJ (all strains)", locus="IGL",
                     release_version=release_version, extended=extended,
                     destdir=destdir, paranoid.mode=paranoid.mode)
