@@ -174,12 +174,13 @@ create_IMGT_germline_db <- function(organism_path, destdir,
                                     db_type=c("IG", "TR", "IG-TR"),
                                     force=FALSE)
 {
+    stopifnot(isSingleNonWhiteString(destdir))
     db_type <- match.arg(db_type)
     if (!isTRUEorFALSE(force))
         stop(wmsg("'force' must be TRUE or FALSE"))
-    edit_fasta_script <- get_edit_imgt_file_Perl_script()
     if (dir.exists(destdir) && !force)
         .stop_on_existing_IMGT_germline_db(destdir)
+    edit_fasta_script <- get_edit_imgt_file_Perl_script()
 
     ## We check these 2 paths up front so we don't have to check them
     ## later in the .create_IMGT_*_db() functions.

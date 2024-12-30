@@ -7,6 +7,20 @@
 ### .create_builtin_c_region_dbs()
 ###
 
+.read_version_file <- function(dirpath)
+{
+    version_path <- file.path(dirpath, "version")
+    if (!file.exists(version_path))
+        stop(wmsg("missing 'version' file in ", dirpath, "/"))
+    version <- readLines(version_path)
+    if (length(version) != 1L)
+        stop(wmsg("file '", version_path, "' should contain exactly one line"))
+    version <- trimws(version)
+    if (version == "")
+        stop(wmsg("file '", version_path, "' contains only white spaces"))
+    version
+}
+
 ### Do NOT call this in .onLoad()! It relies on create_IMGT_c_region_db()
 ### which requires that Perl and a valid IgBLAST installation (for
 ### the 'edit_imgt_file.pl' script) are already available on the machine.
@@ -28,8 +42,9 @@
                                      mustWork=TRUE)
     organism_paths <- list.dirs(IMGT_c_region_dir, recursive=FALSE)
     for (organism_path in organism_paths) {
+        version <- .read_version_file(organism_path)
         organism <- basename(organism_path)
-        db_name <- paste0("IMGT.", organism, ".IG")
+        db_name <- paste0("IMGT.", organism, ".IG.", version)
         db_path <- file.path(destdir, db_name)
         create_IMGT_c_region_db(organism_path, db_path, force=force)
     }

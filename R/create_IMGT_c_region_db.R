@@ -12,6 +12,7 @@
 
 .list_IMGT_C_fasta_files <- function(dirpath)
 {
+    stopifnot(isSingleNonWhiteString(dirpath))
     pattern <- paste0("^IG[HKL]C\\.fasta$")
     files <- list.files(dirpath, pattern=pattern)
     if (length(files) == 0L)
@@ -41,11 +42,13 @@
 ###  <igblastr-cache>/c_region_dbs/
 create_IMGT_c_region_db <- function(organism_path, destdir, force=FALSE)
 {
+    stopifnot(isSingleNonWhiteString(destdir))
     if (!isTRUEorFALSE(force))
         stop(wmsg("'force' must be TRUE or FALSE"))
-    edit_fasta_script <- get_edit_imgt_file_Perl_script()
     if (dir.exists(destdir) && !force)
         .stop_on_existing_IMGT_c_region_db(destdir)
+    edit_fasta_script <- get_edit_imgt_file_Perl_script()
+    fasta_files <- .list_IMGT_C_fasta_files(organism_path)
 
     ## We first make the db in a temporary folder, and, if successful, we
     ## replace 'destdir' with the temporary folder. This achieves atomicity
@@ -54,7 +57,6 @@ create_IMGT_c_region_db <- function(organism_path, destdir, force=FALSE)
     tmpdestdir <- tempfile("c_region_db_")
     dir.create(tmpdestdir, recursive=TRUE)
     on.exit(unlink(tmpdestdir, recursive=TRUE, force=TRUE))
-    fasta_files <- .list_IMGT_C_fasta_files(organism_path)
     create_IMGT_region_db(fasta_files, tmpdestdir, region_type="C",
                           edit_fasta_script=edit_fasta_script)
     replace_file(destdir, tmpdestdir)

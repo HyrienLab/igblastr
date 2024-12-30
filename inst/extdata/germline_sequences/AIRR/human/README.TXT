@@ -10,3 +10,6 @@ following code in the folder on Dec 29, 2024:
     igblastr:::download_human_germline_sequences_from_OGRDB(extended=TRUE,
                                                             destdir="extended")
 
+In addition to the FASTA files, this folder has a 'version' file that
+contains the date of the download in YYYYMM format.
+
