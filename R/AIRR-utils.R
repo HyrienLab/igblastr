@@ -37,8 +37,8 @@
 ###   .fetch_germline_set_from_OGRDB("Mouse", species_subgroup="C57BL/6",
 ###                                  set_name="C57BL/6 IGH")
 ###
-### Note that passing "Homo_sapiens" or "Mus musculus" works and produces
-### the same results.
+### Note that passing "Homo_sapiens" or "Mus musculus" instead of "Human"
+### or "Mouse" above also works and produces the same results.
 ### Returns a character vector containing the nucleotide sequences in FASTA
 ### format, except when 'format' is set to "airr" or "airr_ex".
 ###

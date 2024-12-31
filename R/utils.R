@@ -150,6 +150,48 @@ disambiguate_fasta_seqids <- function(filepath)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### tabulate_c_region_seqids_by_locus()
+### tabulate_germline_seqids_by_group()
+###
+
+GENE_LOCI <- c("IGH", "IGK", "IGL")
+
+### Returns a named integer vector with GENE_LOCI as names.
+tabulate_c_region_seqids_by_locus <- function(seqids)
+{
+    stopifnot(is.character(seqids))
+    prefixes <- substr(seqids, 1L, 3L)
+    m <- match(prefixes, GENE_LOCI)
+    if (anyNA(m)) {
+        in1string <- paste0(GENE_LOCI, collapse=", ")
+        stop(wmsg("not all seq ids start with one of the following prefixes: ",
+                  in1string))
+    }
+    setNames(tabulate(m, length(GENE_LOCI)), GENE_LOCI)
+}
+
+### Group names are formed by concatenating a locus name (IGH, IGK, or IGL)
+### and a region type (V, D, or J).
+GERMLINE_GROUPS <- c(paste0("IGH", c("V", "D", "J")),
+                     paste0("IGK", c("V", "J")),
+                     paste0("IGL", c("V", "J")))
+
+### Returns a named integer vector with GERMLINE_GROUPS as names.
+tabulate_germline_seqids_by_group <- function(seqids)
+{
+    stopifnot(is.character(seqids))
+    prefixes <- substr(seqids, 1L, 4L)
+    m <- match(prefixes, GERMLINE_GROUPS)
+    if (anyNA(m)) {
+        in1string <- paste0(GERMLINE_GROUPS, collapse=", ")
+        stop(wmsg("not all seq ids start with one of the following prefixes: ",
+                  in1string))
+    }
+    setNames(tabulate(m, length(GERMLINE_GROUPS)), GERMLINE_GROUPS)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### get_db_in_use()
 ###
 

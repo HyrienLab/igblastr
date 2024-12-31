@@ -21,7 +21,6 @@
 
 \usage{
 install_IMGT_germline_db(release, organism="Homo sapiens",
-                         db_type=c("IG", "TR", "IG-TR"),
                          force=FALSE, ...)
 
 list_IMGT_releases(recache=FALSE)
@@ -36,16 +35,6 @@ list_IMGT_releases(recache=FALSE)
   \item{organism}{
     A single string specifying the organism for which to get the germline
     sequences.
-  }
-  \item{db_type}{
-    A single string specifying the type of germline sequences to store
-    in the local database:
-    \itemize{
-      \item \code{"IG"} (the default) stands for \emph{Immunoglobulin};
-      \item \code{"TR"} stands for \emph{T-cell receptor};
-      \item \code{"IG-TR"} means that both types should go in the local
-            database.
-    }
   }
   \item{force}{
     Set to \code{TRUE} to reinstall if the requested database is already
@@ -106,8 +95,8 @@ install_IMGT_germline_db("202449-1", organism="Mus musculus", force=TRUE)
 ## List the local germline databases:
 list_germline_dbs()
 
-## Tell igblastn() to use IMGT-202449-1.Mus_musculus.IG:
-use_germline_db("IMGT-202449-1.Mus_musculus.IG")
+## Tell igblastn() to use the newly installed germline db:
+use_germline_db("IMGT-202449-1.Mus_musculus.IGH+IGK+IGL")
 }
 
 \keyword{utilities}

@@ -80,7 +80,14 @@ load_c_region_db(db_name)
   \code{list_c_region_dbs()} returns the list of all local C-region dbs
   in a data.frame with one db per row (if \code{names.only} is \code{FALSE},
   which is the default), or in a character vector (if \code{names.only}
-  is \code{TRUE}).
+  is \code{TRUE}). Columns IGH, IGK, and IGL in the data.frame indicate
+  the number of sequences from each locus.
+
+  Builtin dbs are prefixed with an underscore (\code{_}).
+  Note that the C-region builtin dbs from IMGT were downloaded from
+  \url{https://www.imgt.org/vquest/refseqh.html#constant-sets} and
+  included in the \pkg{igblastr} package on the date indicated by the
+  suffix of the db name.
 
   When called with no argument, \code{use_c_region_db()} returns a single
   string containing the name of the local C-region db currently used by
@@ -114,11 +121,12 @@ load_c_region_db(db_name)
 \examples{
 if (!has_igblast()) install_igblast()
 
+## 3 builtin C-region dbs prefixed with an underscore:
 list_c_region_dbs()
 
 list_c_region_dbs(TRUE)  # return only the db names
 
-use_c_region_db("IMGT.human.IG")
+use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 
 use_c_region_db()
 
@@ -126,8 +134,8 @@ use_c_region_db("")  # cancel the current selection
 
 use_c_region_db()
 
-load_c_region_db("IMGT.human.IG")
-load_c_region_db("IMGT.mouse.IG")
+load_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
+load_c_region_db("_IMGT.mouse.IGH+IGK+IGL.202412")
 }
 
 \keyword{utilities}

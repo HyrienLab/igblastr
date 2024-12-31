@@ -84,7 +84,8 @@ load_germline_db(db_name, region_types=NULL)
   \code{list_germline_dbs()} returns the list of all local germline dbs
   in a data.frame with one db per row (if \code{names.only} is \code{FALSE},
   which is the default), or in a character vector (if \code{names.only}
-  is \code{TRUE}).
+  is \code{TRUE}). Columns IGHV, IGHD, IGHJ, IGKV, IGKJ, IGLV, and IGLJ
+  in the data.frame indicate the number of sequences from each group.
 
   When called with no argument, \code{use_germline_db()} returns a single
   string containing the name of the local germline db currently used by
@@ -128,13 +129,14 @@ list_germline_dbs()
 
 list_germline_dbs(TRUE)  # return only the db names
 
-use_germline_db("IMGT-202449-1.Mus_musculus.IG")
+db_name <- "IMGT-202449-1.Mus_musculus.IGH+IGK+IGL"
+use_germline_db(db_name)
 
 use_germline_db()
 
-load_germline_db("IMGT-202449-1.Mus_musculus.IG")
-load_germline_db("IMGT-202449-1.Mus_musculus.IG", region_types="D")
-load_germline_db("IMGT-202449-1.Mus_musculus.IG", region_types="DJ")
+load_germline_db(db_name)
+load_germline_db(db_name, region_types="D")
+load_germline_db(db_name, region_types="DJ")
 }
 
 \keyword{utilities}

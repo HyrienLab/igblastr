@@ -3,6 +3,12 @@
 ### -------------------------------------------------------------------------
 
 
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### get_germline_dbs_path()
+### reset_germline_dbs_cache()
+### get_germline_db_path()
+###
+
 ### Returns "<igblastr-cache>/germline_dbs".
 ### Note that the returned path is guaranteed to exist.
 get_germline_dbs_path <- function()
@@ -11,6 +17,13 @@ get_germline_dbs_path <- function()
     if (!dir.exists(germline_dbs))
         dir.create(germline_dbs, recursive=TRUE)
     germline_dbs
+}
+
+### Returns the value returned by unlink().
+reset_germline_dbs_cache <- function()
+{
+    germline_dbs <- get_germline_dbs_path()
+    unlink(germline_dbs, recursive=TRUE, force=TRUE)
 }
 
 ### Note that the returned path is NOT guaranteed to exist.
@@ -26,15 +39,36 @@ get_germline_db_path <- function(db_name)
 ### list_germline_dbs()
 ###
 
-.count_germline_regions <- function(all_db_names, region_type=c("V", "D", "J"))
+### Returns a named integer vector with GERMLINE_GROUPS as names.
+.tabulate_germline_db_by_group <- function(db_name)
 {
-    region_type <- match.arg(region_type)
-    vapply(all_db_names,
-        function(db_name) {
-            db_path <- get_germline_db_path(db_name)
+    db_path <- get_germline_db_path(db_name)
+    region_types <- c("V", "D", "J")
+    all_counts <- lapply(region_types,
+        function(region_type) {
             fasta_file <- file.path(db_path, paste0(region_type, ".fasta"))
-            length(fasta.seqlengths(fasta_file))
-        }, integer(1), USE.NAMES=FALSE)
+            seqids <- names(fasta.seqlengths(fasta_file))
+            counts <- tabulate_germline_seqids_by_group(seqids)
+            if (!all(has_suffix(names(counts)[counts != 0L], region_type)))
+                warning(wmsg("some seq ids in '" , fasta_file, "' don't look ",
+                             "like ", region_type, "-region germline seq ids"))
+            counts
+        })
+    data <- unlist(all_counts, use.names=FALSE)
+    m <- matrix(data, ncol=length(GERMLINE_GROUPS), byrow=TRUE,
+                dimnames=list(region_types, GERMLINE_GROUPS))
+    colSums(m)
+}
+
+### Returns a matrix with 1 row per germline db and 1 column per group.
+.tabulate_germline_dbs_by_group <- function(db_names)
+{
+    all_counts <- lapply(db_names, .tabulate_germline_db_by_group)
+    data <- unlist(all_counts, use.names=FALSE)
+    if (is.null(data))
+        data <- integer(0)
+    matrix(data, ncol=length(GERMLINE_GROUPS), byrow=TRUE,
+           dimnames=list(NULL, GERMLINE_GROUPS))
 }
 
 list_germline_dbs <- function(names.only=FALSE)
@@ -46,18 +80,12 @@ list_germline_dbs <- function(names.only=FALSE)
     if (names.only)
         return(all_db_names)
 
-    nVregions <- .count_germline_regions(all_db_names, region_type="V")
-    nDregions <- .count_germline_regions(all_db_names, region_type="D")
-    nJregions <- .count_germline_regions(all_db_names, region_type="J")
-
+    basic_stats <- .tabulate_germline_dbs_by_group(all_db_names)
     used <- character(length(all_db_names))
     db_path <- get_db_in_use(germline_dbs, what="germline")
     if (db_path != "")
         used[all_db_names %in% basename(db_path)] <- "*"
-
-    data.frame(db_name=all_db_names,
-               nVregions=nVregions, nDregions=nDregions, nJregions=nJregions,
-               used=used)
+    data.frame(db_name=all_db_names, basic_stats, used=used)
 }
 
 

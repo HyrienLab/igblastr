@@ -171,11 +171,9 @@
 ###     <igblastr-cache>
 ###     └── germline_dbs
 create_IMGT_germline_db <- function(organism_path, destdir,
-                                    db_type=c("IG", "TR", "IG-TR"),
                                     force=FALSE)
 {
     stopifnot(isSingleNonWhiteString(destdir))
-    db_type <- match.arg(db_type)
     if (!isTRUEorFALSE(force))
         stop(wmsg("'force' must be TRUE or FALSE"))
     if (dir.exists(destdir) && !force)
@@ -191,12 +189,13 @@ create_IMGT_germline_db <- function(organism_path, destdir,
     if (!dir.exists(TR_path))
         stop(wmsg("Anomaly: directory ", TR_path, " not found"))
 
-    FUN <- switch(db_type,
-        "IG"   =.create_IMGT_IG_germline_db,
-        "TR"   =.create_IMGT_TR_germline_db,
-        "IG-TR"=.create_IMGT_IG_TR_germline_db,
-        stop(db_type, ": invalid 'db_type'")
-    )
+    #FUN <- switch(db_type,
+    #    "IG"   =.create_IMGT_IG_germline_db,
+    #    "TR"   =.create_IMGT_TR_germline_db,
+    #    "IG-TR"=.create_IMGT_IG_TR_germline_db,
+    #    stop(db_type, ": invalid 'db_type'")
+    #)
+    FUN <- .create_IMGT_IG_germline_db
 
     ## We first make the db in a temporary folder, and, if successful, we
     ## replace 'destdir' with the temporary folder. This achieves atomicity

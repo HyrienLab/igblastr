@@ -44,7 +44,8 @@
     for (organism_path in organism_paths) {
         version <- .read_version_file(organism_path)
         organism <- basename(organism_path)
-        db_name <- paste0("IMGT.", organism, ".IG.", version)
+        ## Prefix name with underscore because it's a builtin db.
+        db_name <- paste0("_IMGT.", organism, ".IGH+IGK+IGL.", version)
         db_path <- file.path(destdir, db_name)
         create_IMGT_c_region_db(organism_path, db_path, force=force)
     }
@@ -55,6 +56,7 @@
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .get_c_region_dbs_path()
+### reset_c_region_dbs_cache()
 ### get_c_region_db_path()
 ###
 
@@ -80,6 +82,13 @@
     c_region_dbs
 }
 
+### Returns the value returned by unlink().
+reset_c_region_dbs_cache <- function()
+{
+    c_region_dbs <- .get_c_region_dbs_path()  # path NOT guaranteed to exist
+    unlink(c_region_dbs, recursive=TRUE, force=TRUE)
+}
+
 ### Note that the returned path is NOT guaranteed to exist.
 ### Not exported!
 get_c_region_db_path <- function(db_name)
@@ -94,14 +103,24 @@ get_c_region_db_path <- function(db_name)
 ### list_c_region_dbs()
 ###
 
-.count_c_regions <- function(all_db_names)
+### Returns a named integer vector with GENE_LOCI as names.
+.tabulate_c_region_db_by_locus <- function(db_name)
 {
-    vapply(all_db_names,
-        function(db_name) {
-            db_path <- get_c_region_db_path(db_name)
-            fasta_file <- file.path(db_path, "C.fasta")
-            length(fasta.seqlengths(fasta_file))
-        }, integer(1), USE.NAMES=FALSE)
+    db_path <- get_c_region_db_path(db_name)
+    fasta_file <- file.path(db_path, "C.fasta")
+    seqids <- names(fasta.seqlengths(fasta_file))
+    tabulate_c_region_seqids_by_locus(seqids)
+}
+
+### Returns a matrix with 1 row per C-region db and 1 column per locus.
+.tabulate_c_region_dbs_by_locus <- function(db_names)
+{
+    all_counts <- lapply(db_names, .tabulate_c_region_db_by_locus)
+    data <- unlist(all_counts, use.names=FALSE)
+    if (is.null(data))
+        data <- integer(0)
+    matrix(data, ncol=length(GENE_LOCI), byrow=TRUE,
+           dimnames=list(NULL, GENE_LOCI))
 }
 
 list_c_region_dbs <- function(names.only=FALSE)
@@ -113,14 +132,12 @@ list_c_region_dbs <- function(names.only=FALSE)
     if (names.only)
         return(all_db_names)
 
-    nCregions <- .count_c_regions(all_db_names)
-
+    basic_stats <- .tabulate_c_region_dbs_by_locus(all_db_names)
     used <- character(length(all_db_names))
     db_path <- get_db_in_use(c_region_dbs, what="C-region")
     if (db_path != "")
         used[all_db_names %in% basename(db_path)] <- "*"
-
-    data.frame(db_name=all_db_names, nCregions=nCregions, used=used)
+    data.frame(db_name=all_db_names, basic_stats, used=used)
 }
 
 

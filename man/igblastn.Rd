@@ -105,7 +105,7 @@ db_name <- install_IMGT_germline_db("202449-1", "Homo_sapiens", force=TRUE)
 use_germline_db(db_name)
 
 ## Select C-region db to use with igblastn():
-use_c_region_db("IMGT.human.IG")
+use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 
 ## Run igblastn:
 igblastn(catnap_bnabs, show.in.browser=TRUE)
