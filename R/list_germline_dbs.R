@@ -85,7 +85,7 @@ list_germline_dbs <- function(names.only=FALSE)
     db_path <- get_db_in_use(germline_dbs, what="germline")
     if (db_path != "")
         used[all_db_names %in% basename(db_path)] <- "*"
-    data.frame(db_name=all_db_names, basic_stats, used=used)
+    data.frame(db_name=all_db_names, basic_stats, ` `=used, check.names=FALSE)
 }
 
 

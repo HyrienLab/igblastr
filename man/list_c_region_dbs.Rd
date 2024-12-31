@@ -135,7 +135,7 @@ use_c_region_db("")  # cancel the current selection
 use_c_region_db()
 
 load_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
-load_c_region_db("_IMGT.mouse.IGH+IGK+IGL.202412")
+load_c_region_db("_IMGT.mouse.IGH.202412")
 }
 
 \keyword{utilities}

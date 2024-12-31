@@ -4,7 +4,7 @@ test_that("list_germline_dbs()", {
     expected_colnames <- c("db_name",
                            "IGHV", "IGHD", "IGHJ",
                            "IGKV", "IGKJ", "IGLV", "IGLJ",
-                           "used")
+                           " ")
     expect_identical(colnames(object), expected_colnames)
 })
 

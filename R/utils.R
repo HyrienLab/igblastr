@@ -192,6 +192,26 @@ tabulate_germline_seqids_by_group <- function(seqids)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### read_version_file()
+###
+
+read_version_file <- function(dirpath)
+{
+    stopifnot(isSingleNonWhiteString(dirpath))
+    version_path <- file.path(dirpath, "version")
+    if (!file.exists(version_path))
+        stop(wmsg("missing 'version' file in ", dirpath, "/"))
+    version <- readLines(version_path)
+    if (length(version) != 1L)
+        stop(wmsg("file '", version_path, "' should contain exactly one line"))
+    version <- trimws(version)
+    if (version == "")
+        stop(wmsg("file '", version_path, "' contains only white spaces"))
+    version
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### get_db_in_use()
 ###
 

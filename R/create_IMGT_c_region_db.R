@@ -6,10 +6,6 @@
 ###
 
 
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### create_IMGT_c_region_db()
-###
-
 .list_IMGT_C_fasta_files <- function(dirpath)
 {
     stopifnot(isSingleNonWhiteString(dirpath))
@@ -17,8 +13,28 @@
     files <- list.files(dirpath, pattern=pattern)
     if (length(files) == 0L)
         stop(wmsg("Anomaly: no C-region files found in ", dirpath))
-    file.path(dirpath, files)
+    files
 }
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### form_IMGT_c_region_db_name()
+###
+
+form_IMGT_c_region_db_name <- function(organism_path)
+{
+    fasta_files <- .list_IMGT_C_fasta_files(organism_path)
+    loci <- paste(sort(substr(fasta_files, 1L, 3L)), collapse="+")
+    version <- read_version_file(organism_path)
+    organism <- basename(organism_path)
+    ## Prefix name with underscore because it's a builtin db.
+    paste("_IMGT", organism, loci, version, sep=".")
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### create_IMGT_c_region_db()
+###
 
 .stop_on_existing_IMGT_c_region_db <- function(destdir)
 {
@@ -49,6 +65,7 @@ create_IMGT_c_region_db <- function(organism_path, destdir, force=FALSE)
         .stop_on_existing_IMGT_c_region_db(destdir)
     edit_fasta_script <- get_edit_imgt_file_Perl_script()
     fasta_files <- .list_IMGT_C_fasta_files(organism_path)
+    fasta_files <- file.path(organism_path, fasta_files)
 
     ## We first make the db in a temporary folder, and, if successful, we
     ## replace 'destdir' with the temporary folder. This achieves atomicity
