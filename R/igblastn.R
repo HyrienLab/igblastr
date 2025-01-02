@@ -57,8 +57,8 @@
 
     if (outfmt != 19) {
         if (show.in.browser)
-            return(display_local_file_in_browser(outfile))
-        return(cat(readLines(outfile), sep="\n"))
+            display_local_file_in_browser(outfile)
+        return(readLines(outfile))
     }
 
     ## AIRR output format is tabulated.
@@ -91,21 +91,6 @@
     stop(wmsg("'query' must be a single (non-empty) string ",
               "that contains the path to the input file. ",
               "Alternatively it can be a named DNAStringSet object."))
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### .normarg_outfmt()
-###
-
-.normarg_outfmt <- function(outfmt="AIRR")
-{
-    if (isSingleString(outfmt) && toupper(outfmt) == "AIRR")
-        return(19L)
-    if (!(isSingleNumber(outfmt) && outfmt %in% c(3, 4, 7, 19)))
-        stop(wmsg("'outfmt' must be \"AIRR\" or one of 3, 4, 7, 19 ",
-                  "(19 means \"AIRR\")"))
-    as.integer(outfmt)
 }
 
 
@@ -178,7 +163,7 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
     germline_db_name <- use_germline_db()  # cannot be ""
     c_region_db_name <- use_c_region_db()  # can be ""
     query <- .normarg_query(query)
-    outfmt <- .normarg_outfmt(outfmt)
+    outfmt <- normarg_outfmt(outfmt)
     organism <- .normarg_organism(organism, germline_db_name)
     auxiliary_data <- file.path(igblast_root, "optional_file",
                                 paste0(organism, "_gl.aux"))

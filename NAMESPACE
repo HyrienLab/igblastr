@@ -20,14 +20,38 @@ import(Biostrings)
 ### Export S3 methods
 ###
 
+S3method(print, fmt7record)
 S3method(print, igblast_info)
+S3method(print, outfmt7)
+
+S3method(query, fmt7record)
+S3method(query, query_details)
+
+S3method(summary, alignment_summary)
+S3method(summary, hit_table)
+S3method(summary, query_details)
+S3method(summary, subregion_sequence_details)
+S3method(summary, VDJ_rearrangement_summary)
+S3method(summary, VDJ_junction_details)
 
 ### We also export them thru the export() directive so that (a) they can be
 ### called directly, (b) tab-completion on the name of the generic shows them,
 ### and (c) methods() doesn't asterisk them.
 
 export(
-    print.igblast_info
+    print.fmt7record,
+    print.igblast_info,
+    print.outfmt7,
+
+    query.fmt7record,
+    query.query_details,
+
+    summary.alignment_summary,
+    summary.hit_table,
+    summary.query_details,
+    summary.subregion_sequence_details,
+    summary.VDJ_rearrangement_summary,
+    summary.VDJ_junction_details
 )
 
 

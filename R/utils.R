@@ -21,6 +21,19 @@ is_white_str <- function(x) grepl("^\\s*$", x) | x == "\xc2\xa0"
 
 isSingleNonWhiteString <- function(x) isSingleString(x) && !is_white_str(x)
 
+drop_heading_and_trailing_white_lines <- function(lines)
+{
+    stopifnot(is.character(lines))
+    ok <- vapply(lines, is_white_str, logical(1), USE.NAMES=FALSE)
+    nonwhite_idx <- which(!ok)
+    if (length(nonwhite_idx) == 0L) {
+        keep_idx <- integer(0)
+    } else {
+        keep_idx <- (nonwhite_idx[[1L]]):(nonwhite_idx[[length(nonwhite_idx)]])
+    }
+    lines[keep_idx]
+}
+
 ### Vectorized.
 has_prefix <- function(x, prefix)
 {
