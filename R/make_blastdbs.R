@@ -8,15 +8,6 @@
 .BLASTDB_SUFFIXES <- c("ndb", "nhr", "nin", "njs", "nog",
                        "nos", "not", "nsq", "ntf", "nto")
 
-### TODO: wmsg() was replaced with this in S4Vectors >= 0.45.1 so
-### drop .wmsg2() and use wmsg() instead.
-.wmsg2 <- function(..., margin=2)
-{
-    width <- getOption("width") - margin
-    paste0(strwrap(paste0(c(...), collapse=""), width=width),
-           collapse=paste0("\n", strrep(" ", margin)))
-}
-
 .expected_blastdb_filenames <- function(fasta_file)
 {
     region_type <- sub("\\.fasta$", "", fasta_file)
@@ -46,8 +37,8 @@
     pattern <- paste0("^", region_type, "\\.n")
     blastdb_files <- list.files(db_path, pattern=pattern)
     if (length(blastdb_files) == 0L)
-        stop(.wmsg2("no blastdb files found for the ",
-                    "\"", region_type, "\"-region db in ", db_path, "/"))
+        stop(wmsg2("no blastdb files found for the ",
+                   "\"", region_type, "\"-region db in ", db_path, "/"))
     expected_filenames <- paste0(region_type, ".", .BLASTDB_SUFFIXES)
     if (setequal(blastdb_files, expected_filenames))
         return(TRUE)
@@ -55,9 +46,9 @@
               "the \"", region_type, "\"-region db is not as expected:")
     expected_in_1string <- paste0(expected_filenames, collapse=", ")
     found_in_1string <- paste0(blastdb_files, collapse=", ")
-    warning(.wmsg2(msg1),
-            "\n  - expected: ", .wmsg2(expected_in_1string, margin=14),
-            "\n  -    found: ", .wmsg2(found_in_1string, margin=14))
+    warning(wmsg2(msg1),
+            "\n  - expected: ", wmsg2(expected_in_1string, margin=14),
+            "\n  -    found: ", wmsg2(found_in_1string, margin=14))
     FALSE
 }
 

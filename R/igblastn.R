@@ -95,6 +95,21 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### .normarg_outfmt()
+###
+
+.normarg_outfmt <- function(outfmt="AIRR")
+{
+    if (isSingleString(outfmt) && toupper(outfmt) == "AIRR")
+        return(19L)
+    if (!(isSingleNumber(outfmt) && outfmt %in% c(3, 4, 7, 19)))
+        stop(wmsg("'outfmt' must be \"AIRR\" or one of 3, 4, 7, 19 ",
+                  "(19 means \"AIRR\")"))
+    as.integer(outfmt)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .normarg_organism()
 ###
 
@@ -153,6 +168,21 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### parse_igblastn_output()
+###
+
+parse_igblastn_output <- function(out, outfmt)
+{
+    outfmt <- .normarg_outfmt(outfmt)
+    if (outfmt == 7)
+        return(parse_fmt7(out))
+    #stop(wmsg("only output formats \"AIRR\" (19) or 7 ",
+    #          "are supported at the moment "))
+    out
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### igblastn()
 ###
 
@@ -163,7 +193,7 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
     germline_db_name <- use_germline_db()  # cannot be ""
     c_region_db_name <- use_c_region_db()  # can be ""
     query <- .normarg_query(query)
-    outfmt <- normarg_outfmt(outfmt)
+    outfmt <- .normarg_outfmt(outfmt)
     organism <- .normarg_organism(organism, germline_db_name)
     auxiliary_data <- file.path(igblast_root, "optional_file",
                                 paste0(organism, "_gl.aux"))
@@ -180,9 +210,10 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
         args <- c(args, c_region_db=file.path(c_region_db_path, "C"))
     }
 
-    .run_igblastn(igblast_root, outfmt, args,
-                  show.in.browser=show.in.browser,
-                  show.command.only=show.command.only)
+    out <- .run_igblastn(igblast_root, outfmt, args,
+                         show.in.browser=show.in.browser,
+                         show.command.only=show.command.only)
+    parse_igblastn_output(out, outfmt)
 }
 
 

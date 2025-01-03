@@ -5,6 +5,15 @@
 ### Nothing in this file is exported.
 
 
+### TODO: wmsg() was replaced with this in S4Vectors >= 0.45.1 so drop
+### wmsg2() and use wmsg() instead.
+wmsg2 <- function(..., margin=2)
+{
+    width <- getOption("width") - margin
+    paste0(strwrap(paste0(c(...), collapse=""), width=width),
+           collapse=paste0("\n", strrep(" ", margin)))
+}
+
 ### TODO: Move this to S4Vectors (or BiocBaseUtils).
 load_package_gracefully <- function(package, ...)
 {
@@ -47,6 +56,16 @@ has_suffix <- function(x, suffix)
     stopifnot(is.character(x), isSingleString(suffix))
     x_nc <- nchar(x)
     substr(x, x_nc - nchar(suffix) + 1L, x_nc) == suffix
+}
+
+### Not used at the moment.
+strslice <- function(x, width)
+{
+    stopifnot(isSingleString(x), isSingleNumber(width))
+    chunks <- breakInChunks(nchar(x), chunksize=width)
+    vapply(seq_along(chunks),
+        function(i) substr(x, start(chunks)[i], end(chunks)[i]),
+        character(1), USE.NAMES=FALSE)
 }
 
 

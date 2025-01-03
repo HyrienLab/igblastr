@@ -17,41 +17,39 @@ import(Biostrings)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Export S3 methods
+### Export S3 methods for S3 generics not defined in igblastr
 ###
 
+S3method(print, alignment_summary)
+#S3method(print, fmt7)
+S3method(print, fmt7footer)
 S3method(print, fmt7record)
+S3method(print, hit_table)
 S3method(print, igblast_info)
-S3method(print, outfmt7)
+S3method(print, query_details)
+S3method(print, subregion_sequence_details)
+S3method(print, VDJ_junction_details)
+S3method(print, VDJ_rearrangement_summary)
 
-S3method(query, fmt7record)
-S3method(query, query_details)
-
-S3method(summary, alignment_summary)
-S3method(summary, hit_table)
 S3method(summary, query_details)
-S3method(summary, subregion_sequence_details)
-S3method(summary, VDJ_rearrangement_summary)
-S3method(summary, VDJ_junction_details)
 
 ### We also export them thru the export() directive so that (a) they can be
 ### called directly, (b) tab-completion on the name of the generic shows them,
 ### and (c) methods() doesn't asterisk them.
 
 export(
+    print.alignment_summary,
+    #print.fmt7,
+    print.fmt7footer,
     print.fmt7record,
+    print.hit_table,
     print.igblast_info,
-    print.outfmt7,
+    print.query_details,
+    print.subregion_sequence_details,
+    print.VDJ_junction_details,
+    print.VDJ_rearrangement_summary,
 
-    query.fmt7record,
-    query.query_details,
-
-    summary.alignment_summary,
-    summary.hit_table,
-    summary.query_details,
-    summary.subregion_sequence_details,
-    summary.VDJ_rearrangement_summary,
-    summary.VDJ_junction_details
+    summary.query_details
 )
 
 
@@ -60,33 +58,55 @@ export(
 ###
 
 export(
-    ## From get_igblast_root.R:
+    ## get_igblast_root.R:
     get_igblast_root, set_igblast_root,
 
-    ## From igblast_info.R:
+    ## igblast_info.R:
     has_igblast, igblast_version, list_igblast_organisms, igblast_info,
 
-    ## From install_igblast.R:
+    ## install_igblast.R:
     install_igblast,
 
-    ## From list_germline_dbs.R:
+    ## list_germline_dbs.R:
     list_germline_dbs,
     use_germline_db,
     load_germline_db,
 
-    ## From list_c_region_dbs.R:
+    ## list_c_region_dbs.R:
     list_c_region_dbs,
     use_c_region_db,
     load_c_region_db,
 
-    ## From install_IMGT_germline_db.R:
+    ## install_IMGT_germline_db.R:
     list_IMGT_releases,
     install_IMGT_germline_db,
 
-    ## From install_AIRR_germline_db.R:
+    ## install_AIRR_germline_db.R:
     install_AIRR_germline_db,
 
-    ## From igblastn.R:
+    ## igblastn.R:
     igblastn, igblastn_help
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Export S3 generics defined in igblastr and their methods
+###
+
+export(
+    # parse_fmt7.R:
+    query_id
+)
+
+S3method(query_id, fmt7record)
+S3method(query_id, query_details)
+
+### We also export them thru the export() directive so that (a) they can be
+### called directly, (b) tab-completion on the name of the generic shows them,
+### and (c) methods() doesn't asterisk them.
+
+export(
+    query_id.fmt7record,
+    query_id.query_details
 )
 

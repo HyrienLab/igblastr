@@ -37,6 +37,6 @@ Collate:
 	create_IMGT_c_region_db.R
 	install_IMGT_germline_db.R
 	install_AIRR_germline_db.R
-	parse_igblastn_output.R
+	parse_fmt7.R
 	igblastn.R
 	zzz.R
