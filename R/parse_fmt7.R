@@ -67,17 +67,23 @@ print.query_details <- function(x, ...) cat(x, sep="\n")
 ### .parse_VDJ_rearrangement_summary()
 ###
 
+.parse_VDJ_rearrangement_summary_fields <- function(info_line)
+{
+    fields <- sub("^.* for query sequence \\(", "", info_line)
+    fields <- sub("\\).*$", "", fields)
+    fields <- strsplit(fields, ", ", fixed=TRUE)[[1L]]
+    ## Sanitize fields.
+    chartr(" -", "__", fields)
+}
+
 .parse_VDJ_rearrangement_summary <- function(section_lines)
 {
     stopifnot(is.character(section_lines),
               length(section_lines) == 2L,
               identical(has_prefix(section_lines, "#"), c(TRUE, FALSE)))
+    fields <- .parse_VDJ_rearrangement_summary_fields(section_lines[[1L]])
     summary <- as.list(strsplit(section_lines[[2L]], "\t", fixed=TRUE)[[1L]])
-    stopifnot(length(summary) == 10L)
-    fields <- c("Top_V_gene_match", "Top_D_gene_match",
-                "Top_J_gene_match", "Top_C_gene_match",
-                "Chain_type", "stop_codon", "V_J_frame",
-                "Productive", "Strand", "V_Frame_shift")
+    stopifnot(length(summary) == length(fields))
     names(summary) <- fields
     attr(summary, "info_line") <- trimws(section_lines[[1L]])
     class(summary) <- "VDJ_rearrangement_summary"
@@ -99,14 +105,23 @@ print.VDJ_rearrangement_summary <- function(x, ...)
 ### .parse_VDJ_junction_details()
 ###
 
+.parse_VDJ_junction_details_fields <- function(info_line)
+{
+    fields <- sub("^.* based on top germline gene matches \\(", "", info_line)
+    fields <- sub("\\).*$", "", fields)
+    fields <- strsplit(fields, ", ", fixed=TRUE)[[1L]]
+    ## Sanitize fields.
+    chartr(" -", "__", fields)
+}
+
 .parse_VDJ_junction_details <- function(section_lines)
 {
     stopifnot(is.character(section_lines),
               length(section_lines) == 2L,
               identical(has_prefix(section_lines, "#"), c(TRUE, FALSE)))
+    fields <- .parse_VDJ_junction_details_fields(section_lines[[1L]])
     details <- as.list(strsplit(section_lines[[2L]], "\t", fixed=TRUE)[[1L]])
-    stopifnot(length(details) == 5L)
-    fields <- c("V_end", "V_D_junction", "D_region", "D_J_junction", "J_start")
+    stopifnot(length(details) == length(fields))
     names(details) <- fields
     attr(details, "info_line") <- trimws(section_lines[[1L]])
     class(details) <- "VDJ_junction_details"
@@ -234,11 +249,11 @@ print.hit_table <- function(x, ...)
 
 .SECTION_SEP <- ""
 
-### Each record is expected to contain 6 sections:
+### An fmt7 record is expected to have 6 (typical) or 5 (rare) sections:
 ###   1. query_details
 ###   2. VDJ_rearrangement_summary
 ###   3. VDJ_junction_details
-###   4. subregion_sequence_details
+###   4. subregion_sequence_details (can be missing)
 ###   5. alignment_summary
 ###   6. hit_table
 .parse_fmt7record <- function(record_lines)
@@ -249,21 +264,30 @@ print.hit_table <- function(x, ...)
     section_ends <- c(sep_idx - 1L, length(record_lines))
     sections <- lapply(seq_along(section_starts),
         function(i) record_lines[(section_starts[[i]]):(section_ends[[i]])])
-    stopifnot(length(sections) == 6L)
+    stopifnot(length(sections) %in% 5:6)
     section1 <- .parse_query_details(sections[[1L]])
     section2 <- .parse_VDJ_rearrangement_summary(sections[[2L]])
     section3 <- .parse_VDJ_junction_details(sections[[3L]])
-    section4 <- .parse_subregion_sequence_details(sections[[4L]])
-    section5 <- .parse_alignment_summary(sections[[5L]])
-    section6 <- .parse_hit_table(sections[[6L]])
-    ans <- list(
+    ans1 <- list(
         query_details=section1,
         VDJ_rearrangement_summary=section2,
-        VDJ_junction_details=section3,
-        subregion_sequence_details=section4,
-        alignment_summary=section5,
-        hit_table=section6
+        VDJ_junction_details=section3
     )
+    if (length(sections) == 5L) {
+        ## No 'subregion_sequence_details' section!
+        section4 <- .parse_alignment_summary(sections[[4L]])
+        section5 <- .parse_hit_table(sections[[5L]])
+        ans2 <- list(alignment_summary=section4,
+                     hit_table=section5)
+    } else {
+        section4 <- .parse_subregion_sequence_details(sections[[4L]])
+        section5 <- .parse_alignment_summary(sections[[5L]])
+        section6 <- .parse_hit_table(sections[[6L]])
+        ans2 <- list(subregion_sequence_details=section4,
+                     alignment_summary=section5,
+                     hit_table=section6)
+    }
+    ans <- c(ans1, ans2)
     class(ans) <- "fmt7record"
     ans
 }
@@ -314,12 +338,12 @@ parse_fmt7 <- function(out)
     footer_lines <- out[footer_start:length(out)]
     footer <- .parse_fmt7footer(footer_lines)
 
-    record_lines <- out[seq_len(footer_start - 1L)]
-    record_starts <- which(record_lines == .RECORD_SEP)
-    record_ends <- c(record_starts[-1L] - 1L, length(record_lines))
-    record_ranges <- PartitioningByEnd(record_ends)
-    list_of_records <- lapply(record_ranges,
-        function(idx) .parse_fmt7record(record_lines[idx]))
+    all_record_lines <- out[seq_len(footer_start - 1L)]
+    all_record_starts <- which(all_record_lines == .RECORD_SEP)
+    all_record_ends <- c(all_record_starts[-1L] - 1L, length(all_record_lines))
+    all_record_ranges <- PartitioningByEnd(all_record_ends)
+    list_of_records <- lapply(all_record_ranges,
+        function(idx) .parse_fmt7record(all_record_lines[idx]))
     #class(list_of_records) <- "list_of_fmt7records"
 
     ans <- list(records=list_of_records, footer=footer)

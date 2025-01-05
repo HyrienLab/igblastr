@@ -400,3 +400,11 @@ display_local_file_in_browser <- function(file)
     browseURL(temp_url)
 }
 
+display_data_frame_in_browser <- function(df)
+{
+    temp_html <- tempfile(fileext=".html")
+    print(xtable(df), type="html", file=temp_html)
+    temp_url <- paste0("file://", temp_html)
+    browseURL(temp_url)
+}
+

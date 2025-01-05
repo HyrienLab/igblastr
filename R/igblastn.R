@@ -16,8 +16,9 @@
     paste0("-", args_names, " ", args)
 }
 
-.show_igblastn_command <- function(igblastn_exe, args, show.in.browser=FALSE)
+.show_igblastn_command <- function(igblast_root, args, show.in.browser=FALSE)
 {
+    igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
     cmd <- c(igblastn_exe, args)
     cmd_in_1string <- paste(cmd, collapse=" ")
     outfile <- if (show.in.browser) tempfile() else ""
@@ -29,23 +30,9 @@
 
 ### 'args' must be a named character vector. See .as_igblastn_args() above
 ### for details.
-.run_igblastn <- function(igblast_root, outfmt, args,
-                          show.in.browser=FALSE, show.command.only=FALSE)
+.run_igblastn <- function(igblast_root, args)
 {
     igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
-    args <- c(paste("-outfmt", outfmt), .as_igblastn_args(args))
-
-    if (!isTRUEorFALSE(show.in.browser))
-        stop(wmsg("'show.in.browser' must be TRUE or FALSE"))
-    if (!isTRUEorFALSE(show.command.only))
-        stop(wmsg("'show.command.only' must be TRUE or FALSE"))
-
-    if (show.command.only) {
-        cmd <- .show_igblastn_command(igblastn_exe, args,
-                                      show.in.browser=show.in.browser)
-        return(invisible(cmd))  # returns the command in a character vector
-    }
-
     oldwd <- getwd()
     setwd(igblast_root)
     on.exit(setwd(oldwd))
@@ -54,22 +41,7 @@
     status <- system2(igblastn_exe, args=args, stdout=outfile)
     if (status != 0)
         stop(wmsg("'igblastn' returned an error"))
-
-    if (outfmt != 19) {
-        if (show.in.browser)
-            display_local_file_in_browser(outfile)
-        return(readLines(outfile))
-    }
-
-    ## AIRR output format is tabulated.
-    df <- read.table(outfile, header=TRUE, sep="\t")
-    if (show.in.browser) {
-        temp_html <- tempfile(fileext=".html")
-        print(xtable(df), type="html", file=temp_html)
-        temp_url <- paste0("file://", temp_html)
-        browseURL(temp_url)
-    }
-    tibble(df)
+    outfile
 }
 
 
@@ -168,16 +140,16 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### parse_igblastn_output()
+### .parse_igblastn_output()
 ###
 
-parse_igblastn_output <- function(out, outfmt)
+### TODO: Parse output format 3 and 4.
+.parse_igblastn_output <- function(out, outfmt)
 {
     outfmt <- .normarg_outfmt(outfmt)
     if (outfmt == 7)
         return(parse_fmt7(out))
-    #stop(wmsg("only output formats \"AIRR\" (19) or 7 ",
-    #          "are supported at the moment "))
+    warning("parsing of igblastn output format ", outfmt, " is not ready yet")
     out
 }
 
@@ -186,9 +158,16 @@ parse_igblastn_output <- function(out, outfmt)
 ### igblastn()
 ###
 
-igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
+igblastn <- function(query, outfmt="AIRR", parse.out=TRUE,
+                     organism="auto", ...,
                      show.in.browser=FALSE, show.command.only=FALSE)
 {
+    if (!isTRUEorFALSE(parse.out))
+        stop(wmsg("'parse.out' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(show.in.browser))
+        stop(wmsg("'show.in.browser' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(show.command.only))
+        stop(wmsg("'show.command.only' must be TRUE or FALSE"))
     igblast_root <- get_igblast_root()
     germline_db_name <- use_germline_db()  # cannot be ""
     c_region_db_name <- use_c_region_db()  # can be ""
@@ -210,10 +189,33 @@ igblastn <- function(query, outfmt="AIRR", organism="auto", ...,
         args <- c(args, c_region_db=file.path(c_region_db_path, "C"))
     }
 
-    out <- .run_igblastn(igblast_root, outfmt, args,
-                         show.in.browser=show.in.browser,
-                         show.command.only=show.command.only)
-    parse_igblastn_output(out, outfmt)
+    args <- c(paste("-outfmt", outfmt), .as_igblastn_args(args))
+
+    if (show.command.only)
+        return(.show_igblastn_command(igblast_root, args,
+                                      show.in.browser=show.in.browser))
+
+    outfile <- .run_igblastn(igblast_root, args)
+
+    if (outfmt == 19) {
+        ## AIRR output format is tabulated.
+        AIRR_df <- read.table(outfile, header=TRUE, sep="\t")
+        if (show.in.browser)
+            display_data_frame_in_browser(AIRR_df)
+        if (parse.out) {
+            out  <- tibble(AIRR_df)
+        } else {
+            out <- readLines(outfile)
+        }
+        return(out)
+    }
+
+    if (show.in.browser)
+        display_local_file_in_browser(outfile)
+    out <- readLines(outfile)
+    if (parse.out)
+        out <- .parse_igblastn_output(out, outfmt)
+    out
 }
 
 

@@ -15,7 +15,8 @@
 }
 
 \usage{
-igblastn(query, outfmt="AIRR", organism="auto", ...,
+igblastn(query, outfmt="AIRR", parse.out=TRUE,
+         organism="auto", ...,
          show.in.browser=FALSE, show.command.only=FALSE)
 
 igblastn_help(long.help=FALSE, show.in.browser=FALSE)
@@ -28,6 +29,9 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     \link[Biostrings]{DNAStringSet} object.
   }
   \item{outfmt}{
+    TODO
+  }
+  \item{parse.out}{
     TODO
   }
   \item{organism}{
