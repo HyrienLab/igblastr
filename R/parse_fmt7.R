@@ -4,21 +4,111 @@
 ###
 
 
-### S3 generic.
-query_id <- function(object) UseMethod("query_id")
-
-.wrap_info_line <- function(info_line, width)
+.wrap_comment_line <- function(comment_line, width)
 {
-    stopifnot(isSingleNonWhiteString(info_line))
-    info_prefix <- "# "
-    if (has_prefix(info_line, info_prefix))
-        info_line <- substr(info_line, nchar(info_prefix) + 1L,
-                                       nchar(info_line))
+    stopifnot(isSingleNonWhiteString(comment_line))
+    comment_prefix <- "# "
+    if (has_prefix(comment_line, comment_prefix))
+        comment_line <- substr(comment_line, nchar(comment_prefix) + 1L,
+                                             nchar(comment_line))
     ## Strangely, and unintuitively, 'strwrap(x, width=n)' produces slices
     ## of max width n-1, not n, so we correct for this.
-    info_lines <- strwrap(info_line, width=width+1L-nchar(info_prefix))
-    paste0(info_prefix, trimws(info_lines))
+    comment_lines <- strwrap(comment_line, width=width+1L-nchar(comment_prefix))
+    paste0(comment_prefix, trimws(comment_lines))
 }
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Mapping user-specified fields (a.k.a. format specifiers) to the hit table
+### fields that get effectively listed in output format 7
+###
+
+.FMT7FIELDS_IN2OUT_MAP <- c(
+       qseqid="query id",
+          qgi="query gi",
+         qacc="query acc.",
+      qaccver="query acc.ver",
+         qlen="query length",
+       sseqid="subject id",
+    sallseqid="subject ids",
+          sgi="subject gi",
+       sallgi="subject gis",
+         sacc="subject acc.",
+      saccver="subject acc.ver",
+      sallacc="subject accs",
+         slen="subject length",
+       qstart="q. start",
+         qend="q. end",
+       sstart="s. start",
+         send="s. end",
+         qseq="query seq",
+         sseq="subject seq",
+       evalue="evalue",
+     bitscore="bit score",
+        score="score",
+       length="alignment length",
+       pident="% identity",
+       nident="identical",
+     mismatch="mismatches",
+     positive="positives",
+      gapopen="gap opens",
+         gaps="gaps",
+         ppos="% positives",
+       frames="query/sbjct frames",
+       qframe="query frame",
+       sframe="sbjct frame",
+         btop="BTOP",
+       staxid="subject tax id",
+     ssciname="subject sci name",
+     scomname="subject com names",
+   sblastname="subject blast name",
+    sskingdom="subject super kingdom",
+      staxids="subject tax ids",
+    sscinames="subject sci names",
+    scomnames="subject com names",
+  sblastnames="subject blast names",
+   sskingdoms="subject super kingdoms",
+       stitle="subject title",
+   salltitles="subject titles",
+      sstrand="subject strand",
+        qcovs="% query coverage per subject",
+      qcovhsp="% query coverage per hsp",
+       qcovus="% query coverage per uniq subject"
+)
+
+### Exported.
+list_supported_format_specifiers <- function()
+{
+    format_specifiers <- .FMT7FIELDS_IN2OUT_MAP
+    class(format_specifiers) <- "format_specifiers"
+    format_specifiers
+}
+
+print.format_specifiers <- function(x, ...)
+{
+    for (i in seq_along(x))
+        cat(sprintf("%13s: %s", names(x)[[i]], x[[i]]), sep="\n")
+}
+
+### Translate fields from effective to user-specified.
+.translate_hit_table_fields_to_user_specified <- function(fields)
+{
+    stopifnot(is.character(fields))
+    m <- match(fields, .FMT7FIELDS_IN2OUT_MAP)
+    unrecognized_idx <- which(is.na(m))
+    if (length(unrecognized_idx) != 0L) {
+        in1string <- paste(fields[unrecognized_idx], collapse=", ")
+        stop(wmsg("unrecognized hit table field(s): ", in1string))
+    }
+    names(.FMT7FIELDS_IN2OUT_MAP)[m]
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### qseqid() S3 generic
+###
+
+qseqid <- function(object) UseMethod("qseqid")
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -32,7 +122,7 @@ query_id <- function(object) UseMethod("query_id")
     section_lines
 }
 
-query_id.query_details <- function(object)
+qseqid.query_details <- function(object)
 {
     sub("^# Query: ", "", object[[2L]])
 }
@@ -52,7 +142,7 @@ summary.query_details <- function(object, ...)
             stop(wmsg("invalid argument(s): ", paste(invalid, collapse=", ")))
         max.nchar <- xargs$max.nchar
     }
-    q <- query_id(object)
+    q <- qseqid(object)
     if (!is.null(max.nchar) && nchar(q) > max.nchar) {
         stop <- max(max.nchar - 3L, 2L)
         q <- paste0(substr(q, 1L, stop), "...")
@@ -67,9 +157,9 @@ print.query_details <- function(x, ...) cat(x, sep="\n")
 ### .parse_VDJ_rearrangement_summary()
 ###
 
-.parse_VDJ_rearrangement_summary_fields <- function(info_line)
+.parse_VDJ_rearrangement_summary_fields <- function(comment_line)
 {
-    fields <- sub("^.* for query sequence \\(", "", info_line)
+    fields <- sub("^.* for query sequence \\(", "", comment_line)
     fields <- sub("\\).*$", "", fields)
     fields <- strsplit(fields, ", ", fixed=TRUE)[[1L]]
     ## Sanitize fields.
@@ -85,18 +175,18 @@ print.query_details <- function(x, ...) cat(x, sep="\n")
     summary <- as.list(strsplit(section_lines[[2L]], "\t", fixed=TRUE)[[1L]])
     stopifnot(length(summary) == length(fields))
     names(summary) <- fields
-    attr(summary, "info_line") <- trimws(section_lines[[1L]])
+    attr(summary, "comment_line") <- trimws(section_lines[[1L]])
     class(summary) <- "VDJ_rearrangement_summary"
     summary
 }
 
 print.VDJ_rearrangement_summary <- function(x, ...)
 {
-    info_line <- attr(x, "info_line")
-    lines <- .wrap_info_line(info_line, getOption("width"))
+    comment_line <- attr(x, "comment_line")
+    lines <- .wrap_comment_line(comment_line, getOption("width"))
     cat(lines, sep="\n")
     cat("\n")
-    attr(x, "info_line") <- NULL
+    attr(x, "comment_line") <- NULL
     print(unclass(x))
 }
 
@@ -105,9 +195,10 @@ print.VDJ_rearrangement_summary <- function(x, ...)
 ### .parse_VDJ_junction_details()
 ###
 
-.parse_VDJ_junction_details_fields <- function(info_line)
+.parse_VDJ_junction_details_fields <- function(comment_line)
 {
-    fields <- sub("^.* based on top germline gene matches \\(", "", info_line)
+    fields <- sub("^.* based on top germline gene matches \\(", "",
+                  comment_line)
     fields <- sub("\\).*$", "", fields)
     fields <- strsplit(fields, ", ", fixed=TRUE)[[1L]]
     ## Sanitize fields.
@@ -123,7 +214,7 @@ print.VDJ_rearrangement_summary <- function(x, ...)
     details <- as.list(strsplit(section_lines[[2L]], "\t", fixed=TRUE)[[1L]])
     stopifnot(length(details) == length(fields))
     names(details) <- fields
-    attr(details, "info_line") <- trimws(section_lines[[1L]])
+    attr(details, "comment_line") <- trimws(section_lines[[1L]])
     class(details) <- "VDJ_junction_details"
     details
 }
@@ -145,7 +236,7 @@ print.VDJ_junction_details <- print.VDJ_rearrangement_summary
     fields <- c("sub_region", "nucleotide_sequence", "translation",
                 "start", "end")
     names(details) <- fields
-    attr(details, "info_line") <- trimws(section_lines[[1L]])
+    attr(details, "comment_line") <- trimws(section_lines[[1L]])
     class(details) <- "subregion_sequence_details"
     details
 }
@@ -174,18 +265,18 @@ print.subregion_sequence_details <- print.VDJ_rearrangement_summary
     stopifnot(is.character(section_lines),
               which(has_prefix(section_lines, "#")) == 1L)
     summary <-.make_alignment_summary_df(section_lines)
-    attr(summary, "info_line") <- trimws(section_lines[[1L]])
+    attr(summary, "comment_line") <- trimws(section_lines[[1L]])
     class(summary) <- c("alignment_summary", class(summary))
     summary
 }
 
 print.alignment_summary <- function(x, ...)
 {
-    info_line <- attr(x, "info_line")
-    lines <- .wrap_info_line(info_line, getOption("width"))
+    comment_line <- attr(x, "comment_line")
+    lines <- .wrap_comment_line(comment_line, getOption("width"))
     cat(lines, sep="\n")
     cat("\n")
-    attr(x, "info_line") <- NULL
+    attr(x, "comment_line") <- NULL
     class(x) <- tail(class(x), n=-1L)
     print(x)
 }
@@ -203,15 +294,19 @@ print.alignment_summary <- function(x, ...)
     fields_line <- substr(fields_line, nchar(fields_line_prefix) + 1L,
                                        nchar(fields_line))
     fields <- strsplit(fields_line, ", ", fixed=TRUE)[[1L]]
+
     ## Sanitize fields.
-    fields <- chartr(" ", "_", fields)
-    fields <- gsub("%", "percent", fields)
-    gsub(".", "", fields, fixed=TRUE)
+    #fields <- chartr(" ", "_", fields)
+    #fields <- gsub("%", "percent", fields)
+    #gsub(".", "", fields, fixed=TRUE)
+
+    ## Translate fields from effective to user-specified.
+    .translate_hit_table_fields_to_user_specified(fields)
 }
 
 .make_hit_table_df <- function(section_lines)
 {
-    fields <- c("chain_type", .parse_hit_table_fields(section_lines))
+    fields <- c("chaintype", .parse_hit_table_fields(section_lines))
     table_lines <- section_lines[!has_prefix(section_lines, prefix="#")]
     file <- tempfile()
     writeLines(table_lines, file)
@@ -223,21 +318,21 @@ print.alignment_summary <- function(x, ...)
     stopifnot(is.character(section_lines),
               identical(which(has_prefix(section_lines, "#")), 1:3))
     hit_table <- .make_hit_table_df(section_lines)
-    attr(hit_table, "info_lines") <- trimws(section_lines[1:3])
+    attr(hit_table, "comment_lines") <- trimws(section_lines[1:3])
     class(hit_table) <- c("hit_table", class(hit_table))
     hit_table
 }
 
 print.hit_table <- function(x, ...)
 {
-    info_lines <- attr(x, "info_lines")
-    stopifnot(is.character(info_lines))
-    for (i in seq_along(info_lines)) {
-        lines <- .wrap_info_line(info_lines[[i]], getOption("width"))
+    comment_lines <- attr(x, "comment_lines")
+    stopifnot(is.character(comment_lines))
+    for (i in seq_along(comment_lines)) {
+        lines <- .wrap_comment_line(comment_lines[[i]], getOption("width"))
         cat(lines, sep="\n")
     }
     cat("\n")
-    attr(x, "info_lines") <- NULL
+    attr(x, "comment_lines") <- NULL
     class(x) <- tail(class(x), n=-1L)
     print(x)
 }
@@ -292,19 +387,13 @@ print.hit_table <- function(x, ...)
     ans
 }
 
-query_id.fmt7record <- function(object) query_id(object$query_details)
+qseqid.fmt7record <- function(object) qseqid(object$query_details)
 
 print.fmt7record <- function(x, ...)
 {
-    #cat(class(x), " object\n", sep="")
-    cat(class(x), " object for query id:\n", sep="")
-    cat("  ", query_id(x), "\n", sep="")
-    #for (section_name in names(x)) {
-    #    max.nchar <- getOption("width") - nchar(section_name) - 4L
-    #    cat(" $", section_name, ": ",
-    #        summary(x[[section_name]], max.nchar=max.nchar), "\n", sep="")
-    #}
-    cat("Components:\n")
+    cat(class(x), " object for query seq id:\n", sep="")
+    cat("  ", qseqid(x), "\n", sep="")
+    cat("Sections:\n")
     for (section_name in names(x))
         cat("  $", section_name, "\n", sep="")
 }
@@ -344,19 +433,7 @@ parse_fmt7 <- function(out)
     all_record_ranges <- PartitioningByEnd(all_record_ends)
     list_of_records <- lapply(all_record_ranges,
         function(idx) .parse_fmt7record(all_record_lines[idx]))
-    #class(list_of_records) <- "list_of_fmt7records"
 
-    ans <- list(records=list_of_records, footer=footer)
-    #class(ans) <- "fmt7"
-    ans
+    list(records=list_of_records, footer=footer)
 }
-
-#print.fmt7 <- function(x, ...)
-#{
-#    cat("igblastn ", class(x), " object with ",
-#        length(x$records), " record(s) and a footer\n", sep="")
-#    cat("# - access the records with <object>$records\n")
-#    cat("# - access the footer with <object>$footer\n")
-#    cat("# where <object> is the name of the variable containing the object\n")
-#}
 

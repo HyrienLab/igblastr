@@ -15,7 +15,7 @@
 }
 
 \usage{
-igblastn(query, outfmt="AIRR", parse.out=TRUE,
+igblastn(query, outfmt=7, parse.out=TRUE,
          organism="auto", ...,
          show.in.browser=FALSE, show.command.only=FALSE)
 
@@ -94,6 +94,10 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
 \examples{
 if (!has_igblast()) install_igblast()
 
+## ---------------------------------------------------------------------
+## Preliminary steps
+## ---------------------------------------------------------------------
+
 igblast_info()
 
 ## File 'catnap_bnabs.fasta' contains a small BCR sequencing data set
@@ -111,8 +115,46 @@ use_germline_db(db_name)
 ## Select C-region db to use with igblastn():
 use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 
-## Run igblastn:
-igblastn(catnap_bnabs, show.in.browser=TRUE)
+## ---------------------------------------------------------------------
+## 1st igblastn run
+## ---------------------------------------------------------------------
+
+## For this first run we don't specify the 'outfmt' so the output will
+## be in standard format 7:
+out <- igblastn(catnap_bnabs)
+
+## Output contains one record per query sequence:
+length(out$records)  # 1000
+
+## Each record has 6 sections (typical) but sometimes only 5 (rare):
+##   1. query_details
+##   2. VDJ_rearrangement_summary
+##   3. VDJ_junction_details
+##   4. subregion_sequence_details (can be missing)
+##   5. alignment_summary
+##   6. hit_table
+
+## Taking a close look at the first record:
+rec1 <- out$records[[1]]
+rec1
+
+qseqid(rec1)    # query seq id that this record is associated to
+
+rec1$hit_table  # data.frame with the standard columns
+
+## ---------------------------------------------------------------------
+## 2nd igblastn run
+## ---------------------------------------------------------------------
+
+## For this second run we request a customized format 7 by supplying
+## space delimited format specifiers:
+outfmt <- "7 qseqid sseqid pident nident length score"
+out <- igblastn(catnap_bnabs, outfmt=outfmt)
+
+## Taking a close look at the first record:
+rec1 <- out$records[[1]]
+rec1$hit_table  # data.frame with the requested columns (+ the automatic
+                # "chaintype" column)
 }
 
 \keyword{manip}

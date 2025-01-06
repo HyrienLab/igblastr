@@ -21,9 +21,9 @@ import(Biostrings)
 ###
 
 S3method(print, alignment_summary)
-#S3method(print, fmt7)
 S3method(print, fmt7footer)
 S3method(print, fmt7record)
+S3method(print, format_specifiers)
 S3method(print, hit_table)
 S3method(print, igblast_info)
 S3method(print, query_details)
@@ -39,9 +39,9 @@ S3method(summary, query_details)
 
 export(
     print.alignment_summary,
-    #print.fmt7,
     print.fmt7footer,
     print.fmt7record,
+    print.format_specifiers,
     print.hit_table,
     print.igblast_info,
     print.query_details,
@@ -84,6 +84,9 @@ export(
     ## install_AIRR_germline_db.R:
     install_AIRR_germline_db,
 
+    ## parse_fmt7.R:
+    list_supported_format_specifiers,
+
     ## igblastn.R:
     igblastn, igblastn_help
 )
@@ -95,18 +98,18 @@ export(
 
 export(
     # parse_fmt7.R:
-    query_id
+    qseqid
 )
 
-S3method(query_id, fmt7record)
-S3method(query_id, query_details)
+S3method(qseqid, fmt7record)
+S3method(qseqid, query_details)
 
 ### We also export them thru the export() directive so that (a) they can be
 ### called directly, (b) tab-completion on the name of the generic shows them,
 ### and (c) methods() doesn't asterisk them.
 
 export(
-    query_id.fmt7record,
-    query_id.query_details
+    qseqid.fmt7record,
+    qseqid.query_details
 )
 

@@ -6,20 +6,24 @@
 ### 'args' must be a named character vector where the names are
 ### valid 'igblastn' parameter names (e.g. "organism") and the values
 ### are the parameter values (e.g. "rabbit").
-.as_igblastn_args <- function(args)
+.make_command_line_args <- function(args)
 {
     if (!is.character(args))
         stop(wmsg("'args' must be character vector"))
     args_names <- names(args)
     if (is.null(args_names))
         stop(wmsg("'args' must have names on it"))
+    quoteme_idx <- grep(" ", args, fixed=TRUE)
+    if (length(quoteme_idx) != 0L)
+        args[quoteme_idx] <- paste0("'", args[quoteme_idx], "'")
     paste0("-", args_names, " ", args)
 }
 
-.show_igblastn_command <- function(igblast_root, args, show.in.browser=FALSE)
+.show_igblastn_command <- function(igblast_root, cmd_args,
+                                   show.in.browser=FALSE)
 {
     igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
-    cmd <- c(igblastn_exe, args)
+    cmd <- c(igblastn_exe, cmd_args)
     cmd_in_1string <- paste(cmd, collapse=" ")
     outfile <- if (show.in.browser) tempfile() else ""
     cat(cmd_in_1string, "\n", file=outfile, sep="")
@@ -28,9 +32,9 @@
     cmd  # returns the command in a character vector
 }
 
-### 'args' must be a named character vector. See .as_igblastn_args() above
-### for details.
-.run_igblastn <- function(igblast_root, args)
+### 'cmd_args' must be a named character vector. See .make_command_line_args()
+### above for details.
+.run_igblastn <- function(igblast_root, cmd_args)
 {
     igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
     oldwd <- getwd()
@@ -38,7 +42,7 @@
     on.exit(setwd(oldwd))
 
     outfile <- tempfile()
-    status <- system2(igblastn_exe, args=args, stdout=outfile)
+    status <- system2(igblastn_exe, args=cmd_args, stdout=outfile)
     if (status != 0)
         stop(wmsg("'igblastn' returned an error"))
     outfile
@@ -70,14 +74,70 @@
 ### .normarg_outfmt()
 ###
 
-.normarg_outfmt <- function(outfmt="AIRR")
+.stop_on_invalid_outfmt <- function()
 {
-    if (isSingleString(outfmt) && toupper(outfmt) == "AIRR")
-        return(19L)
-    if (!(isSingleNumber(outfmt) && outfmt %in% c(3, 4, 7, 19)))
-        stop(wmsg("'outfmt' must be \"AIRR\" or one of 3, 4, 7, 19 ",
-                  "(19 means \"AIRR\")"))
-    as.integer(outfmt)
+    msg1 <- c("'outfmt' must be one of 3, 4, 7, 19, \"AIRR\" (\"AIRR\" ",
+              "is an alias for 19), or a string describing a customized ",
+              "format 7.")
+    msg2 <- c("The string describing a customized format 7 must start ",
+              "with a 7 followed by the desired hit table fields ",
+              "(a.k.a. format specifiers) separated with spaces. ",
+              "For example: \"7 std qseq sseq btop\". Note that 'std' ",
+              "stands for 'qseqid sseqid pident length mismatch gapopen ",
+              "gaps qstart qend sstart send evalue bitscore', which is ",
+              "the default.")
+    msg3 <- c("Use list_supported_format_specifiers() to list all supported ",
+              "format specifiers.")
+    stop(wmsg(msg1), "\n  ", wmsg(msg2), "\n  ", wmsg(msg3))
+}
+
+### 'outfmt' is assumed to be a single string.
+.check_customized_format_7 <- function(outfmt)
+{
+    if (!has_prefix(outfmt, "7 "))
+        .stop_on_invalid_outfmt()
+    user_specifiers <- substr(outfmt, 3L, nchar(outfmt))
+    user_specifiers <- strsplit(user_specifiers, " ", fixed=TRUE)[[1L]]
+    user_specifiers <- user_specifiers[nzchar(user_specifiers)]
+    supported_specifiers <- c("std", names(list_supported_format_specifiers()))
+    invalid_specifiers <- setdiff(user_specifiers, supported_specifiers)
+    if (length(invalid_specifiers) != 0L) {
+        in1string <- paste(invalid_specifiers, collapse=", ")
+        stop(wmsg("invalid format specifier(s): ", in1string))
+    }
+}
+
+### 'outfmt' can be 3, 4, 7, 19, "AIRR", or a single string describing a
+### customized format 7 e.g. "7 std qseq sseq btop".
+### See .stop_on_invalid_outfmt() above for more information.
+### Returns a single string.
+.normarg_outfmt <- function(outfmt=7)
+{
+    if (isSingleNumber(outfmt)) {
+        if (!(outfmt %in% c(3, 4, 7, 19)))
+            .stop_on_invalid_outfmt()
+        outfmt <- as.character(as.integer(outfmt))
+    } else if (isSingleNonWhiteString(outfmt)) {
+        outfmt <- trimws(outfmt)
+        if (toupper(outfmt) == "AIRR") {
+            outfmt <- "19"
+        } else {
+            if (!(outfmt %in% c("3", "4", "7", "19")))
+                .check_customized_format_7(outfmt)
+        }
+    } else {
+        .stop_on_invalid_outfmt()
+    }
+    outfmt
+}
+
+### Returns 3, 4, 7, or 19.
+.extract_fmt_nb <- function(outfmt)
+{
+    stopifnot(isSingleNonWhiteString(outfmt))
+    fmt_nb <- strsplit(trimws(outfmt), " ", fixed=TRUE)[[1L]][[1L]]
+    stopifnot(fmt_nb %in% c("3", "4", "7", "19"))
+    as.integer(fmt_nb)
 }
 
 
@@ -144,12 +204,11 @@
 ###
 
 ### TODO: Parse output format 3 and 4.
-.parse_igblastn_output <- function(out, outfmt)
+.parse_igblastn_output <- function(out, fmt_nb)
 {
-    outfmt <- .normarg_outfmt(outfmt)
-    if (outfmt == 7)
+    if (fmt_nb == 7)
         return(parse_fmt7(out))
-    warning("parsing of igblastn output format ", outfmt, " is not ready yet")
+    warning("parsing of igblastn output format ", fmt_nb, " is not ready yet")
     out
 }
 
@@ -158,7 +217,7 @@
 ### igblastn()
 ###
 
-igblastn <- function(query, outfmt="AIRR", parse.out=TRUE,
+igblastn <- function(query, outfmt=7, parse.out=TRUE,
                      organism="auto", ...,
                      show.in.browser=FALSE, show.command.only=FALSE)
 {
@@ -173,6 +232,7 @@ igblastn <- function(query, outfmt="AIRR", parse.out=TRUE,
     c_region_db_name <- use_c_region_db()  # can be ""
     query <- .normarg_query(query)
     outfmt <- .normarg_outfmt(outfmt)
+    fmt_nb <- .extract_fmt_nb(outfmt)
     organism <- .normarg_organism(organism, germline_db_name)
     auxiliary_data <- file.path(igblast_root, "optional_file",
                                 paste0(organism, "_gl.aux"))
@@ -182,22 +242,22 @@ igblastn <- function(query, outfmt="AIRR", parse.out=TRUE,
     extra_args <- setNames(as.character(extra_args), names(extra_args))
     germline_db_args <- .make_igblastn_germline_db_args(germline_db_name)
 
-    args <- c(query=query, organism=organism,
+    args <- c(query=query, outfmt=outfmt, organism=organism,
               auxiliary_data=auxiliary_data, extra_args, germline_db_args)
     if (c_region_db_name != "") {
         c_region_db_path <- get_c_region_db_path(c_region_db_name)
         args <- c(args, c_region_db=file.path(c_region_db_path, "C"))
     }
 
-    args <- c(paste("-outfmt", outfmt), .as_igblastn_args(args))
+    cmd_args <- .make_command_line_args(args)
 
     if (show.command.only)
-        return(.show_igblastn_command(igblast_root, args,
+        return(.show_igblastn_command(igblast_root, cmd_args,
                                       show.in.browser=show.in.browser))
 
-    outfile <- .run_igblastn(igblast_root, args)
+    outfile <- .run_igblastn(igblast_root, cmd_args)
 
-    if (outfmt == 19) {
+    if (fmt_nb == 19) {
         ## AIRR output format is tabulated.
         AIRR_df <- read.table(outfile, header=TRUE, sep="\t")
         if (show.in.browser)
@@ -214,7 +274,7 @@ igblastn <- function(query, outfmt="AIRR", parse.out=TRUE,
         display_local_file_in_browser(outfile)
     out <- readLines(outfile)
     if (parse.out)
-        out <- .parse_igblastn_output(out, outfmt)
+        out <- .parse_igblastn_output(out, fmt_nb)
     out
 }
 
@@ -232,13 +292,13 @@ igblastn_help <- function(long.help=FALSE, show.in.browser=FALSE)
 
     igblast_root <- get_igblast_root()
     igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
-    args <- if (long.help) "-help" else "-h"
+    cmd_args <- if (long.help) "-help" else "-h"
 
     oldwd <- getwd()
     setwd(igblast_root)
     on.exit(setwd(oldwd))
     outfile <- if (show.in.browser) tempfile() else ""
-    status <- system2(igblastn_exe, args=args, stdout=outfile)
+    status <- system2(igblastn_exe, args=cmd_args, stdout=outfile)
     if (status != 0)
         stop(wmsg("'igblastn' returned an error"))
     if (show.in.browser)

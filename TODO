@@ -1,3 +1,7 @@
+- Set environment variable IGDATA to point to the internal_data directory.
+  Note that IGDATA must be set to the **parent** directory of the internal_data
+  directory.
+
 - Add 'loci' argument to install_IMGT_germline_db(). Set to "IGH+IGK+IGL"
   by default but could also be any subset of the 3 loci e.g. "IGH" or
   "IGK+IGL" etc...
