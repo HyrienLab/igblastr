@@ -1,3 +1,12 @@
+- Parse $footer part of output format 7.
+
+- Add unit tests for all the stuff implemented in parse_fmt7.R
+
+- Add man page for list_supported_format_specifiers() and all the other
+  exported symbols defined in parse_fmt7.R
+
+- Implement parsing of output formats 3 and 4?
+
 - Set environment variable IGDATA to point to the internal_data directory.
   Note that IGDATA must be set to the **parent** directory of the internal_data
   directory.

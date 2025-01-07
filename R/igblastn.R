@@ -3,52 +3,6 @@
 ### -------------------------------------------------------------------------
 
 
-### 'args' must be a named character vector where the names are
-### valid 'igblastn' parameter names (e.g. "organism") and the values
-### are the parameter values (e.g. "rabbit").
-.make_command_line_args <- function(args)
-{
-    if (!is.character(args))
-        stop(wmsg("'args' must be character vector"))
-    args_names <- names(args)
-    if (is.null(args_names))
-        stop(wmsg("'args' must have names on it"))
-    quoteme_idx <- grep(" ", args, fixed=TRUE)
-    if (length(quoteme_idx) != 0L)
-        args[quoteme_idx] <- paste0("'", args[quoteme_idx], "'")
-    paste0("-", args_names, " ", args)
-}
-
-.show_igblastn_command <- function(igblast_root, cmd_args,
-                                   show.in.browser=FALSE)
-{
-    igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
-    cmd <- c(igblastn_exe, cmd_args)
-    cmd_in_1string <- paste(cmd, collapse=" ")
-    outfile <- if (show.in.browser) tempfile() else ""
-    cat(cmd_in_1string, "\n", file=outfile, sep="")
-    if (show.in.browser)
-        display_local_file_in_browser(outfile)
-    cmd  # returns the command in a character vector
-}
-
-### 'cmd_args' must be a named character vector. See .make_command_line_args()
-### above for details.
-.run_igblastn <- function(igblast_root, cmd_args)
-{
-    igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
-    oldwd <- getwd()
-    setwd(igblast_root)
-    on.exit(setwd(oldwd))
-
-    outfile <- tempfile()
-    status <- system2(igblastn_exe, args=cmd_args, stdout=outfile)
-    if (status != 0)
-        stop(wmsg("'igblastn' returned an error"))
-    outfile
-}
-
-
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .normarg_query()
 ###
@@ -140,6 +94,8 @@
     as.integer(fmt_nb)
 }
 
+print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .normarg_organism()
@@ -204,11 +160,13 @@
 ###
 
 ### TODO: Parse output format 3 and 4.
-.parse_igblastn_output <- function(out, fmt_nb)
+.parse_igblastn_output <- function(output_file, fmt_nb)
 {
+    out <- readLines(output_file)
     if (fmt_nb == 7)
         return(parse_fmt7(out))
     warning("parsing of igblastn output format ", fmt_nb, " is not ready yet")
+    class(out) <- "igblastn_raw_output"
     out
 }
 
@@ -216,6 +174,53 @@
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### igblastn()
 ###
+
+### 'args' must be a named character vector where the names are
+### valid 'igblastn' parameter names (e.g. "organism") and the values
+### are the parameter values (e.g. "rabbit").
+.make_command_line_args <- function(args)
+{
+    if (!is.character(args))
+        stop(wmsg("'args' must be character vector"))
+    args_names <- names(args)
+    if (is.null(args_names))
+        stop(wmsg("'args' must have names on it"))
+    quoteme_idx <- grep(" ", args, fixed=TRUE)
+    if (length(quoteme_idx) != 0L)
+        args[quoteme_idx] <- paste0("'", args[quoteme_idx], "'")
+    paste0("-", args_names, " ", args)
+}
+
+.show_igblastn_command <- function(igblast_root, cmd_args,
+                                   show.in.browser=FALSE)
+{
+    igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
+    cmd <- c(igblastn_exe, cmd_args)
+    cmd_in_1string <- paste(cmd, collapse=" ")
+    outfile <- if (show.in.browser) tempfile() else ""
+    cat(cmd_in_1string, "\n", file=outfile, sep="")
+    if (show.in.browser)
+        display_local_file_in_browser(outfile)
+    cmd  # returns the command in a character vector
+}
+
+### 'cmd_args' must be a named character vector. See .make_command_line_args()
+### above for details.
+### Returns the path to the output file.
+.run_igblastn <- function(igblast_root, cmd_args)
+{
+    igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
+    oldwd <- getwd()
+    setwd(igblast_root)
+    on.exit(setwd(oldwd))
+
+    output_file <- tempfile()
+    cmd_args <- c(cmd_args, paste("-out", output_file))
+    status <- system2(igblastn_exe, args=cmd_args)
+    if (status != 0)
+        stop(wmsg("'igblastn' returned an error"))
+    output_file
+}
 
 igblastn <- function(query, outfmt=7, parse.out=TRUE,
                      organism="auto", ...,
@@ -255,26 +260,31 @@ igblastn <- function(query, outfmt=7, parse.out=TRUE,
         return(.show_igblastn_command(igblast_root, cmd_args,
                                       show.in.browser=show.in.browser))
 
-    outfile <- .run_igblastn(igblast_root, cmd_args)
+    ## Run igblastn command.
+    output_file <- .run_igblastn(igblast_root, cmd_args)
 
     if (fmt_nb == 19) {
         ## AIRR output format is tabulated.
-        AIRR_df <- read.table(outfile, header=TRUE, sep="\t")
+        AIRR_df <- read.table(output_file, header=TRUE, sep="\t")
         if (show.in.browser)
             display_data_frame_in_browser(AIRR_df)
         if (parse.out) {
             out  <- tibble(AIRR_df)
         } else {
-            out <- readLines(outfile)
+            out <- readLines(output_file)
+            class(out) <- "igblastn_raw_output"
         }
         return(out)
     }
 
     if (show.in.browser)
-        display_local_file_in_browser(outfile)
-    out <- readLines(outfile)
-    if (parse.out)
-        out <- .parse_igblastn_output(out, fmt_nb)
+        display_local_file_in_browser(output_file)
+    if (parse.out) {
+        out <- .parse_igblastn_output(output_file, fmt_nb)
+    } else {
+        out <- readLines(output_file)
+        class(out) <- "igblastn_raw_output"
+    }
     out
 }
 

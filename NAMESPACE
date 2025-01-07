@@ -26,6 +26,7 @@ S3method(print, fmt7record)
 S3method(print, format_specifiers)
 S3method(print, hit_table)
 S3method(print, igblast_info)
+S3method(print, igblastn_raw_output)
 S3method(print, query_details)
 S3method(print, subregion_sequence_details)
 S3method(print, VDJ_junction_details)
@@ -44,6 +45,7 @@ export(
     print.format_specifiers,
     print.hit_table,
     print.igblast_info,
+    print.igblastn_raw_output,
     print.query_details,
     print.subregion_sequence_details,
     print.VDJ_junction_details,
