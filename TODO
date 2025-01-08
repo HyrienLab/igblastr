@@ -7,6 +7,8 @@
 
 - Implement parsing of output formats 3 and 4?
 
+- Complete igblastn()'s man page.
+
 - Set environment variable IGDATA to point to the internal_data directory.
   Note that IGDATA must be set to the **parent** directory of the internal_data
   directory.
