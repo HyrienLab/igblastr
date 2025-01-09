@@ -17,6 +17,16 @@
   by default but could also be any subset of the 3 loci e.g. "IGH" or
   "IGK+IGL" etc...
 
+- Great resource for how to use AIRR Community Reference germline sets with
+  IgBLAST: https://williamdlees.github.io/receptor_utils/_build/html/airrc_sets_with_igblast.html
+  In particular, the author seems to be using an OGRDB REST API version 2:
+    https://ogrdb.airr-community.org/api_v2
+  but where is this API documented?
+  All the download utilities implemented in igblastr/R/AIRR-utils.R use
+  the OGRDB REST API at
+    https://ogrdb.airr-community.org/api
+  which is poorly documented and is somewhat confusing (see below).
+
 - Investigate the following mysteries about the germline sets provided
   by OGRDB:
 
