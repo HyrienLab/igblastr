@@ -143,6 +143,39 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
     organism
 }
 
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### .normarg_seqidlist()
+###
+
+.normarg_seqidlist <- function(seqidlist=NULL)
+{
+    if (is.null(seqidlist))
+        return(NULL)
+    if (inherits(seqidlist, "file")) {
+        path <- summary(seqidlist)$description
+        ## Check that the file exists and is readable.
+        res <- try(suppressWarnings(open(seqidlist, open="r")), silent=TRUE)
+        if (inherits(res, "try-error"))
+            stop(wmsg("unable to open file '", path, "' for reading"))
+        close(seqidlist)
+        return(path)
+    }
+    if (!is.character(seqidlist))
+        stop(wmsg("'seqidlist' must be NULL, or a 'file' object, ",
+                  "or a character vector"))
+    if (anyNA(seqidlist))
+        stop(wmsg("character vector 'seqidlist' contains NAs"))
+    seqidlist <- trimws(seqidlist)
+    if (!all(nzchar(seqidlist)))
+        stop(wmsg("character vector 'seqidlist' contains ",
+                  "empty or white strings"))
+    path <- tempfile()
+    writeLines(seqidlist, path)
+    path
+}
+
+
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .make_igblastn_germline_db_args()
 ###
@@ -160,9 +193,9 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
 ###
 
 ### TODO: Parse output format 3 and 4.
-.parse_igblastn_output <- function(output_file, fmt_nb)
+.parse_igblastn_output <- function(out_file, fmt_nb)
 {
-    out <- readLines(output_file)
+    out <- readLines(out_file)
     if (fmt_nb == 7)
         return(parse_fmt7(out))
     warning("parsing of igblastn output format ", fmt_nb, " is not ready yet")
@@ -204,6 +237,17 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
     cmd  # returns the command in a character vector
 }
 
+.parse_and_issue_warnings <- function(stderr_file)
+{
+    warn_prefix <- "Warning:"
+    lines <- readLines(stderr_file)
+    warn_idx <- which(has_prefix(tolower(lines), tolower(warn_prefix)))
+    warn_lines <- lines[warn_idx]
+    msgs <- substr(warn_lines, nchar(warn_prefix)+1L, nchar(warn_lines))
+    for (msg in trimws(msgs))
+        warning(wmsg(msg))
+}
+
 ### 'cmd_args' must be a named character vector. See .make_command_line_args()
 ### above for details.
 ### Returns the path to the output file.
@@ -214,16 +258,22 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
     setwd(igblast_root)
     on.exit(setwd(oldwd))
 
-    output_file <- tempfile()
-    cmd_args <- c(cmd_args, paste("-out", output_file))
-    status <- system2(igblastn_exe, args=cmd_args)
+    out_file <- tempfile()
+    stderr_file <- tempfile()
+    cmd_args <- c(cmd_args, paste("-out", out_file))
+    status <- system2(igblastn_exe, args=cmd_args, stderr=stderr_file)
     if (status != 0)
         stop(wmsg("'igblastn' returned an error"))
-    output_file
+    .parse_and_issue_warnings(stderr_file)
+    out_file
 }
 
 igblastn <- function(query, outfmt=7, parse.out=TRUE,
-                     organism="auto", ...,
+                     organism="auto",
+                     germline_db_V_seqidlist=NULL,
+                     germline_db_D_seqidlist=NULL,
+                     germline_db_J_seqidlist=NULL,
+                     ...,
                      show.in.browser=FALSE, show.command.only=FALSE)
 {
     if (!isTRUEorFALSE(parse.out))
@@ -232,6 +282,7 @@ igblastn <- function(query, outfmt=7, parse.out=TRUE,
         stop(wmsg("'show.in.browser' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(show.command.only))
         stop(wmsg("'show.command.only' must be TRUE or FALSE"))
+
     igblast_root <- get_igblast_root()
     germline_db_name <- use_germline_db()  # cannot be ""
     c_region_db_name <- use_c_region_db()  # can be ""
@@ -239,21 +290,31 @@ igblastn <- function(query, outfmt=7, parse.out=TRUE,
     outfmt <- .normarg_outfmt(outfmt)
     fmt_nb <- .extract_fmt_nb(outfmt)
     organism <- .normarg_organism(organism, germline_db_name)
+    germline_db_args <- .make_igblastn_germline_db_args(germline_db_name)
+    germline_db_V_seqidlist <- .normarg_seqidlist(germline_db_V_seqidlist)
+    germline_db_D_seqidlist <- .normarg_seqidlist(germline_db_D_seqidlist)
+    germline_db_J_seqidlist <- .normarg_seqidlist(germline_db_J_seqidlist)
+
+    args <- c(query=query, outfmt=outfmt, organism=organism,
+              germline_db_args,
+              germline_db_V_seqidlist=germline_db_V_seqidlist,
+              germline_db_D_seqidlist=germline_db_D_seqidlist,
+              germline_db_J_seqidlist=germline_db_J_seqidlist)
+
+    if (c_region_db_name != "") {
+        c_region_db_path <- get_c_region_db_path(c_region_db_name)
+        args <- c(args, c_region_db=file.path(c_region_db_path, "C"))
+    }
+
+    ## Auxiliary data.
     auxiliary_data <- file.path(igblast_root, "optional_file",
                                 paste0(organism, "_gl.aux"))
 
     ## Turn extra args into a named character vector.
     extra_args <- list(...)
     extra_args <- setNames(as.character(extra_args), names(extra_args))
-    germline_db_args <- .make_igblastn_germline_db_args(germline_db_name)
 
-    args <- c(query=query, outfmt=outfmt, organism=organism,
-              auxiliary_data=auxiliary_data, extra_args, germline_db_args)
-    if (c_region_db_name != "") {
-        c_region_db_path <- get_c_region_db_path(c_region_db_name)
-        args <- c(args, c_region_db=file.path(c_region_db_path, "C"))
-    }
-
+    args <- c(args, auxiliary_data=auxiliary_data, extra_args)
     cmd_args <- .make_command_line_args(args)
 
     if (show.command.only)
@@ -261,28 +322,28 @@ igblastn <- function(query, outfmt=7, parse.out=TRUE,
                                       show.in.browser=show.in.browser))
 
     ## Run igblastn command.
-    output_file <- .run_igblastn(igblast_root, cmd_args)
+    out_file <- .run_igblastn(igblast_root, cmd_args)
 
     if (fmt_nb == 19) {
         ## AIRR output format is tabulated.
-        AIRR_df <- read.table(output_file, header=TRUE, sep="\t")
+        AIRR_df <- read.table(out_file, header=TRUE, sep="\t")
         if (show.in.browser)
             display_data_frame_in_browser(AIRR_df)
         if (parse.out) {
             out  <- tibble(AIRR_df)
         } else {
-            out <- readLines(output_file)
+            out <- readLines(out_file)
             class(out) <- "igblastn_raw_output"
         }
         return(out)
     }
 
     if (show.in.browser)
-        display_local_file_in_browser(output_file)
+        display_local_file_in_browser(out_file)
     if (parse.out) {
-        out <- .parse_igblastn_output(output_file, fmt_nb)
+        out <- .parse_igblastn_output(out_file, fmt_nb)
     } else {
-        out <- readLines(output_file)
+        out <- readLines(out_file)
         class(out) <- "igblastn_raw_output"
     }
     out

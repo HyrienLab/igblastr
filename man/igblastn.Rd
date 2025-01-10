@@ -16,7 +16,11 @@
 
 \usage{
 igblastn(query, outfmt=7, parse.out=TRUE,
-         organism="auto", ...,
+         organism="auto",
+         germline_db_V_seqidlist=NULL,
+         germline_db_D_seqidlist=NULL,
+         germline_db_J_seqidlist=NULL,
+         ...,
          show.in.browser=FALSE, show.command.only=FALSE)
 
 igblastn_help(long.help=FALSE, show.in.browser=FALSE)
@@ -44,6 +48,18 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     Note that by default (i.e. when \code{organism} is omitted or set to
     \code{"auto"}), \code{igblastn()} infers the organism from the name
     of the germline db in use.
+  }
+  \item{germline_db_V_seqidlist,
+        germline_db_D_seqidlist,
+        germline_db_J_seqidlist}{
+    Restrict search of germline database to list of seq ids.
+    Each list of seq ids can be specified either as a character vector
+    of ids or as the path to a file containing seq ids (one id per line).
+    In the latter case, a \code{file} object must be passed to the
+    \code{germline_db_V_seqidlist}, or \code{germline_db_D_seqidlist},
+    or \code{germline_db_J_seqidlist} argument. The \code{file} object
+    will typically be constructed with something like
+    \code{file("path/to/some/file")}.
   }
   \item{...}{
     Extra arguments to be passed to the igblastn program.
