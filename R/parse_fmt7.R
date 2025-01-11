@@ -403,11 +403,11 @@ qseqid.fmt7record <- function(object) qseqid(object$query_details)
 
 print.fmt7record <- function(x, ...)
 {
-    cat(class(x)[[1L]], " object for query seq id:\n", sep="")
-    cat("  ", qseqid(x), "\n", sep="")
-    cat("Sections:\n")
+    cat(class(x)[[1L]], " object\n", sep="")
+    cat("    qseqid(): ", qseqid(x), "\n", sep="")
+    cat("  sections:\n")
     for (section_name in names(x))
-        cat("  $", section_name, "\n", sep="")
+        cat("    $", section_name, "\n", sep="")
 }
 
 

@@ -7,20 +7,36 @@
 ### .normarg_query()
 ###
 
+.check_query_seq_lengths <- function(seqlens)
+{
+    stopifnot(is.integer(seqlens))
+    seqids <- names(seqlens)
+    stopifnot(!is.null(seqids))
+    empty_idx <- which(seqlens == 0L)
+    if (length(empty_idx) != 0L) {
+        in1string <- paste(seqids[empty_idx], collapse=", ")
+        stop(wmsg("the following sequences in 'query' are empty ",
+                  "(showing seq ids): ", in1string))
+    }
+}
+
 .normarg_query <- function(query)
 {
-    if (isSingleNonWhiteString(query))
-        return(file_path_as_absolute(query))
-    if (is(query, "DNAStringSet")) {
+    if (isSingleNonWhiteString(query)) {
+        path <- file_path_as_absolute(query)
+        .check_query_seq_lengths(fasta.seqlengths(path))
+    } else if (is(query, "DNAStringSet")) {
         if (is.null(names(query)))
             stop(wmsg("DNAStringSet object 'query' must have names"))
-        filepath <- tempfile(fileext=".fasta")
-        writeXStringSet(query, filepath)
-        return(filepath)
+        .check_query_seq_lengths(setNames(width(query), names(query)))
+        path <- tempfile(fileext=".fasta")
+        writeXStringSet(query, path)
+    } else {
+        stop(wmsg("'query' must be a single (non-empty) string ",
+                  "that contains the path to the input file (FASTA) ",
+                  "or a named DNAStringSet object"))
     }
-    stop(wmsg("'query' must be a single (non-empty) string ",
-              "that contains the path to the input file. ",
-              "Alternatively it can be a named DNAStringSet object."))
+    path
 }
 
 
