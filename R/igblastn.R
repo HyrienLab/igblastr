@@ -148,22 +148,21 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
 ### .normarg_seqidlist()
 ###
 
-.normarg_seqidlist <- function(seqidlist=NULL)
+.normarg_seqidlist_file <- function(seqidlist)
 {
-    if (is.null(seqidlist))
-        return(NULL)
-    if (inherits(seqidlist, "file")) {
-        path <- summary(seqidlist)$description
-        ## Check that the file exists and is readable.
-        res <- try(suppressWarnings(open(seqidlist, open="r")), silent=TRUE)
-        if (inherits(res, "try-error"))
-            stop(wmsg("unable to open file '", path, "' for reading"))
-        close(seqidlist)
-        return(path)
-    }
-    if (!is.character(seqidlist))
-        stop(wmsg("'seqidlist' must be NULL, or a 'file' object, ",
-                  "or a character vector"))
+    stopifnot(inherits(seqidlist, "file"))
+    path <- summary(seqidlist)$description
+    ## Check that the file exists and is readable.
+    res <- try(suppressWarnings(open(seqidlist, open="r")), silent=TRUE)
+    if (inherits(res, "try-error"))
+        stop(wmsg("unable to open file '", path, "' for reading"))
+    close(seqidlist)
+    path
+}
+
+.normarg_seqidlist_character <- function(seqidlist)
+{
+    stopifnot(is.character(seqidlist))
     if (anyNA(seqidlist))
         stop(wmsg("character vector 'seqidlist' contains NAs"))
     seqidlist <- trimws(seqidlist)
@@ -172,6 +171,43 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
                   "empty or white strings"))
     path <- tempfile()
     writeLines(seqidlist, path)
+    path
+}
+
+.check_user_seqids <- function(user_seqids, region_type)
+{
+    sequences <- load_germline_db(use_germline_db(), region_types=region_type)
+    valid_seqids <- names(sequences)
+    invalid_seqids <- setdiff(user_seqids, valid_seqids)
+    if (length(invalid_seqids) != 0L) {
+        in1string <- paste0(invalid_seqids, collapse=", ")
+        msg1 <- c("Seq id(s) not found in germline ",
+                  "database ", region_type, ": ", in1string)
+        msg2a <- "Note that you can use:"
+        code <- c("names(load_germline_db(use_germline_db(), ",
+                  "region_types=\"", region_type, "\"))")
+        msg2b <- c("to obtain the list of valid seq ids ",
+                   "from germline database ", region_type, ".")
+        stop(wmsg(msg1), "\n  ",
+             wmsg(msg2a), "\n    ", code, "\n  ", wmsg(msg2b))
+    }
+}
+
+.normarg_seqidlist <- function(seqidlist, region_type=c("V", "D", "J"))
+{
+    region_type <- match.arg(region_type)
+    if (is.null(seqidlist))
+        return(NULL)
+    if (inherits(seqidlist, "file")) {
+        path <- .normarg_seqidlist_file(seqidlist)
+    } else if (is.character(seqidlist)) {
+        path <- .normarg_seqidlist_character(seqidlist)
+    } else {
+        stop(wmsg("'seqidlist' must be NULL, or a 'file' object, ",
+                  "or a character vector"))
+    }
+    user_seqids <- readLines(path)
+    .check_user_seqids(user_seqids, region_type)
     path
 }
 
@@ -237,15 +273,29 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
     cmd  # returns the command in a character vector
 }
 
+.parse_warnings_or_errors <- function(lines, prefix)
+{
+    stopifnot(is.character(lines), isSingleNonWhiteString(prefix))
+    keep_idx <- which(has_prefix(tolower(lines), tolower(prefix)))
+    lines <- lines[keep_idx]
+    msgs <- trimws(substr(lines, nchar(prefix)+1L, nchar(lines)))
+    msgs[nzchar(msgs)]
+}
+
 .parse_and_issue_warnings <- function(stderr_file)
 {
-    warn_prefix <- "Warning:"
-    lines <- readLines(stderr_file)
-    warn_idx <- which(has_prefix(tolower(lines), tolower(warn_prefix)))
-    warn_lines <- lines[warn_idx]
-    msgs <- substr(warn_lines, nchar(warn_prefix)+1L, nchar(warn_lines))
-    for (msg in trimws(msgs))
+    warn_msgs <- .parse_warnings_or_errors(readLines(stderr_file), "Warning:")
+    for (msg in warn_msgs)
         warning(wmsg(msg))
+}
+
+.stop_on_igblastn_exe_error <- function(stderr_file)
+{
+    err_msgs <- .parse_warnings_or_errors(readLines(stderr_file), "Error:")
+    if (length(err_msgs) == 0L)  # could this ever happen?
+        stop(wmsg("'igblastn' returned an unknown error"))
+    err_msgs <- vapply(err_msgs, wmsg, character(1), USE.NAMES=FALSE)
+    stop(paste(err_msgs, collapse="\n  "))
 }
 
 ### 'cmd_args' must be a named character vector. See .make_command_line_args()
@@ -262,9 +312,9 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
     stderr_file <- tempfile()
     cmd_args <- c(cmd_args, paste("-out", out_file))
     status <- system2(igblastn_exe, args=cmd_args, stderr=stderr_file)
-    if (status != 0)
-        stop(wmsg("'igblastn' returned an error"))
     .parse_and_issue_warnings(stderr_file)
+    if (status != 0)
+        .stop_on_igblastn_exe_error(stderr_file)
     out_file
 }
 
@@ -291,9 +341,9 @@ igblastn <- function(query, outfmt=7, parse.out=TRUE,
     fmt_nb <- .extract_fmt_nb(outfmt)
     organism <- .normarg_organism(organism, germline_db_name)
     germline_db_args <- .make_igblastn_germline_db_args(germline_db_name)
-    germline_db_V_seqidlist <- .normarg_seqidlist(germline_db_V_seqidlist)
-    germline_db_D_seqidlist <- .normarg_seqidlist(germline_db_D_seqidlist)
-    germline_db_J_seqidlist <- .normarg_seqidlist(germline_db_J_seqidlist)
+    germline_db_V_seqidlist <- .normarg_seqidlist(germline_db_V_seqidlist, "V")
+    germline_db_D_seqidlist <- .normarg_seqidlist(germline_db_D_seqidlist, "D")
+    germline_db_J_seqidlist <- .normarg_seqidlist(germline_db_J_seqidlist, "J")
 
     args <- c(query=query, outfmt=outfmt, organism=organism,
               germline_db_args,

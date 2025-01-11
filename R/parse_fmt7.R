@@ -344,7 +344,8 @@ print.hit_table <- function(x, ...)
 
 .SECTION_SEP <- ""
 
-### An fmt7 record is expected to have 6 (typical) or 5 (rare) sections:
+### An fmt7 record is expected to have 6 (typical) or 5 (rare) sections, or
+### only 1 section if 0 hits found:
 ###   1. query_details
 ###   2. VDJ_rearrangement_summary
 ###   3. VDJ_junction_details
@@ -359,28 +360,39 @@ print.hit_table <- function(x, ...)
     section_ends <- c(sep_idx - 1L, length(record_lines))
     sections <- lapply(seq_along(section_starts),
         function(i) record_lines[(section_starts[[i]]):(section_ends[[i]])])
-    stopifnot(length(sections) %in% 5:6)
-    section1 <- .parse_query_details(sections[[1L]])
-    section2 <- .parse_VDJ_rearrangement_summary(sections[[2L]])
-    section3 <- .parse_VDJ_junction_details(sections[[3L]])
+    stopifnot(length(sections) %in% c(1L, 5L, 6L))
+    section1 <- sections[[1L]]
+    if (length(sections) == 1L) {
+        ## Should only happen when 0 hits found.
+        last_line <- tail(section1, n=1L)
+        stopifnot(last_line == "# 0 hits found")
+        section1 <- head(section1, n=-1L)
+        parsed_section1 <- .parse_query_details(section1)
+        ans <- list(query_details=parsed_section1)
+        class(ans) <- c("fmt7emptyrecord", "fmt7record")
+        return(ans)
+    }
+    parsed_section1 <- .parse_query_details(section1)
+    parsed_section2 <- .parse_VDJ_rearrangement_summary(sections[[2L]])
+    parsed_section3 <- .parse_VDJ_junction_details(sections[[3L]])
     ans1 <- list(
-        query_details=section1,
-        VDJ_rearrangement_summary=section2,
-        VDJ_junction_details=section3
+        query_details=parsed_section1,
+        VDJ_rearrangement_summary=parsed_section2,
+        VDJ_junction_details=parsed_section3
     )
     if (length(sections) == 5L) {
         ## No 'subregion_sequence_details' section!
-        section4 <- .parse_alignment_summary(sections[[4L]])
-        section5 <- .parse_hit_table(sections[[5L]])
-        ans2 <- list(alignment_summary=section4,
-                     hit_table=section5)
+        parsed_section4 <- .parse_alignment_summary(sections[[4L]])
+        parsed_section5 <- .parse_hit_table(sections[[5L]])
+        ans2 <- list(alignment_summary=parsed_section4,
+                     hit_table=parsed_section5)
     } else {
-        section4 <- .parse_subregion_sequence_details(sections[[4L]])
-        section5 <- .parse_alignment_summary(sections[[5L]])
-        section6 <- .parse_hit_table(sections[[6L]])
-        ans2 <- list(subregion_sequence_details=section4,
-                     alignment_summary=section5,
-                     hit_table=section6)
+        parsed_section4 <- .parse_subregion_sequence_details(sections[[4L]])
+        parsed_section5 <- .parse_alignment_summary(sections[[5L]])
+        parsed_section6 <- .parse_hit_table(sections[[6L]])
+        ans2 <- list(subregion_sequence_details=parsed_section4,
+                     alignment_summary=parsed_section5,
+                     hit_table=parsed_section6)
     }
     ans <- c(ans1, ans2)
     class(ans) <- "fmt7record"
@@ -391,7 +403,7 @@ qseqid.fmt7record <- function(object) qseqid(object$query_details)
 
 print.fmt7record <- function(x, ...)
 {
-    cat(class(x), " object for query seq id:\n", sep="")
+    cat(class(x)[[1L]], " object for query seq id:\n", sep="")
     cat("  ", qseqid(x), "\n", sep="")
     cat("Sections:\n")
     for (section_name in names(x))
@@ -410,7 +422,7 @@ print.fmt7record <- function(x, ...)
     footer_lines
 }
 
-print.fmt7footer <- function(x, ...) cat(class(x), " object\n", sep="")
+print.fmt7footer <- function(x, ...) cat(class(x)[[1L]], " object\n", sep="")
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
