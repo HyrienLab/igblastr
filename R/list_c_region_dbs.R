@@ -114,16 +114,16 @@ list_c_region_dbs <- function(names.only=FALSE)
     all_db_names <- sort(setdiff(list.files(c_region_dbs), "USING"))
     if (names.only)
         return(all_db_names)
-
     basic_stats <- .tabulate_c_region_dbs_by_locus(all_db_names)
     ans <- data.frame(db_name=all_db_names, basic_stats)
-    db_path <- get_db_in_use(c_region_dbs, what="C-region")
-    if (db_path != "") {
-        used <- character(length(all_db_names))
-        used[all_db_names %in% basename(db_path)] <- "*"
-        ans <- cbind(ans, ` `=used)
-    }
+    class(ans) <- c("c_region_dbs_df", class(ans))
     ans
+}
+
+print.c_region_dbs_df <- function(x, ...)
+{
+    c_region_dbs <- .get_c_region_dbs_path(TRUE)  # path guaranteed to exist
+    print_dbs_df(x, c_region_dbs, what="C-region")
 }
 
 

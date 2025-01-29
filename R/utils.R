@@ -231,6 +231,29 @@ get_db_in_use <- function(dbs_path, what=c("germline", "C-region"))
     db_path
 }
 
+### Used by print.germline_dbs_df() and print.c_region_dbs_df().
+print_dbs_df <- function(dbs_df, dbs_path, what=c("germline", "C-region"))
+{
+    stopifnot(is.data.frame(dbs_df),
+              isSingleNonWhiteString(dbs_path), dir.exists(dbs_path))
+    what <- match.arg(what)
+    dbs_df <- as.data.frame(dbs_df)
+    all_db_names <- dbs_df[ , "db_name"]
+    db_path <- get_db_in_use(dbs_path, what=what)
+    if (db_path != "") {
+        ## Mark db in use with an asterisk in extra white column.
+        used <- character(length(all_db_names))
+        used[all_db_names %in% basename(db_path)] <- "*"
+        dbs_df <- cbind(dbs_df, ` `=used)
+    }
+    ## Left-justify the "db_name" column (1st column).
+    col1 <- format(c("db_name", all_db_names), justify="left")
+    dbs_df[ , "db_name"] <- col1[-1L]
+    colnames(dbs_df)[[1L]] <- col1[[1L]]
+    ## Do not print the row names.
+    print(dbs_df, row.names=FALSE)
+}
+
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Miscellaneous stuff
