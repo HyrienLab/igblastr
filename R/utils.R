@@ -3,6 +3,7 @@
 ### -------------------------------------------------------------------------
 ###
 ### Nothing in this file is exported.
+###
 
 
 ### TODO: wmsg() was replaced with this in S4Vectors >= 0.45.1 so drop
@@ -66,55 +67,6 @@ strslice <- function(x, width)
     vapply(seq_along(chunks),
         function(i) substr(x, start(chunks)[i], end(chunks)[i]),
         character(1), USE.NAMES=FALSE)
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Low-level file manipulation
-###
-
-### Move 'newfile' to 'oldfile' after nuking 'oldfile' if needed.
-### Works with files or directories.
-replace_file <- function(oldfile, newfile)
-{
-    stopifnot(isSingleNonWhiteString(oldfile), isSingleNonWhiteString(newfile))
-    if (!file.exists(newfile))
-        stop(wmsg(newfile, ": no such file or directory"))
-    unlink(oldfile, recursive=TRUE, force=TRUE)
-    ok <- file.rename(newfile, oldfile)
-    if (!ok)
-        stop(wmsg("failed to replace '", oldfile, "' with '", newfile, "'"))
-}
-
-### Does not recursively search hidden files i.e. it only removes the
-### hidden files (and directories if 'include.hidden.dirs=TRUE') that
-### are located **directly** under 'path'.
-remove_hidden_files <- function(path=".", include.hidden.dirs=FALSE)
-{
-    stopifnot(isSingleNonWhiteString(path), dir.exists(path),
-              isTRUEorFALSE(include.hidden.dirs))
-    hidden_files <- list.files(path, pattern="^\\.", all.files=TRUE,
-                               full.names=TRUE, no..=TRUE)
-    unlink(hidden_files, recursive=include.hidden.dirs, force=TRUE)
-}
-
-concatenate_files <- function(files, out=stdout(), n=50000L)
-{
-    stopifnot(is.character(files))
-    if (is.character(out)) {
-        out <- file(out, "wb")
-        on.exit(close(out))
-    }
-    for (f in files) {
-        con <- file(f, "rb")
-        while (TRUE) {
-            bytes <- readBin(con, what=raw(), n=n)
-            if (length(bytes) == 0L)
-                break
-            writeBin(bytes, out)
-        }
-        close(con)
-    }
 }
 
 

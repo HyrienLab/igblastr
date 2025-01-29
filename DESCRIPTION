@@ -7,7 +7,7 @@ Description: The igblastr package provides functions to conveniently install
 	Note that the package is still a WORK-IN-PROGRESS! Please use
 	<https://github.com/hpages/igblastr/issues> to report bugs,
 	provide feedback, request features, etc...
-Version: 0.2.6
+Version: 0.2.7
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
@@ -23,18 +23,19 @@ SystemRequirements: Perl (for install_IMGT_germline_db() only)
 VignetteBuilder: knitr
 Collate:
 	utils.R
+	file-utils.R
+	IMGT-utils.R
+	AIRR-utils.R
 	precompiled-igblast-utils.R
 	get_igblast_root.R
 	igblast_info.R
 	install_igblast.R
 	make_blastdbs.R
+	create_region_db.R
+	create_germline_db.R
+	create_c_region_db.R
 	list_germline_dbs.R
 	list_c_region_dbs.R
-	IMGT-utils.R
-	AIRR-utils.R
-	create_IMGT_region_db.R
-	create_IMGT_germline_db.R
-	create_IMGT_c_region_db.R
 	install_IMGT_germline_db.R
 	install_AIRR_germline_db.R
 	parse_fmt7.R

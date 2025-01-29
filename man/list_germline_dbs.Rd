@@ -87,6 +87,13 @@ load_germline_db(db_name, region_types=NULL)
   is \code{TRUE}). Columns IGHV, IGHD, IGHJ, IGKV, IGKJ, IGLV, and IGLJ
   in the data.frame indicate the number of sequences from each group.
 
+  Builtin dbs are prefixed with an underscore (\code{_}).
+  Note that the germline builtin dbs from AIRR were obtained from
+  \url{https://ogrdb.airr-community.org/germline_sets/Homo\%20sapiens}
+  and \url{https://ogrdb.airr-community.org/germline_sets/Mus\%20musculus}
+  and included in the \pkg{igblastr} package on the date indicated by the
+  suffix of the db name.
+
   When called with no argument, \code{use_germline_db()} returns a single
   string containing the name of the local germline db currently used by
   \code{\link{igblastn}()} if any, or it raises an error if no germline db

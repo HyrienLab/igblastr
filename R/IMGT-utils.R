@@ -3,6 +3,7 @@
 ### -------------------------------------------------------------------------
 ###
 ### Nothing in this file is exported.
+###
 
 
 ### Do not remove the trailing slash.
@@ -108,7 +109,7 @@ list_archived_IMGT_zips <- function(as.df=FALSE, recache=FALSE)
     refdir_zip_filename <- paste0(.VQUEST_REFERENCE_DIRECTORY, ".zip")
     refdir_zip <- download_as_tempfile(.VQUEST_DOWNLOAD_ROOT_URL,
                                        refdir_zip_filename, ...)
-    unlink(exdir, recursive=TRUE, force=TRUE)
+    nuke_file(exdir)
     unzip(refdir_zip, exdir=exdir)
 }
 
@@ -128,7 +129,7 @@ list_archived_IMGT_zips <- function(as.df=FALSE, recache=FALSE)
 
 .unzip_archived_IMGT_zip <- function(zipfile, release, exdir)
 {
-    unlink(exdir, recursive=TRUE, force=TRUE)
+    nuke_file(exdir)
     unzip(zipfile, exdir=exdir, junkpaths=TRUE)
     refdir_zip_filename <- paste0(.VQUEST_REFERENCE_DIRECTORY, ".zip")
     refdir_zip <- file.path(exdir, refdir_zip_filename)
@@ -148,7 +149,7 @@ list_archived_IMGT_zips <- function(as.df=FALSE, recache=FALSE)
 download_and_unzip_IMGT_release <- function(release, exdir, ...)
 {
     if (dir.exists(exdir))
-        unlink(exdir, recursive=TRUE, force=TRUE)
+        nuke_file(exdir)
     if (release == get_latest_IMGT_release()) {
         .download_and_unzip_latest_IMGT_zip(exdir, ...)
     } else {
@@ -168,6 +169,16 @@ download_and_unzip_IMGT_release <- function(release, exdir, ...)
     sort(list.files(refdir))
 }
 
+### 'local_store' must be the path to the local store of a given IMGT release.
+### Returns the path to the subdir of 'local_store' that corresponds to the
+### specified organism. For example, for IMGT release 202449-1 and Homo
+### sapiens, this path is:
+###     <igblastr-cache>
+###     └── store
+###         └── IMGT-releases
+###             └── 202449-1
+###                 └── IMGT_V-QUEST_reference_directory
+###                     └──  Homo_sapiens
 find_organism_in_IMGT_store <- function(organism, local_store)
 {
     refdir <- file.path(local_store, .VQUEST_REFERENCE_DIRECTORY)
@@ -303,5 +314,25 @@ download_all_C_regions_from_IMGT <- function(destdir=".")
             message("  (", nregion, " region(s) downloaded)")
         }
     }
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### normalize_IMGT_organism()
+### form_IMGT_germline_db_name()
+
+normalize_IMGT_organism <- function(organism)
+{
+    if (!isSingleNonWhiteString(organism))
+        stop(wmsg("'organism' must be a single (non-empty) string"))
+    chartr(" ", "_", organism)
+}
+
+form_IMGT_germline_db_name <- function(release, organism="Homo sapiens")
+{
+    if (!isSingleNonWhiteString(release))
+        stop(wmsg("'relesase' must be a single (non-empty) string"))
+    organism <- normalize_IMGT_organism(organism)
+    sprintf("IMGT-%s.%s.%s", release, organism, "IGH+IGK+IGL")
 }
 

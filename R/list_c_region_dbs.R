@@ -7,7 +7,7 @@
 ### .create_builtin_c_region_dbs()
 ###
 
-### Do NOT call this in .onLoad()! It relies on create_IMGT_c_region_db()
+### Do NOT call this in .onLoad()! It relies on create_c_region_db()
 ### which requires that Perl and a valid IgBLAST installation (for
 ### the 'edit_imgt_file.pl' script) are already available on the machine.
 ### However, none of these things are guaranteed to be available at load-time,
@@ -30,10 +30,10 @@
     for (organism_path in organism_paths) {
         db_name <- form_IMGT_c_region_db_name(organism_path)
         db_path <- file.path(destdir, db_name)
-        create_IMGT_c_region_db(organism_path, db_path, force=force)
+        create_c_region_db(organism_path, db_path, force=force)
     }
 
-    ## Any other C-region dbs to create?
+    ## Any other builtin C-region dbs to create?
 }
 
 
@@ -58,9 +58,9 @@
         ## folder. This achieves atomicity in case something goes wrong.
         tmp_c_region_dbs <- tempfile("c_region_dbs_")
         dir.create(tmp_c_region_dbs, recursive=TRUE)
-        on.exit(unlink(tmp_c_region_dbs, recursive=TRUE, force=TRUE))
+        on.exit(nuke_file(tmp_c_region_dbs))
         .create_builtin_c_region_dbs(tmp_c_region_dbs)
-        replace_file(c_region_dbs, tmp_c_region_dbs)
+        rename_file(tmp_c_region_dbs, c_region_dbs, replace=TRUE)
     }
     c_region_dbs
 }
@@ -69,7 +69,7 @@
 reset_c_region_dbs_cache <- function()
 {
     c_region_dbs <- .get_c_region_dbs_path()  # path NOT guaranteed to exist
-    unlink(c_region_dbs, recursive=TRUE, force=TRUE)
+    nuke_file(c_region_dbs)
 }
 
 ### Note that the returned path is NOT guaranteed to exist.
@@ -116,11 +116,14 @@ list_c_region_dbs <- function(names.only=FALSE)
         return(all_db_names)
 
     basic_stats <- .tabulate_c_region_dbs_by_locus(all_db_names)
-    used <- character(length(all_db_names))
+    ans <- data.frame(db_name=all_db_names, basic_stats)
     db_path <- get_db_in_use(c_region_dbs, what="C-region")
-    if (db_path != "")
+    if (db_path != "") {
+        used <- character(length(all_db_names))
         used[all_db_names %in% basename(db_path)] <- "*"
-    data.frame(db_name=all_db_names, basic_stats, ` `=used, check.names=FALSE)
+        ans <- cbind(ans, ` `=used)
+    }
+    ans
 }
 
 

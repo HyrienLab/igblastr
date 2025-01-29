@@ -122,15 +122,20 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
 .infer_igblast_organism_from_germline_db_name <- function(db_name)
 {
     stopifnot(isSingleNonWhiteString(db_name))
-    if (grepl("Homo.sapiens", db_name, ignore.case=TRUE))
+    if (grepl("human", db_name, ignore.case=TRUE) ||
+        grepl("Homo.sapiens", db_name, ignore.case=TRUE))
         return("human")
-    if (grepl("Mus.musculus", db_name, ignore.case=TRUE))
+    if (grepl("mouse", db_name, ignore.case=TRUE) ||
+        grepl("Mus.musculus", db_name, ignore.case=TRUE))
         return("mouse")
-    if (grepl("Oryctolagus.cuniculus", db_name, ignore.case=TRUE))
+    if (grepl("rabbit", db_name, ignore.case=TRUE) ||
+        grepl("Oryctolagus.cuniculus", db_name, ignore.case=TRUE))
         return("rabbit")
-    if (grepl("Rattus.norvegicus", db_name, ignore.case=TRUE))
+    if (grepl("rat", db_name, ignore.case=TRUE) ||
+        grepl("Rattus.norvegicus", db_name, ignore.case=TRUE))
         return("rat")
-    if (grepl("Macaca.mulatta", db_name, ignore.case=TRUE))
+    if (grepl("rhesus.monkey", db_name, ignore.case=TRUE) ||
+        grepl("Macaca.mulatta", db_name, ignore.case=TRUE))
         return("rhesus_monkey")
     NA_character_
 }

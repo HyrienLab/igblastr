@@ -38,13 +38,13 @@ infer_igblast_version_from_ncbi_name <- function(name)
 extract_igblast_tarball <- function(tarfile, ncbi_name, destdir=".")
 {
     ## Create <destdir>/tmpexdir/
-    tempexdir <- file.path(destdir, "tmpexdir")
-    unlink(tempexdir, recursive=TRUE, force=TRUE)
-    dir.create(tempexdir)
-    on.exit(unlink(tempexdir, recursive=TRUE, force=TRUE))
+    tmp_exdir <- file.path(destdir, "tmp_exdir")
+    nuke_file(tmp_exdir)
+    dir.create(tmp_exdir)
+    on.exit(nuke_file(tmp_exdir))
 
     ## Untar in <destdir>/tmpexdir/
-    untar2(tarfile, ncbi_name, exdir=tempexdir)
+    untar2(tarfile, ncbi_name, exdir=tmp_exdir)
 
     ## Get IgBLAST rootbasename and version.
     rootbasename <- .infer_igblast_rootbasename_from_ncbi_name(ncbi_name)
@@ -53,8 +53,8 @@ extract_igblast_tarball <- function(tarfile, ncbi_name, destdir=".")
     ## Move <destdir>/tmpexdir/<rootbasename> (newdir)
     ## to <destdir>/<version> (olddir) after nuking the latter if needed.
     olddir <- file.path(destdir, version)
-    newdir <- file.path(tempexdir, rootbasename)
-    replace_file(olddir, newdir)
+    newdir <- file.path(tmp_exdir, rootbasename)
+    rename_file(newdir, olddir, replace=TRUE)
 }
 
 
@@ -108,7 +108,7 @@ extract_igblast_dmg <- function(dmgfile, ncbi_name, destdir=".")
     .full_expand_pkgfile(pkg_path, expand_dir)
     olddir <- file.path(destdir, version)
     newdir <- file.path(expand_dir, "binaries.pkg", "Payload")
-    replace_file(olddir, newdir)
-    unlink(expand_dir, recursive=TRUE, force=TRUE)
+    rename_file(newdir, olddir, replace=TRUE)
+    nuke_file(expand_dir)
 }
 

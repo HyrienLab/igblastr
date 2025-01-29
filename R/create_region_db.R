@@ -1,5 +1,5 @@
 ### =========================================================================
-### create_IMGT_region_db()
+### create_region_db()
 ### -------------------------------------------------------------------------
 ###
 ### Nothing in this file is exported.
@@ -7,20 +7,21 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### .combine_and_edit_IMGT_fasta_files()
+### .combine_and_edit_fasta_files()
 ###
 
-### Workhorse behind create_IMGT_region_db().
+### Workhorse behind create_region_db().
 ###
 ### See procedure described at
 ###   https://ncbi.github.io/igblast/cook/How-to-set-up.html
 ### for how to create a germline or C-region db from the FASTA files
-### available at IMGT.
+### available at IMGT. Note that the same procedure can be applied to
+### the FASTA files available at AIRR-community/OGRDB.
 ### This is a 3-step procedure: (1) combine, (2) edit, (3) compile.
-### The .combine_and_edit_IMGT_fasta_files() function below implements
+### The .combine_and_edit_fasta_files() function below implements
 ### steps (1) and (2). Perl is required for step (2).
 ### Compilation (with makeblastdb) will happen at a latter time.
-.combine_and_edit_IMGT_fasta_files <-
+.combine_and_edit_fasta_files <-
     function(fasta_files, destdir, edit_fasta_script,
              region_type=c("V", "D", "J", "C"))
 {
@@ -57,25 +58,26 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### create_IMGT_region_db()
+### create_region_db()
 ###
 
 ### Perl required!
 ###
-### Creates a "region db" (V-, D-, J-, or C-region) from FASTA files obtained
-### from IMGT for a given organism. See .combine_and_edit_IMGT_fasta_files()
-### above in this file for the workhorse behind create_IMGT_region_db().
-### 'destdir' must be the path to an existing directory that is writable.
+### Creates a "region db" (V-, D-, J-, or C-region) from a collection of
+### FASTA files (typically obtained from IMGT or AIRR-community/OGRDB) for
+### a given organism.
+### See .combine_and_edit_fasta_files() above in this file for the workhorse
+### behind create_region_db().
+### 'destdir' must be the path to a writable directory that already exists!
 ### The following subdirectory and files will be added to 'destdir':
-###   - V_original_fasta/: subdirectory containing all the V regions;
-###         one FASTA file per region; all files obtained from IMGT and
-###         copied here as-is;
+###   - V_original_fasta/: subdirectory containing the input FASTA files
+###         corresponding to the V regions, one FASTA file per region;
 ###   - V.fasta: the combined and edited FASTA file produced by calling
-###         .combine_and_edit_IMGT_fasta_files() on the original FASTA files,
+###         .combine_and_edit_fasta_files() on the files in V_original_fasta/,
 ###         with allele names disambiguated if needed.
-create_IMGT_region_db <- function(fasta_files, destdir,
-                                  region_type=c("V", "D", "J", "C"),
-                                  edit_fasta_script=NULL)
+create_region_db <- function(fasta_files, destdir,
+                             region_type=c("V", "D", "J", "C"),
+                             edit_fasta_script=NULL)
 {
     if (!is.character(fasta_files) || anyNA(fasta_files))
         stop(wmsg("'fasta_files' must be a character vector with no NAs"))
@@ -99,8 +101,8 @@ create_IMGT_region_db <- function(fasta_files, destdir,
 
     ## Combine and edit the original fasta files.
     original_files <- list.files(original_fasta_path, full.names=TRUE)
-    .combine_and_edit_IMGT_fasta_files(original_files, destdir,
-                                       edit_fasta_script,
-                                       region_type=region_type)
+    .combine_and_edit_fasta_files(original_files, destdir,
+                                  edit_fasta_script,
+                                  region_type=region_type)
 }
 
