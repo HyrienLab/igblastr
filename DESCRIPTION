@@ -7,7 +7,7 @@ Description: The igblastr package provides functions to conveniently install
 	Note that the package is still a WORK-IN-PROGRESS! Please use
 	<https://github.com/hpages/igblastr/issues> to report bugs,
 	provide feedback, request features, etc...
-Version: 0.2.7
+Version: 0.3.0
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(

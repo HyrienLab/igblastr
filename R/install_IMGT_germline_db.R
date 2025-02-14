@@ -21,10 +21,24 @@ list_IMGT_releases <- function(recache=FALSE)
 ### install_IMGT_germline_db()
 ###
 
+.path_to_IMGT_local_store <- function(release=NULL)
+{
+    local_store <- file.path(igblastr_cache(), "store", "IMGT-releases")
+    if (!is.null(release)) {
+        stopifnot(isSingleNonWhiteString(release))
+        local_store <- file.path(local_store, release)
+    }
+    local_store
+}
+
 .validate_IMGT_release <- function(release)
 {
     if (!isSingleNonWhiteString(release))
         stop(wmsg("'release' must be a single (non-empty) string"))
+    ## First we try offline validation by checking the IMGT local store.
+    if (dir.exists(.path_to_IMGT_local_store(release)))
+        return(release)
+    ## Off-line validation above failed so we try online validation.
     all_releases <- list_IMGT_releases()
     if (!(release %in% all_releases)) {
         stop(wmsg("\"", release, "\" is not a valid IMGT/V-QUEST release."),
@@ -34,11 +48,6 @@ list_IMGT_releases <- function(recache=FALSE)
                   "all releases."))
     }
     release
-}
-
-.get_IMGT_release_local_store <- function(release)
-{
-    file.path(igblastr_cache(), "store", "IMGT-releases", release)
 }
 
 ### Requires Perl.
@@ -63,12 +72,12 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
         stop(wmsg("'force' must be TRUE or FALSE"))
 
     ## Download IMGT/V-QUEST release to local store if it's not there already.
-    local_store <- .get_IMGT_release_local_store(release)
+    local_store <- .path_to_IMGT_local_store(release)
     if (!dir.exists(local_store))
         download_and_unzip_IMGT_release(release, local_store, ...)
 
     ## Compute 'organism_path' and 'db_name'.
-    organism_path <- find_organism_in_IMGT_store(organism, local_store)
+    organism_path <- find_organism_in_IMGT_local_store(organism, local_store)
     organism <- basename(organism_path)
     db_name <- form_IMGT_germline_db_name(release, organism)
 

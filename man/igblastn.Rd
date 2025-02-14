@@ -15,7 +15,7 @@
 }
 
 \usage{
-igblastn(query, outfmt=7, parse.out=TRUE,
+igblastn(query, outfmt="AIRR", parse.out=TRUE,
          organism="auto",
          germline_db_V_seqidlist=NULL,
          germline_db_D_seqidlist=NULL,
@@ -28,12 +28,17 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
 
 \arguments{
   \item{query}{
-    A single string containing the path to a FASTA file with your
-    query sequences. Alternatively \code{query} can be a named
+    A single string that is the path to the FASTA file containing
+    the query sequences. Alternatively \code{query} can be a named
     \link[Biostrings]{DNAStringSet} object.
   }
   \item{outfmt}{
-    TODO
+    One of \code{"AIRR"}, \code{3}, \code{4}, \code{7}, or \code{19}.
+    \code{"AIRR"} is the default and is an alias for \code{19}.
+    \code{outfmt} can also be a string describing a customized format 7
+    e.g. \code{"7 qseqid sseqid pident nident length score"}.
+    See \code{?\link{list_outfmt7_specifiers}} for more information about
+    customizing format 7.
   }
   \item{parse.out}{
     TODO
@@ -81,6 +86,9 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
 
 \seealso{
   \itemize{
+    \item IgBLAST is described at
+          \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
+
     \item \code{\link{install_igblast}} to perform an \emph{internal}
           IgBLAST installation.
 
@@ -96,14 +104,17 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     \item \code{\link{use_c_region_db}} to select the local C-region db
           to use with \code{igblastn()}.
 
-    \item \link[Biostrings]{DNAStringSet} objects implemented in the
-          \pkg{Biostrings} package.
+    \item \code{\link{list_outfmt7_specifiers}} for how to customize
+          output format 7.
 
     \item \code{\link{list_igblast_organisms}()} to list the organisms
           supported by IgBLAST.
 
-    \item IgBLAST is described at
-          \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
+    \item \link[Biostrings]{DNAStringSet} objects implemented in the
+          \pkg{Biostrings} package.
+
+    \item \link[tibble]{tibble} objects implemented in the
+          \pkg{tibble} package.
   }
 }
 
@@ -111,7 +122,7 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
 if (!has_igblast()) install_igblast()
 
 ## ---------------------------------------------------------------------
-## Preliminary steps
+## PRELIMINARY STEPS
 ## ---------------------------------------------------------------------
 
 igblast_info()
@@ -132,12 +143,24 @@ use_germline_db(db_name)
 use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 
 ## ---------------------------------------------------------------------
-## 1st igblastn run
+## FIRST igblastn RUN: GET OUTPUT IN AIRR FORMAT
 ## ---------------------------------------------------------------------
 
-## For this first run we don't specify the 'outfmt' so the output will
-## be in standard format 7:
+## For this first run we don't specify the 'outfmt' argument so output
+## will be in AIRR format:
 out <- igblastn(catnap_bnabs)
+out
+
+## The result is a tibble with one row per query sequence:
+class(out)
+dim(out)
+
+## ---------------------------------------------------------------------
+## SECOND igblastn RUN: GET OUTPUT IN FORMAT 7
+## ---------------------------------------------------------------------
+
+## For this second run we specify 'outfmt=7':
+out <- igblastn(catnap_bnabs, outfmt=7)
 
 ## Output contains one record per query sequence:
 length(out$records)  # 1000
@@ -159,10 +182,10 @@ qseqid(rec1)    # query seq id that this record is associated to
 rec1$hit_table  # data.frame with the standard columns
 
 ## ---------------------------------------------------------------------
-## 2nd igblastn run
+## THIRD igblastn RUN: GET OUTPUT IN CUSTOMIZED FORMAT 7
 ## ---------------------------------------------------------------------
 
-## For this second run we request a customized format 7 by supplying
+## For this third run we request a customized format 7 by supplying
 ## space delimited format specifiers:
 outfmt <- "7 qseqid sseqid pident nident length score"
 out <- igblastn(catnap_bnabs, outfmt=outfmt)

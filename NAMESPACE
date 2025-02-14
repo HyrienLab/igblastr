@@ -91,7 +91,7 @@ export(
     install_AIRR_germline_db,
 
     ## parse_fmt7.R:
-    list_supported_format_specifiers,
+    list_outfmt7_specifiers,
 
     ## igblastn.R:
     igblastn, igblastn_help

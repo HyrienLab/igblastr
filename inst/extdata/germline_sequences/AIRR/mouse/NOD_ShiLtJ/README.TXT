@@ -6,7 +6,7 @@ from AIRR-community/OGRDB for mouse strain NOD/ShiLtJ.
 Note that these FASTA files were obtained programmatically by running the
 following code in the folder on Dec 29, 2024:
 
-    set_names <- c("NOD/ShiLtJ IGH", "NOD/ShiLtJ IGKV", "NOD/ShiLtJ IGLV")
+    set_names <- paste("NOD/ShiLtJ", c("IGH", "IGKV", "IGLV"))
     igblastr:::download_mouse_germline_sequences_from_OGRDB(set_names)
 
 In addition to the FASTA files, this folder has a 'version' file that

@@ -77,7 +77,7 @@
 )
 
 ### Exported.
-list_supported_format_specifiers <- function()
+list_outfmt7_specifiers <- function()
 {
     format_specifiers <- .FMT7FIELDS_IN2OUT_MAP
     class(format_specifiers) <- "format_specifiers"

@@ -159,10 +159,10 @@ download_and_unzip_IMGT_release <- function(release, exdir, ...)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### find_organism_in_IMGT_store()
+### find_organism_in_IMGT_local_store()
 ###
 
-.list_organisms_in_IMGT_store <- function(refdir)
+.list_organisms_in_IMGT_local_store <- function(refdir)
 {
     if (!dir.exists(refdir))
         stop(wmsg("Anomaly: directory ", refdir, " not found"))
@@ -179,10 +179,10 @@ download_and_unzip_IMGT_release <- function(release, exdir, ...)
 ###             └── 202449-1
 ###                 └── IMGT_V-QUEST_reference_directory
 ###                     └──  Homo_sapiens
-find_organism_in_IMGT_store <- function(organism, local_store)
+find_organism_in_IMGT_local_store <- function(organism, local_store)
 {
     refdir <- file.path(local_store, .VQUEST_REFERENCE_DIRECTORY)
-    all_organisms <- .list_organisms_in_IMGT_store(refdir)
+    all_organisms <- .list_organisms_in_IMGT_local_store(refdir)
     idx <- match(tolower(organism), tolower(all_organisms))
     if (!is.na(idx))
         return(file.path(refdir, all_organisms[[idx]]))

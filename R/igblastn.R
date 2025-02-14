@@ -46,8 +46,8 @@
 
 .stop_on_invalid_outfmt <- function()
 {
-    msg1 <- c("'outfmt' must be one of 3, 4, 7, 19, \"AIRR\" (\"AIRR\" ",
-              "is an alias for 19), or a string describing a customized ",
+    msg1 <- c("'outfmt' must be one of \"AIRR\", 3, 4, 7, or 19 (\"AIRR\" ",
+              "is just an alias for 19), or a string describing a customized ",
               "format 7.")
     msg2 <- c("The string describing a customized format 7 must start ",
               "with a 7 followed by the desired hit table fields ",
@@ -56,8 +56,8 @@
               "stands for 'qseqid sseqid pident length mismatch gapopen ",
               "gaps qstart qend sstart send evalue bitscore', which is ",
               "the default.")
-    msg3 <- c("Use list_supported_format_specifiers() to list all supported ",
-              "format specifiers.")
+    msg3 <- c("Use list_outfmt7_specifiers() to list all supported format ",
+              "specifiers.")
     stop(wmsg(msg1), "\n  ", wmsg(msg2), "\n  ", wmsg(msg3))
 }
 
@@ -69,7 +69,7 @@
     user_specifiers <- substr(outfmt, 3L, nchar(outfmt))
     user_specifiers <- strsplit(user_specifiers, " ", fixed=TRUE)[[1L]]
     user_specifiers <- user_specifiers[nzchar(user_specifiers)]
-    supported_specifiers <- c("std", names(list_supported_format_specifiers()))
+    supported_specifiers <- c("std", names(list_outfmt7_specifiers()))
     invalid_specifiers <- setdiff(user_specifiers, supported_specifiers)
     if (length(invalid_specifiers) != 0L) {
         in1string <- paste(invalid_specifiers, collapse=", ")
@@ -81,7 +81,7 @@
 ### customized format 7 e.g. "7 std qseq sseq btop".
 ### See .stop_on_invalid_outfmt() above for more information.
 ### Returns a single string.
-.normarg_outfmt <- function(outfmt=7)
+.normarg_outfmt <- function(outfmt="AIRR")
 {
     if (isSingleNumber(outfmt)) {
         if (!(outfmt %in% c(3, 4, 7, 19)))
@@ -102,12 +102,12 @@
 }
 
 ### Returns 3, 4, 7, or 19.
-.extract_fmt_nb <- function(outfmt)
+.extract_outfmt_nb <- function(outfmt)
 {
     stopifnot(isSingleNonWhiteString(outfmt))
-    fmt_nb <- strsplit(trimws(outfmt), " ", fixed=TRUE)[[1L]][[1L]]
-    stopifnot(fmt_nb %in% c("3", "4", "7", "19"))
-    as.integer(fmt_nb)
+    outfmt_nb <- strsplit(trimws(outfmt), " ", fixed=TRUE)[[1L]][[1L]]
+    stopifnot(outfmt_nb %in% c("3", "4", "7", "19"))
+    as.integer(outfmt_nb)
 }
 
 print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
@@ -250,12 +250,13 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
 ###
 
 ### TODO: Parse output format 3 and 4.
-.parse_igblastn_output <- function(out_file, fmt_nb)
+.parse_igblastn_output <- function(out_file, outfmt_nb)
 {
     out <- readLines(out_file)
-    if (fmt_nb == 7)
+    if (outfmt_nb == 7L)
         return(parse_fmt7(out))
-    warning("parsing of igblastn output format ", fmt_nb, " is not ready yet")
+    warning("parsing of igblastn output format ",
+            outfmt_nb, " is not supported yet")
     class(out) <- "igblastn_raw_output"
     out
 }
@@ -339,7 +340,7 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
     out_file
 }
 
-igblastn <- function(query, outfmt=7, parse.out=TRUE,
+igblastn <- function(query, outfmt="AIRR", parse.out=TRUE,
                      organism="auto",
                      germline_db_V_seqidlist=NULL,
                      germline_db_D_seqidlist=NULL,
@@ -359,7 +360,7 @@ igblastn <- function(query, outfmt=7, parse.out=TRUE,
     c_region_db_name <- use_c_region_db()  # can be ""
     query <- .normarg_query(query)
     outfmt <- .normarg_outfmt(outfmt)
-    fmt_nb <- .extract_fmt_nb(outfmt)
+    outfmt_nb <- .extract_outfmt_nb(outfmt)
     organism <- .normarg_organism(organism, germline_db_name)
     germline_db_args <- .make_igblastn_germline_db_args(germline_db_name)
     germline_db_V_seqidlist <- .normarg_seqidlist(germline_db_V_seqidlist, "V")
@@ -395,7 +396,7 @@ igblastn <- function(query, outfmt=7, parse.out=TRUE,
     ## Run igblastn command.
     out_file <- .run_igblastn(igblast_root, cmd_args)
 
-    if (fmt_nb == 19) {
+    if (outfmt_nb == 19) {
         ## AIRR output format is tabulated.
         AIRR_df <- read.table(out_file, header=TRUE, sep="\t")
         if (show.in.browser)
@@ -412,7 +413,7 @@ igblastn <- function(query, outfmt=7, parse.out=TRUE,
     if (show.in.browser)
         display_local_file_in_browser(out_file)
     if (parse.out) {
-        out <- .parse_igblastn_output(out_file, fmt_nb)
+        out <- .parse_igblastn_output(out_file, outfmt_nb)
     } else {
         out <- readLines(out_file)
         class(out) <- "igblastn_raw_output"
