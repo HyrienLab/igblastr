@@ -23,7 +23,7 @@ list_IMGT_releases <- function(recache=FALSE)
 
 .path_to_IMGT_local_store <- function(release=NULL)
 {
-    local_store <- file.path(igblastr_cache(), "store", "IMGT-releases")
+    local_store <- igblastr_cache(IMGT_LOCAL_STORE)
     if (!is.null(release)) {
         stopifnot(isSingleNonWhiteString(release))
         local_store <- file.path(local_store, release)
@@ -83,8 +83,8 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
 
     ## Create IMGT germline db.
     IG_path <- file.path(organism_path, "IG")
-    germline_dbs <- get_germline_dbs_path(TRUE)  # path guaranteed to exist
-    db_path <- file.path(germline_dbs, db_name)
+    germline_dbs_path <- get_germline_dbs_path(TRUE)  # guaranteed to exist
+    db_path <- file.path(germline_dbs_path, db_name)
     create_germline_db(IG_path, db_path, force=force)
 
     ## Success!

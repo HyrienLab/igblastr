@@ -35,10 +35,10 @@
 ###
 ### Creates a C-region db (constant regions) from a collection of FASTA
 ### files (typically obtained from IMGT) for a given organism.
-###
-### 'destdir' will typically be the path to a subdir of:
-###    <igblastr-cache>/c_region_dbs/
-### This subdir or any of its parent directories don't need to exist yet.
+### Note that 'destdir' will typically be the path to a subdir of the
+### C_REGION_DBS cache compartment (see R/cache-utils.R for details about
+### igblastr's cache organization). This subdir or any of its parent
+### directories don't need to exist yet.
 create_c_region_db <- function(fastadir, destdir, force=FALSE)
 {
     stopifnot(isSingleNonWhiteString(destdir))
@@ -50,10 +50,11 @@ create_c_region_db <- function(fastadir, destdir, force=FALSE)
     fasta_files <- .list_C_fasta_files(fastadir)
     fasta_files <- file.path(fastadir, fasta_files)
 
-    ## We first make the db in a temporary folder, and, if successful, we
-    ## replace 'destdir' with the temporary folder. This achieves atomicity
-    ## and avoids loosing the content of the existing 'destdir' in case
-    ## something goes wrong.
+    ## We first create the db in a temporary folder, and, only if successful,
+    ## replace 'destdir' with the temporary folder. Otherwise we destroy the
+    ## temporary folder and raise an error. This achieves atomicity and avoids
+    ## loosing the content of the existing 'destdir' in case something goes
+    ## wrong.
     tmp_destdir <- tempfile("c_region_db_")
     dir.create(tmp_destdir, recursive=TRUE)
     on.exit(nuke_file(tmp_destdir))

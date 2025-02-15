@@ -13,22 +13,24 @@
 ### However, none of these things are guaranteed to be available at load-time,
 ### especially if it's the first time that the package gets loaded on the user
 ### machine (e.g. right after installing the package from source).
-.create_builtin_germline_dbs <- function(destdir, force=FALSE)
+.create_builtin_germline_dbs <- function(destdir)
 {
-    if (!isSingleNonWhiteString(destdir))
-        stop(wmsg("'destdir' must be a single (non-empty) string"))
-    if (!dir.exists(destdir))
-        stop(wmsg("'destdir' must be the path to an existing directory"))
-    if (!isTRUEorFALSE(force))
-        stop(wmsg("'force' must be TRUE or FALSE"))
+    stopifnot(isSingleNonWhiteString(destdir), !dir.exists(destdir))
+
+    ## We first create the dbs in a temporary folder, and, only if successful,
+    ## rename the temporary folder to 'destdir'. Otherwise we destroy the
+    ## temporary folder and raise an error. This achieves atomicity.
+    tmp_destdir <- tempfile("builtin_germline_dbs_")
+    dir.create(tmp_destdir, recursive=TRUE)
+    on.exit(nuke_file(tmp_destdir))
 
     ## Create AIRR germline db for Human.
     human_path <- system.file(package="igblastr", "extdata",
                               "germline_sequences", "AIRR", "human",
                               mustWork=TRUE)
     db_name <- form_AIRR_germline_db_name(human_path)
-    db_path <- file.path(destdir, db_name)
-    create_germline_db(human_path, db_path, force=force)
+    db_path <- file.path(tmp_destdir, db_name)
+    create_germline_db(human_path, db_path)
 
     ## Create AIRR germline dbs for Mouse strains.
     mouse_path <- system.file(package="igblastr", "extdata",
@@ -38,51 +40,45 @@
     for (strain_path in strain_paths) {
         strain <- basename(strain_path)
         db_name <- form_AIRR_germline_db_name(mouse_path, strain=strain)
-        db_path <- file.path(destdir, db_name)
-        create_germline_db(strain_path, db_path, force=force)
+        db_path <- file.path(tmp_destdir, db_name)
+        create_germline_db(strain_path, db_path)
     }
 
     ## Any other builtin germline dbs to create?
+
+    ## Everyting went fine so we can rename 'tmp_destdir' to 'destdir'.
+    rename_file(tmp_destdir, destdir)
 }
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### get_germline_dbs_path()
-### reset_germline_dbs_cache()
 ### get_germline_db_path()
 ###
 
-### Returns "<igblastr-cache>/germline_dbs".
-### Note that the returned path is guaranteed to exist.
+### Returns path to GERMLINE_DBS cache compartment (see R/cache-utils.R for
+### details about igblastr's cache organization).
+### When 'init.path=TRUE':
+### - if the path to return exists then no further action is performed;
+### - if the path to return does NOT exist then it's created and populated
+###   with the builtin germline dbs.
+### This means that the returned path is only guaranteed to exist
+### when 'init.path' is set to TRUE.
 get_germline_dbs_path <- function(init.path=FALSE)
 {
-    germline_dbs <- file.path(igblastr_cache(), "germline_dbs")
-    if (!dir.exists(germline_dbs) && init.path) {
-        ## We first create the builtin germline dbs in a temporary folder,
-        ## and, if successful, we replace 'germline_dbs' with the temporary
-        ## folder. This achieves atomicity in case something goes wrong.
-        tmp_germline_dbs <- tempfile("germline_dbs_")
-        dir.create(tmp_germline_dbs, recursive=TRUE)
-        on.exit(nuke_file(tmp_germline_dbs))
-        .create_builtin_germline_dbs(tmp_germline_dbs)
-        rename_file(tmp_germline_dbs, germline_dbs, replace=TRUE)
-    }
-    germline_dbs
-}
-
-### Returns the value returned by unlink().
-reset_germline_dbs_cache <- function()
-{
-    germline_dbs <- get_germline_dbs_path()  # path NOT guaranteed to exist
-    nuke_file(germline_dbs)
+    stopifnot(isTRUEorFALSE(init.path))
+    germline_dbs_path <- igblastr_cache(GERMLINE_DBS)
+    if (!dir.exists(germline_dbs_path) && init.path)
+        .create_builtin_germline_dbs(germline_dbs_path)
+    germline_dbs_path
 }
 
 ### Note that the returned path is NOT guaranteed to exist.
 get_germline_db_path <- function(db_name)
 {
     stopifnot(isSingleNonWhiteString(db_name), db_name != "USING")
-    germline_dbs <- get_germline_dbs_path(TRUE)  # path guaranteed to exist
-    file.path(germline_dbs, db_name)             # path NOT guaranteed to exist
+    germline_dbs_path <- get_germline_dbs_path(TRUE)  # guaranteed to exist
+    file.path(germline_dbs_path, db_name)             # NOT guaranteed to exist
 }
 
 
@@ -126,8 +122,8 @@ list_germline_dbs <- function(names.only=FALSE)
 {
     if (!isTRUEorFALSE(names.only))
         stop(wmsg("'names.only' must be TRUE or FALSE"))
-    germline_dbs <- get_germline_dbs_path(TRUE)  # path guaranteed to exist
-    all_db_names <- sort(setdiff(list.files(germline_dbs), "USING"))
+    germline_dbs_path <- get_germline_dbs_path(TRUE)  # guaranteed to exist
+    all_db_names <- sort(setdiff(list.files(germline_dbs_path), "USING"))
     if (names.only)
         return(all_db_names)
     basic_stats <- .tabulate_germline_dbs_by_group(all_db_names)
@@ -138,8 +134,8 @@ list_germline_dbs <- function(names.only=FALSE)
 
 print.germline_dbs_df <- function(x, ...)
 {
-    germline_dbs <- get_germline_dbs_path(TRUE)  # path guaranteed to exist
-    print_dbs_df(x, germline_dbs, what="germline")
+    germline_dbs_path <- get_germline_dbs_path(TRUE)  # guaranteed to exist
+    print_dbs_df(x, germline_dbs_path, what="germline")
 }
 
 
@@ -169,8 +165,8 @@ print.germline_dbs_df <- function(x, ...)
     all_db_names <- list_germline_dbs(TRUE)
     if (length(all_db_names) == 0L)
         .stop_on_no_installed_germline_db_yet()
-    germline_dbs <- get_germline_dbs_path(TRUE)  # path guaranteed to exist
-    db_path <- get_db_in_use(germline_dbs, what="germline")
+    germline_dbs_path <- get_germline_dbs_path(TRUE)  # guaranteed to exist
+    db_path <- get_db_in_use(germline_dbs_path, what="germline")
     if (db_path == "")
         .stop_on_no_selected_germline_db_yet()
     make_blastdbs(db_path)
@@ -202,11 +198,11 @@ use_germline_db <- function(db_name=NULL)
     if (!(db_name %in% all_db_names))
         .stop_on_invalid_germline_db_name(db_name)
 
-    germline_dbs <- get_germline_dbs_path()  # path guaranteed to exist
-    db_path <- file.path(germline_dbs, db_name)
+    germline_dbs_path <- get_germline_dbs_path()  # guaranteed to exist
+    db_path <- file.path(germline_dbs_path, db_name)
     make_blastdbs(db_path)
 
-    using_path <- file.path(germline_dbs, "USING")
+    using_path <- file.path(germline_dbs_path, "USING")
     writeLines(db_name, using_path)
     invisible(db_name)
 }
@@ -255,8 +251,8 @@ load_germline_db <- function(db_name, region_types=NULL)
 ### Not exported!
 clean_germline_blastdbs <- function()
 {
-    germline_dbs <- get_germline_dbs_path()  # path NOT guaranteed to exist
-    if (dir.exists(germline_dbs)) {
+    germline_dbs_path <- get_germline_dbs_path()  # NOT guaranteed to exist
+    if (dir.exists(germline_dbs_path)) {
         all_db_names <- list_germline_dbs(TRUE)
         for (db_name in all_db_names) {
             db_path <- get_germline_db_path(db_name)

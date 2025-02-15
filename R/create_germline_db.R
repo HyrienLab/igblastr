@@ -78,10 +78,10 @@
 ###
 ### A "germline db" is made of three "region dbs": one V-, one D-, and one
 ### J-region db. Calls create_region_db() to create each "region db".
-###
-### 'destdir' will typically be the path to a subdir of:
-###   <igblastr-cache>/germline_dbs/
-### This subdir or any of its parent directories don't need to exist yet.
+### Note that 'destdir' will typically be the path to a subdir of the
+### GERMLINE_DBS cache compartment (see R/cache-utils.R for details about
+### igblastr's cache organization). This subdir or any of its parent
+### directories don't need to exist yet.
 create_germline_db <- function(fastadir, destdir, force=FALSE)
 {
     stopifnot(isSingleNonWhiteString(fastadir),
@@ -94,10 +94,11 @@ create_germline_db <- function(fastadir, destdir, force=FALSE)
         .stop_on_existing_germline_db(destdir)
     edit_fasta_script <- get_edit_imgt_file_Perl_script()
 
-    ## We first make the db in a temporary folder, and, if successful, we
-    ## replace 'destdir' with the temporary folder. This achieves atomicity
-    ## and avoids loosing the content of the existing 'destdir' in case
-    ## something goes wrong.
+    ## We first create the db in a temporary folder, and, only if successful,
+    ## replace 'destdir' with the temporary folder. Otherwise we destroy the
+    ## temporary folder and raise an error. This achieves atomicity and avoids
+    ## loosing the content of the existing 'destdir' in case something goes
+    ## wrong.
     tmp_destdir <- tempfile("germline_db_")
     dir.create(tmp_destdir, recursive=TRUE)
     on.exit(nuke_file(tmp_destdir))

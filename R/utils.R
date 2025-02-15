@@ -71,16 +71,6 @@ strslice <- function(x, width)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### igblastr_cache()
-###
-
-igblastr_cache <- function()
-{
-    getOption("igblastr_cache", R_user_dir("igblastr", "cache"))
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### disambiguate_fasta_seqids()
 ###
 
@@ -353,10 +343,12 @@ has_perl <- function() system_command_works("perl", args="-v")
 system3 <- function(command, outfile, errfile, args=character())
 {
     status <- system2(command, args=args, stdout=outfile, stderr=errfile)
-    errmsg <- readLines(errfile)
-    if (length(errmsg) != 0L)
-        stop(paste(errmsg, collapse="\n"))
-    unlink(errfile)
+    if (file.exists(errfile)) {
+        errmsg <- readLines(errfile)
+        if (length(errmsg) != 0L)
+            stop(paste(errmsg, collapse="\n"))
+        unlink(errfile)
+    }
     if (status != 0) {
         cmd_in_1string <- paste(c(command, args), collapse=" ")
         stop(wmsg("command '", cmd_in_1string, "' failed"))

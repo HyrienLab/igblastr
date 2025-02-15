@@ -132,16 +132,6 @@ make_igblast_exe_path <- function(igblast_root,
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### get_internal_igblast_roots()
-###
-
-get_internal_igblast_roots <- function()
-{
-    file.path(igblastr_cache(), "igblast_roots")
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### Set/get the "internal" (i.e. igblastr-managed) IgBLAST installation
 ### to use
 ###

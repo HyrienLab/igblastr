@@ -27,6 +27,7 @@ Collate:
 	IMGT-utils.R
 	AIRR-utils.R
 	precompiled-igblast-utils.R
+	cache-utils.R
 	get_igblast_root.R
 	igblast_info.R
 	install_igblast.R

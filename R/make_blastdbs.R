@@ -38,7 +38,7 @@
     blastdb_files <- list.files(db_path, pattern=pattern)
     if (length(blastdb_files) == 0L)
         stop(wmsg2("no blastdb files found for the ",
-                   "\"", region_type, "\"-region db in ", db_path, "/"))
+                   region_type, "-region db in ", db_path, "/"))
     expected_filenames <- paste0(region_type, ".", .BLASTDB_SUFFIXES)
     if (setequal(blastdb_files, expected_filenames))
         return(TRUE)
