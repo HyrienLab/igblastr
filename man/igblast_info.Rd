@@ -3,8 +3,9 @@
 \alias{igblast_info}
 
 \alias{has_igblast}
-\alias{igblast_version}
 \alias{list_igblast_organisms}
+\alias{get_igblast_auxiliary_data}
+\alias{igblast_version}
 
 \alias{print.igblast_info}
 
@@ -21,6 +22,14 @@ igblast_info()
 has_igblast()
 igblast_version()
 list_igblast_organisms()
+get_igblast_auxiliary_data(organism)
+}
+
+\arguments{
+  \item{organism}{
+    A single string containing the name of an organism as
+    returned by \code{list_igblast_organisms()}.
+  }
 }
 
 \value{
@@ -37,12 +46,16 @@ list_igblast_organisms()
   Note that this is obtained by simply listing the content of the
   \code{internal_data} directory in the IgBLAST installation
   used by \pkg{igblastr}.
+
+  \code{get_igblast_auxiliary_data()} returns a single string
+  containing the path to the auxiliary data included in the IgBLAST
+  installation used by \pkg{igblastr} for the specified organism.
 }
 
 \seealso{
   \itemize{
     \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          program from R. This is the main function in the \pkg{igblastr}
+          executable from R. This is the main function in the \pkg{igblastr}
           package.
 
     \item \code{\link{install_igblast}} to perform an \emph{internal}
@@ -65,6 +78,8 @@ if (!has_igblast()) install_igblast()
 igblast_info()
 
 list_igblast_organisms()
+
+get_igblast_auxiliary_data("rhesus_monkey")
 }
 
 \keyword{utilities}

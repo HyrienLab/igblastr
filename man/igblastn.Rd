@@ -1,26 +1,22 @@
 \name{igblastn}
 
+\alias{print.igblastn_raw_output}
 \alias{igblastn}
 \alias{igblastn_help}
 
 \title{BLAST for Ig and TCR sequences}
 
 \description{
-  WORK IN PROGRESS!
-  [Please use \url{https://github.com/hpages/igblastr/issues} to report bugs,
-  provide feedback, request features, etc...]
-
-  \code{igblastn()} runs the igblastn program from R. This is the main
-  function in the \pkg{igblastr} package.
+  \code{igblastn()} runs the \emph{igblastn} executable from R. This is
+  the main function in the \pkg{igblastr} package.
 }
 
 \usage{
-igblastn(query, outfmt="AIRR", parse.out=TRUE,
-         organism="auto",
-         germline_db_V_seqidlist=NULL,
-         germline_db_D_seqidlist=NULL,
-         germline_db_J_seqidlist=NULL,
-         ...,
+igblastn(query, outfmt="AIRR", parse.out=TRUE, organism="auto",
+         germline_db_V="auto", germline_db_V_seqidlist=NULL,
+         germline_db_D="auto", germline_db_D_seqidlist=NULL,
+         germline_db_J="auto", germline_db_J_seqidlist=NULL,
+         c_region_db="auto", auxiliary_data=NULL, ...,
          show.in.browser=FALSE, show.command.only=FALSE)
 
 igblastn_help(long.help=FALSE, show.in.browser=FALSE)
@@ -41,47 +37,130 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     customizing format 7.
   }
   \item{parse.out}{
-    TODO
+    Whether the output of the \emph{igblastn} executable should be parsed
+    or not. \code{TRUE} by default. If set to \code{FALSE}, the output is
+    a text that \code{igblastn()} returns in a character vector with one
+    element per line. Note that the character vector has a class attribute
+    \code{"igblastn_raw_output"} on it which allows compact display of the
+    vector via a dedicated \code{print()} method. The class attribute can
+    be dropped with \code{unclass()}.
   }
   \item{organism}{
-    \code{"auto"} (the default), or the organism for your query sequences.
-    Supported organisms include human, mouse, rat, rabbit and
-    rhesus_monkey for Ig and human and mouse for TCR.
-    Use \code{\link{list_igblast_organisms}()} to obtain this list
-    programmatically.
+    \code{"auto"} (the default), or the organism associated with the query
+    sequences. Supported organisms include human, mouse, rat, rabbit and
+    rhesus_monkey. Use \code{\link{list_igblast_organisms}()} to obtain
+    this list programmatically.
 
-    Note that by default (i.e. when \code{organism} is omitted or set to
-    \code{"auto"}), \code{igblastn()} infers the organism from the name
-    of the germline db in use.
+    Note that by default (i.e. when \code{organism} is omitted or set
+    to \code{"auto"}), \code{igblastn()} infers the organism from the
+    name of the local germline db currently selected.
+    See \code{?\link{use_germline_db}} for how to select the local
+    germline db to use with \code{igblastn()}.
+  }
+  \item{germline_db_V}{
+    \code{"auto"} (the default), or the path to a V-region db.
+
+    Note that by default (i.e. when \code{germline_db_V} is omitted or set
+    to \code{"auto"}), \code{igblastn()} uses the V-region db that belongs
+    to the local germline db currently selected.
+    See \code{?\link{use_germline_db}} for how to select the local
+    germline db to use with \code{igblastn()}.
+  }
+  \item{germline_db_D}{
+    Same as \code{germline_db_V} but for the D-region db.
+  }
+  \item{germline_db_J}{
+    Same as \code{germline_db_V} but for the J-region db.
   }
   \item{germline_db_V_seqidlist,
         germline_db_D_seqidlist,
         germline_db_J_seqidlist}{
-    Restrict search of germline database to list of seq ids.
-    Each list of seq ids can be specified either as a character vector
-    of ids or as the path to a file containing seq ids (one id per line).
-    In the latter case, a \code{file} object must be passed to the
-    \code{germline_db_V_seqidlist}, or \code{germline_db_D_seqidlist},
-    or \code{germline_db_J_seqidlist} argument. The \code{file} object
-    will typically be constructed with something like
+    Restrict search of germline database to list of sequence ids.
+    Each list of sequence ids can be specified either as a character vector
+    of ids or as the path to a file containing the sequence ids (one id per
+    line). In the latter case, a \code{file} object must be passed to the
+    \code{germline_db_V_seqidlist}, \code{germline_db_D_seqidlist}, or
+    \code{germline_db_J_seqidlist} argument. The \code{file} object will
+    typically be constructed with something like
     \code{file("path/to/some/file")}.
   }
+  \item{c_region_db}{
+    \code{"auto"} (the default), \code{NULL}, or the path to a C-region db.
+
+    Note that by default (i.e. when \code{c_region_db} is omitted or set
+    to \code{"auto"}), \code{igblastn()} uses the local C-region db
+    currently selected.
+    See \code{?\link{use_c_region_db}} for how to select the local
+    C-region db to use with \code{igblastn()}.
+  }
+  \item{auxiliary_data}{
+    \code{NULL} (the default), or the path to a file containing the coding
+    frame start positions for the sequences in the J-region db.
+
+    IMPORTANT NOTE:
+
+    Unfortunately, \code{igblastn()} can emit a significant number
+    of the following warning when the \code{auxiliary_data} argument
+    is not specified:
+    \preformatted{    Warning: Auxilary data file could not be found}
+    According to \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html},
+    a standard IgBLAST installation -- like the one used by the \pkg{igblastr}
+    package -- is expected to include auxiliary data that is specific to a
+    particular NCBI or IMGT germline db. Unfortunately this means that this
+    data is unlikely to be compatible with the germline db that you are using.
+
+    Note that you can use \code{get_igblast_auxiliary_data()} to obtain
+    the path to the auxiliary data included in the IgBLAST installation
+    used by the \pkg{igblastr} package for a given organism, and set the
+    \code{auxiliary_data} argument to it. This will silence the warnings.
+    However, be aware that if this data is not compatible with the
+    germline db that you are using, which is very likely to be the case,
+    then \code{igblastn()} will NOT return proper frame status or CDR3
+    information (other returned information will still be correct).
+  }
   \item{...}{
-    Extra arguments to be passed to the igblastn program.
+    Extra arguments to be passed to the \emph{igblastn} executable.
   }
   \item{show.in.browser}{
-    TODO
+    For \code{igblastn()}: Whether the output of the \emph{igblastn}
+    executable should also be displayed in the browser or not (in addition
+    to being returned by the \code{igblastn()} function call). \code{FALSE}
+    by default.
+
+    For \code{igblastn_help()}: Whether the help printed by the
+    \emph{igblastn} executable (when called with the -h or -help argument)
+    should be displayed in the browser or not. \code{FALSE} by default.
   }
   \item{show.command.only}{
-    TODO
+    \code{TRUE} or \code{FALSE}. If set to \code{TRUE}, \code{igblastn()}
+    won't call the \emph{igblastn} executable and instead will display
+    the full command that shows how it would have called it. Note that
+    the command is also returned in an invisible character vector.
+    \code{FALSE} by default.
   }
   \item{long.help}{
-    TODO
+    \code{TRUE} or \code{FALSE}. If set to \code{FALSE} (the default),
+    the \emph{igblastn} executable is called with the -h argument.
+    Otherwise, it's called with the -help argument.
   }
 }
 
 \value{
-  TODO
+  \code{igblastn()} captures the output of calling the \emph{igblastn}
+  executable and returns it as:
+  \itemize{
+    \item A \link[tibble]{tibble} with 1 row per query sequence if
+          \code{outfmt} is \code{"AIRR"} or \code{19} and \code{parse.out}
+          is \code{TRUE}.
+    \item A nested list with two top-level components (\code{records}
+          and \code{footer}) if \code{outfmt} is \code{7} (or a customized
+          format 7) and \code{parse.out} is \code{TRUE}.
+          See \code{?\link{parse_outfmt7}} for more information.
+    \item A character vector with class attribute \code{"igblastn_raw_output"}
+          on it in all other cases, that is, if \code{parse.out} is
+          \code{FALSE} or \code{outfmt} is \code{3} or \code{4}.
+          See the \code{parse.out} argument above for more information.
+  }
 }
 
 \seealso{
@@ -122,7 +201,7 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
 if (!has_igblast()) install_igblast()
 
 ## ---------------------------------------------------------------------
-## PRELIMINARY STEPS
+## Preliminary steps
 ## ---------------------------------------------------------------------
 
 igblast_info()
@@ -143,12 +222,15 @@ use_germline_db(db_name)
 use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 
 ## ---------------------------------------------------------------------
-## FIRST igblastn RUN: GET OUTPUT IN AIRR FORMAT
+## Call igblastn()
 ## ---------------------------------------------------------------------
 
-## For this first run we don't specify the 'outfmt' argument so output
-## will be in AIRR format:
-out <- igblastn(catnap_bnabs)
+## We don't specify the 'outfmt' argument so output will be in AIRR format.
+## Since we're not supplying auxiliary data, igblastn() will emit many
+## warnings (see documentation of the 'auxiliary_data' argument above for
+## the details). We silence them by wrapping the call to igblastn() in
+## suppressWarnings().
+out <- suppressWarnings(igblastn(catnap_bnabs))
 out
 
 ## The result is a tibble with one row per query sequence:
@@ -156,44 +238,10 @@ class(out)
 dim(out)
 
 ## ---------------------------------------------------------------------
-## SECOND igblastn RUN: GET OUTPUT IN FORMAT 7
+## More examples
 ## ---------------------------------------------------------------------
 
-## For this second run we specify 'outfmt=7':
-out <- igblastn(catnap_bnabs, outfmt=7)
-
-## Output contains one record per query sequence:
-length(out$records)  # 1000
-
-## Each record has 6 sections (typical) but sometimes only 5 (rare):
-##   1. query_details
-##   2. VDJ_rearrangement_summary
-##   3. VDJ_junction_details
-##   4. subregion_sequence_details (can be missing)
-##   5. alignment_summary
-##   6. hit_table
-
-## Taking a close look at the first record:
-rec1 <- out$records[[1]]
-rec1
-
-qseqid(rec1)    # query seq id that this record is associated to
-
-rec1$hit_table  # data.frame with the standard columns
-
-## ---------------------------------------------------------------------
-## THIRD igblastn RUN: GET OUTPUT IN CUSTOMIZED FORMAT 7
-## ---------------------------------------------------------------------
-
-## For this third run we request a customized format 7 by supplying
-## space delimited format specifiers:
-outfmt <- "7 qseqid sseqid pident nident length score"
-out <- igblastn(catnap_bnabs, outfmt=outfmt)
-
-## Taking a close look at the first record:
-rec1 <- out$records[[1]]
-rec1$hit_table  # data.frame with the requested columns (+ the automatic
-                # "chaintype" column)
+## See '?parse_outfmt7' for more examples.
 }
 
 \keyword{manip}

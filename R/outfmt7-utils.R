@@ -1,5 +1,5 @@
 ### =========================================================================
-### parse_fmt7()
+### Handle igblastn output format 7
 ### -------------------------------------------------------------------------
 ###
 
@@ -14,7 +14,7 @@
     ## Strangely, and unintuitively, 'strwrap(x, width=n)' produces slices
     ## of max width n-1, not n, so we correct for this.
     comment_lines <- strwrap(comment_line, width=width+1L-nchar(comment_prefix))
-    paste0(comment_prefix, trimws(comment_lines))
+    paste0(comment_prefix, trimws2(comment_lines))
 }
 
 
@@ -79,12 +79,12 @@
 ### Exported.
 list_outfmt7_specifiers <- function()
 {
-    format_specifiers <- .FMT7FIELDS_IN2OUT_MAP
-    class(format_specifiers) <- "format_specifiers"
-    format_specifiers
+    outfmt7_specifiers <- .FMT7FIELDS_IN2OUT_MAP
+    class(outfmt7_specifiers) <- "outfmt7_specifiers"
+    outfmt7_specifiers
 }
 
-print.format_specifiers <- function(x, ...)
+print.outfmt7_specifiers <- function(x, ...)
 {
     for (i in seq_along(x))
         cat(sprintf("%13s: %s", names(x)[[i]], x[[i]]), sep="\n")
@@ -175,7 +175,7 @@ print.query_details <- function(x, ...) cat(x, sep="\n")
     summary <- as.list(strsplit(section_lines[[2L]], "\t", fixed=TRUE)[[1L]])
     stopifnot(length(summary) == length(fields))
     names(summary) <- fields
-    attr(summary, "comment_line") <- trimws(section_lines[[1L]])
+    attr(summary, "comment_line") <- trimws2(section_lines[[1L]])
     class(summary) <- "VDJ_rearrangement_summary"
     summary
 }
@@ -214,7 +214,7 @@ print.VDJ_rearrangement_summary <- function(x, ...)
     details <- as.list(strsplit(section_lines[[2L]], "\t", fixed=TRUE)[[1L]])
     stopifnot(length(details) == length(fields))
     names(details) <- fields
-    attr(details, "comment_line") <- trimws(section_lines[[1L]])
+    attr(details, "comment_line") <- trimws2(section_lines[[1L]])
     class(details) <- "VDJ_junction_details"
     details
 }
@@ -236,7 +236,7 @@ print.VDJ_junction_details <- print.VDJ_rearrangement_summary
     fields <- c("sub_region", "nucleotide_sequence", "translation",
                 "start", "end")
     names(details) <- fields
-    attr(details, "comment_line") <- trimws(section_lines[[1L]])
+    attr(details, "comment_line") <- trimws2(section_lines[[1L]])
     class(details) <- "subregion_sequence_details"
     details
 }
@@ -265,7 +265,7 @@ print.subregion_sequence_details <- print.VDJ_rearrangement_summary
     stopifnot(is.character(section_lines),
               which(has_prefix(section_lines, "#")) == 1L)
     summary <-.make_alignment_summary_df(section_lines)
-    attr(summary, "comment_line") <- trimws(section_lines[[1L]])
+    attr(summary, "comment_line") <- trimws2(section_lines[[1L]])
     class(summary) <- c("alignment_summary", class(summary))
     summary
 }
@@ -310,7 +310,8 @@ print.alignment_summary <- function(x, ...)
     table_lines <- section_lines[!has_prefix(section_lines, prefix="#")]
     file <- tempfile()
     writeLines(table_lines, file)
-    read.table(file, sep="\t", col.names=fields, check.names=FALSE)
+    read.table(file, sep="\t", col.names=fields, check.names=FALSE,
+               comment.char="")
 }
 
 .parse_hit_table <- function(section_lines)
@@ -318,7 +319,7 @@ print.alignment_summary <- function(x, ...)
     stopifnot(is.character(section_lines),
               identical(which(has_prefix(section_lines, "#")), 1:3))
     hit_table <- .make_hit_table_df(section_lines)
-    attr(hit_table, "comment_lines") <- trimws(section_lines[1:3])
+    attr(hit_table, "comment_lines") <- trimws2(section_lines[1:3])
     class(hit_table) <- c("hit_table", class(hit_table))
     hit_table
 }
@@ -426,22 +427,27 @@ print.fmt7footer <- function(x, ...) cat(class(x)[[1L]], " object\n", sep="")
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### parse_fmt7()
+### parse_outfmt7()
 ###
 
 .RECORD_SEP <- "# IGBLASTN"
 
 ### Returns a list with 2 components: 'records' and 'footer'.
-parse_fmt7 <- function(out)
+parse_outfmt7 <- function(out)
 {
     footer_start <- grep("^Total queries = ", out)
     stopifnot(length(footer_start) == 1L)
     footer_lines <- out[footer_start:length(out)]
     footer <- .parse_fmt7footer(footer_lines)
 
-    all_record_lines <- out[seq_len(footer_start - 1L)]
+    all_record_lines <- head(out, n=footer_start-1L)
     all_record_starts <- which(all_record_lines == .RECORD_SEP)
-    all_record_ends <- c(all_record_starts[-1L] - 1L, length(all_record_lines))
+    if (length(all_record_starts) == 0L) {
+        all_record_ends <- integer(0)
+    } else {
+        all_record_ends <- c(all_record_starts[-1L] - 1L,
+                             length(all_record_lines))
+    }
     all_record_ranges <- PartitioningByEnd(all_record_ends)
     list_of_records <- lapply(all_record_ranges,
         function(idx) .parse_fmt7record(all_record_lines[idx]))

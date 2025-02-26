@@ -93,7 +93,7 @@ get_germline_db_path <- function(db_name)
     region_types <- c("V", "D", "J")
     all_counts <- lapply(region_types,
         function(region_type) {
-            fasta_file <- file.path(db_path, paste0(region_type, ".fasta"))
+            fasta_file <- get_db_fasta_file(db_path, region_type)
             seqids <- names(fasta.seqlengths(fasta_file))
             counts <- tabulate_germline_seqids_by_group(seqids)
             if (!all(has_suffix(names(counts)[counts != 0L], region_type)))
@@ -238,7 +238,7 @@ load_germline_db <- function(db_name, region_types=NULL)
         .stop_on_invalid_germline_db_name(db_name)
     region_types <- .normarg_region_types(region_types)
     fasta_files <- vapply(region_types,
-        function(type) file.path(db_path, paste0(type, ".fasta")),
+        function(region_type) get_db_fasta_file(db_path, region_type),
         character(1), USE.NAMES=FALSE)
     readDNAStringSet(fasta_files)
 }

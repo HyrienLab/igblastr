@@ -7,7 +7,7 @@ Description: The igblastr package provides functions to conveniently install
 	Note that the package is still a WORK-IN-PROGRESS! Please use
 	<https://github.com/hpages/igblastr/issues> to report bugs,
 	provide feedback, request features, etc...
-Version: 0.3.0
+Version: 0.3.1
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
@@ -39,6 +39,7 @@ Collate:
 	list_c_region_dbs.R
 	install_IMGT_germline_db.R
 	install_AIRR_germline_db.R
-	parse_fmt7.R
+	igblastn-args-utils.R
+	outfmt7-utils.R
 	igblastn.R
 	zzz.R

@@ -27,7 +27,32 @@ load_package_gracefully <- function(package, ...)
 
 ### "\xc2\xa0" is some kind of weird white space that sometimes creeps
 ### in when scrapping dirty HTML documents found on the internet.
-is_white_str <- function(x) grepl("^\\s*$", x) | x == "\xc2\xa0"
+.WHITESPACES <- c(" ", "\t", "\r", "\n", "\xc2\xa0")
+
+### Vectorized. Note that NAs do **not** get propagated. NA elements in 'x'
+### produce FALSE elements in the output.
+has_whitespace <- function(x)
+{
+    stopifnot(is.character(x))
+    pattern <- paste0("[", paste(.WHITESPACES, collapse=""), "]")
+    grepl(pattern, x, perl=TRUE)
+}
+
+### A simple wrapper to base::trimws() that starts by replacing **all**
+### whitespaces in 'x' with regular spaces (" "), even non-leading
+### and non-trailing whitespaces.
+### Like 'base::trimws()', trimws2() is vectorized and propagates NAs.
+trimws2 <- function(x)
+{
+    stopifnot(is.character(x))
+    old <- paste(.WHITESPACES, collapse="")
+    new <- strrep(" ", nchar(old))
+    trimws(chartr(old, new, x), whitespace=" ")
+}
+
+### Vectorized. Note that NAs do **not** get propagated. NA elements in 'x'
+### produce FALSE elements in the output.
+is_white_str <- function(x) !nzchar(trimws2(x))
 
 isSingleNonWhiteString <- function(x) isSingleString(x) && !is_white_str(x)
 
@@ -178,7 +203,7 @@ read_version_file <- function(dirpath)
     version <- readLines(version_path)
     if (length(version) != 1L)
         stop(wmsg("file '", version_path, "' should contain exactly one line"))
-    version <- trimws(version)
+    version <- trimws2(version)
     if (version == "")
         stop(wmsg("file '", version_path, "' contains only white spaces"))
     version
@@ -242,6 +267,19 @@ print_dbs_df <- function(dbs_df, dbs_path, what=c("germline", "C-region"))
     colnames(dbs_df)[[1L]] <- col1[[1L]]
     ## Do not print the row names.
     print(dbs_df, row.names=FALSE)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### get_db_fasta_file()
+###
+
+### Note that the returned path is NOT guaranteed to exist.
+get_db_fasta_file <- function(db_path, region_type=c("V", "D", "J", "C"))
+{
+    stopifnot(isSingleNonWhiteString(db_path))
+    region_type <- match.arg(region_type)
+    file.path(db_path, paste0(region_type, ".fasta"))
 }
 
 

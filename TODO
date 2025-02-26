@@ -1,6 +1,15 @@
-- Check support for Macaque.
+- How do we address the auxiliary data mess? See 'auxiliary_data' argument
+  in '?igblastn'.
 
-- Users should be able to specify their own local germline dbs.
+- The user should be able to specify their own output file when calling
+  igblastn(), maybe via a new explicit argument called 'out' (the output
+  file is controlled via the -out argument of the igblastn executable).
+  Note that:
+    * The output file will always contain the raw output (i.e.
+      unparsed output).
+    * If 'show.command.only' then 'out' is ignored.
+
+- Check support for Macaque.
 
 - Figure out a way to automatically stamp AIRR germline dbs with a
   version number that allows to go back in time when needed.
@@ -8,20 +17,17 @@
 - One should be able to pass the name of a IMGT germline db to
   install_IMGT_germline_db(), or a vector of names.
 
-- Make 'num_threads' an  explicit argument with default to 4. The doc should
+- Improve outfmt7-utils.Rd man page (e.g. document customized format 7
+  and list_outfmt7_specifiers()) as well as associated unit tests (in
+  tests/testthat/test-outfmt7-utils.R).
+
+- Make 'num_threads' an explicit argument with default to 4. The doc should
   show how to specify a higher but still reasonable custom value based on
   detectCores().
 
 - Parse $footer part of output format 7.
 
-- Add unit tests for all the stuff implemented in parse_fmt7.R
-
-- Add man page for list_outfmt7_specifiers() and all the other exported
-  symbols defined in parse_fmt7.R
-
 - Implement parsing of output formats 3 and 4?
-
-- Complete igblastn()'s man page.
 
 - Set environment variable IGDATA to point to the internal_data directory.
   Note that IGDATA must be set to the **parent** directory of the internal_data
@@ -63,8 +69,6 @@
 
 - Implement install_AIRR_germline_db(). Will download the germline sequences
   from https://ogrdb.airr-community.org/ (link provided by Kellie).
-
-- Add unit tests.
 
 - Add vignette.
 

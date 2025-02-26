@@ -1,6 +1,7 @@
 \name{list_germline_dbs}
 
 \alias{list_germline_dbs}
+\alias{print.germline_dbs_df}
 \alias{use_germline_db}
 \alias{load_germline_db}
 
@@ -109,7 +110,7 @@ load_germline_db(db_name, region_types=NULL)
 \seealso{
   \itemize{
     \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          program from R. This is the main function in the \pkg{igblastr}
+          executable from R. This is the main function in the \pkg{igblastr}
           package.
 
     \item \code{\link{install_IMGT_germline_db}} to install a germline db

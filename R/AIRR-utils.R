@@ -270,7 +270,7 @@ download_human_germline_sequences_from_OGRDB <-
 {
     if (!is.character(set_names) || anyNA(set_names))
         stop(wmsg("'set_names' must be a character vector with no NAs"))
-    set_names <- trimws(set_names)
+    set_names <- trimws2(set_names)
     if (anyDuplicated(set_names))
         stop(wmsg("'set_names' cannot contain duplicates"))
     FORBIDDEN_SET_NAMES <- c("IGKJ (all strains)", "IGLJ (all strains)")

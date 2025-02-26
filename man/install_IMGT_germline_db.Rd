@@ -14,9 +14,9 @@
   Note that \code{install_IMGT_germline_db()} generates the
   local database by performing the instructions provided at
   \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html}.
-  In particular, utility tool edit_imgt_file.pl (Perl script included
-  in the IgBLAST installation) is invoked to process the sequences.
-  This means that Perl must be available on your machine.
+  In particular, utility tool \emph{edit_imgt_file.pl} (Perl script
+  included in the IgBLAST installation) is invoked to process the
+  sequences. This means that Perl must be available on your machine.
 }
 
 \usage{
@@ -42,7 +42,8 @@ list_IMGT_releases(recache=FALSE)
   }
   \item{...}{
     Extra arguments to be passed to the internal call to \code{download.file()}.
-    See \code{?download.file} in the \pkg{utils} package for more information.
+    See \code{?\link[utils]{download.file}} in the \pkg{utils} package for
+    more information.
   }
   \item{recache}{
     \code{list_IMGT_releases()} uses a caching mechanism so that the
@@ -66,7 +67,7 @@ list_IMGT_releases(recache=FALSE)
 \seealso{
   \itemize{
     \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          program from R. This is the main function in the \pkg{igblastr}
+          executable from R. This is the main function in the \pkg{igblastr}
           package.
 
     \item \code{\link{use_germline_db}} to select the local germline db

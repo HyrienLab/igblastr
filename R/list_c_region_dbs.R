@@ -82,7 +82,7 @@ get_c_region_db_path <- function(db_name)
 .tabulate_c_region_db_by_locus <- function(db_name)
 {
     db_path <- get_c_region_db_path(db_name)
-    fasta_file <- file.path(db_path, "C.fasta")
+    fasta_file <- get_db_fasta_file(db_path, "C")
     seqids <- names(fasta.seqlengths(fasta_file))
     tabulate_c_region_seqids_by_locus(seqids)
 }
@@ -183,7 +183,7 @@ load_c_region_db <- function(db_name)
     db_path <- get_c_region_db_path(db_name)
     if (!dir.exists(db_path))
         .stop_on_invalid_c_region_db_name(db_name)
-    fasta_file <- file.path(db_path, "C.fasta")
+    fasta_file <- get_db_fasta_file(db_path, "C")
     readDNAStringSet(fasta_file)
 }
 

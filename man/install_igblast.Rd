@@ -42,7 +42,7 @@ install_igblast(release="LATEST", force=FALSE, ...)
 \seealso{
   \itemize{
     \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          program from R. This is the main function in the \pkg{igblastr}
+          executable from R. This is the main function in the \pkg{igblastr}
           package.
 
     \item \link{IGBLAST_ROOT} to use an \emph{external} IgBLAST installation.

@@ -52,7 +52,7 @@ set_igblast_root(version_or_path)
 \seealso{
   \itemize{
     \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          program from R. This is the main function in the \pkg{igblastr}
+          executable from R. This is the main function in the \pkg{igblastr}
           package.
 
     \item \code{\link{install_igblast}} to perform an \emph{internal}

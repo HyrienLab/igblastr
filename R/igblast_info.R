@@ -16,8 +16,47 @@ has_igblast <- function()
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### igblast_version()
 ### list_igblast_organisms()
+### get_igblast_auxiliary_data()
+###
+
+list_igblast_organisms <- function()
+{
+    igblast_root <- get_igblast_root()
+    internal_data <- file.path(igblast_root, "internal_data")
+    if (!dir.exists(internal_data))
+        return(character(0))
+    list.files(internal_data)
+}
+
+### Not exported!
+normalize_igblast_organism <- function(organism)
+{
+    if (!isSingleNonWhiteString(organism))
+        stop(wmsg("'organism' must be a single (non-empty) string"))
+    all_organisms <- list_igblast_organisms()
+    organism <- tolower(organism)
+    if (!(organism %in% list_igblast_organisms())) {
+        all_in_1string <- paste0("\"", all_organisms, "\"", collapse=", ")
+        stop(wmsg("'organism' must be one of ", all_in_1string))
+    }
+    organism
+}
+
+get_igblast_auxiliary_data <- function(organism)
+{
+    organism <- normalize_igblast_organism(organism)
+    igblast_root <- get_igblast_root()
+    dirpath <- file.path(igblast_root, "optional_file")
+    auxiliary_data <- file.path(dirpath, paste0(organism, "_gl.aux"))
+    if (!file.exists(auxiliary_data))
+        stop(wmsg("no auxiliary data found in ", dirpath, " for ", organism))
+    auxiliary_data
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### igblast_version()
 ### igblast_info()
 ###
 
@@ -31,15 +70,6 @@ igblast_version <- function()
     igblastn_exe <- get_igblast_exe("igblastn")
     out <- system2(igblastn_exe, "-version", stdout=TRUE)
     .extract_version_from_cmd_output(out)
-}
-
-list_igblast_organisms <- function()
-{
-    igblast_root <- get_igblast_root()
-    internal_data <- file.path(igblast_root, "internal_data")
-    if (!dir.exists(internal_data))
-        return(character(0))
-    list.files(internal_data)
 }
 
 print.igblast_info <- function(x, ...)

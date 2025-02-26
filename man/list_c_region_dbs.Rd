@@ -1,6 +1,7 @@
 \name{list_c_region_dbs}
 
 \alias{list_c_region_dbs}
+\alias{print.c_region_dbs_df}
 \alias{use_c_region_db}
 \alias{load_c_region_db}
 
@@ -104,7 +105,7 @@ load_c_region_db(db_name)
 \seealso{
   \itemize{
     \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          program from R. This is the main function in the \pkg{igblastr}
+          executable from R. This is the main function in the \pkg{igblastr}
           package.
 
     \item \code{\link{use_germline_db}} to select the local germline db
