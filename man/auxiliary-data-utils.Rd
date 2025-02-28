@@ -43,7 +43,8 @@ load_igblast_auxiliary_data(organism)
   data.frame with 1 row per germline J sequence and the following columns:
   \enumerate{
     \item \code{sseqid}: gene/allele name a.k.a. subject sequence id;
-    \item \code{coding_frame_start}: first coding frame start position;
+    \item \code{coding_frame_start}: first coding frame start
+          position (position is 0-based);
     \item \code{chaintype}: chain type;
     \item \code{CDR3_stop}: CDR3 stop;
     \item \code{extra_bps}: extra base pairs beyond J coding end.
@@ -91,8 +92,10 @@ list_igblast_organisms()
 ## data below with igblastn()!
 
 get_igblast_auxiliary_data("human")
-
 load_igblast_auxiliary_data("human")
+
+get_igblast_auxiliary_data("rhesus_monkey")
+load_igblast_auxiliary_data("rhesus_monkey")
 }
 
 \keyword{utilities}
