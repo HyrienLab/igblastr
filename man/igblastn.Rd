@@ -94,8 +94,8 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     C-region db to use with \code{igblastn()}.
   }
   \item{auxiliary_data}{
-    \code{NULL} (the default), or the path to a file containing the coding
-    frame start positions for the sequences in the J-region db.
+    \code{NULL} (the default), or the path to a file containing the
+    coding frame start positions for the sequences in the J-region db.
 
     IMPORTANT NOTE:
 
@@ -103,19 +103,16 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     of the following warning when the \code{auxiliary_data} argument
     is not specified:
     \preformatted{    Warning: Auxilary data file could not be found}
-    According to \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html},
-    a standard IgBLAST installation -- like the one used by the \pkg{igblastr}
-    package -- is expected to include auxiliary data that is specific to a
-    particular NCBI or IMGT germline db. Unfortunately this means that this
-    data is unlikely to be compatible with the germline db that you are using.
+    Note that you can use \code{\link{get_igblast_auxiliary_data}()} to
+    obtain the path to the auxiliary data included in the IgBLAST
+    installation used by the \pkg{igblastr} package for a given organism,
+    and pass the returned path to the \code{auxiliary_data} argument.
+    This will silence the annoying warnings. However, be aware that this
+    data is NOT guaranteed to be compatible with the germline db that you
+    are using. See \code{?\link{get_igblast_auxiliary_data}} for the details.
 
-    Note that you can use \code{get_igblast_auxiliary_data()} to obtain
-    the path to the auxiliary data included in the IgBLAST installation
-    used by the \pkg{igblastr} package for a given organism, and set the
-    \code{auxiliary_data} argument to it. This will silence the warnings.
-    However, be aware that if this data is not compatible with the
-    germline db that you are using, which is very likely to be the case,
-    then \code{igblastn()} will NOT return proper frame status or CDR3
+    If you supply auxiliary data that is not compatible with your germline
+    dbs, then \code{igblastn()} will NOT return proper frame status or CDR3
     information (other returned information will still be correct).
   }
   \item{...}{

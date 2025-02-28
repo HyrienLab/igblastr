@@ -17,7 +17,6 @@ has_igblast <- function()
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### list_igblast_organisms()
-### get_igblast_auxiliary_data()
 ###
 
 list_igblast_organisms <- function()
@@ -41,17 +40,6 @@ normalize_igblast_organism <- function(organism)
         stop(wmsg("'organism' must be one of ", all_in_1string))
     }
     organism
-}
-
-get_igblast_auxiliary_data <- function(organism)
-{
-    organism <- normalize_igblast_organism(organism)
-    igblast_root <- get_igblast_root()
-    dirpath <- file.path(igblast_root, "optional_file")
-    auxiliary_data <- file.path(dirpath, paste0(organism, "_gl.aux"))
-    if (!file.exists(auxiliary_data))
-        stop(wmsg("no auxiliary data found in ", dirpath, " for ", organism))
-    auxiliary_data
 }
 
 

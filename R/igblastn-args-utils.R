@@ -224,7 +224,7 @@
 ### .extra_args_as_named_character()
 ###
 
-### Turns extra args into a named character vector.
+### Turns extra args into a named character vector with no NAs.
 .extra_args_as_named_character <- function(...)
 {
     xargs <- list(...)
@@ -239,7 +239,37 @@
     if (dupidx != 0L)
         stop(wmsg("argument '", xargs_names[[dupidx]], "' ",
                   "is defined more than once"))
+    ## as.character() seems to ba able to handle any list, even nested ones,
+    ## and to always return a character vector parallel to the input list.
+    ## That is, it always produces a character vector with one element per
+    ## top-level element in the input list. Also it doesn't propagate NAs as
+    ## such but turns them into the "NA" string instead.
     setNames(as.character(xargs), xargs_names)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### .check_igblastn_extra_args()
+###
+
+### 'xargs' must be a named character vector as returned by
+### .extra_args_as_named_character() above.
+.check_igblastn_extra_args <- function(xargs)
+{
+    stopifnot(is.character(xargs), !anyNA(xargs))
+    xargs_names <- names(xargs)
+    stopifnot(!is.null(xargs_names), !anyDuplicated(xargs_names))
+
+    todo_url <- "https://github.com/hpages/igblastr/blob/devel/TODO"
+
+    ## Check 'ig_seqtype' arg (see TODO file for the details).
+    idx <- match("ig_seqtype", xargs_names)
+    if (!is.na(idx)) {
+        ig_seqtype <- xargs[[idx]]
+        if (ig_seqtype == "TCR")
+            stop(wmsg("'ig_seqtype=\"TCR\"' is not supported ",
+                      "at the moment (see ", todo_url, ")"))
+    }
 }
 
 
@@ -283,7 +313,9 @@ make_igblastn_command_line_args <-
                   c_region_db=c_region_db,
                   auxiliary_data=auxiliary_data)
 
-    c(cmd_args, .extra_args_as_named_character(...))
+    xargs <- .extra_args_as_named_character(...)
+    .check_igblastn_extra_args(xargs)
+    c(cmd_args, xargs)
 }
 
 

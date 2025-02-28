@@ -21,6 +21,17 @@
   and list_outfmt7_specifiers()) as well as associated unit tests (in
   tests/testthat/test-outfmt7-utils.R).
 
+- igblastn() only supports 'ig_seqtype="Ig"' (the default) at the moment.
+  Do we also want to suport 'ig_seqtype="TCR"'? What would it take to properly
+  support this option? As a starter it seems that the user would need to be
+  able to supply germline and constant dbs based on TCR sequences instead
+  of Ig sequences, like the germline sequences provided here:
+    https://www.imgt.org/download/V-QUEST/IMGT_V-QUEST_reference_directory/Homo_sapiens/TR/
+  and the constant sequences provided here (see last table on the page,
+  i.e. bottom-right table):
+    https://www.imgt.org/vquest/refseqh.html#constant-sets
+  What else would it take to properly support 'ig_seqtype="TCR"'?
+
 - Make 'num_threads' an explicit argument with default to 4. The doc should
   show how to specify a higher but still reasonable custom value based on
   detectCores().

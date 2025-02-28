@@ -3,9 +3,8 @@
 \alias{igblast_info}
 
 \alias{has_igblast}
-\alias{list_igblast_organisms}
-\alias{get_igblast_auxiliary_data}
 \alias{igblast_version}
+\alias{list_igblast_organisms}
 
 \alias{print.igblast_info}
 
@@ -22,14 +21,6 @@ igblast_info()
 has_igblast()
 igblast_version()
 list_igblast_organisms()
-get_igblast_auxiliary_data(organism)
-}
-
-\arguments{
-  \item{organism}{
-    A single string containing the name of an organism as
-    returned by \code{list_igblast_organisms()}.
-  }
 }
 
 \value{
@@ -46,10 +37,6 @@ get_igblast_auxiliary_data(organism)
   Note that this is obtained by simply listing the content of the
   \code{internal_data} directory in the IgBLAST installation
   used by \pkg{igblastr}.
-
-  \code{get_igblast_auxiliary_data()} returns a single string
-  containing the path to the auxiliary data included in the IgBLAST
-  installation used by \pkg{igblastr} for the specified organism.
 }
 
 \seealso{
@@ -78,8 +65,6 @@ if (!has_igblast()) install_igblast()
 igblast_info()
 
 list_igblast_organisms()
-
-get_igblast_auxiliary_data("rhesus_monkey")
 }
 
 \keyword{utilities}
