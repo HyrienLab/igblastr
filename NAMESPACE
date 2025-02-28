@@ -74,6 +74,7 @@ export(
 
     ## auxiliary-data-utils.R:
     get_igblast_auxiliary_data,
+    load_igblast_auxiliary_data,
 
     ## install_igblast.R:
     install_igblast,

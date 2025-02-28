@@ -4,6 +4,7 @@
 \alias{auxiliary_data_utils}
 
 \alias{get_igblast_auxiliary_data}
+\alias{load_igblast_auxiliary_data}
 
 \title{Manipulation of IgBLAST auxiliary data}
 
@@ -22,6 +23,7 @@
 
 \usage{
 get_igblast_auxiliary_data(organism)
+load_igblast_auxiliary_data(organism)
 }
 
 \arguments{
@@ -31,22 +33,31 @@ get_igblast_auxiliary_data(organism)
   }
 }
 
-\details{
-  WARNING: According to
-  \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html}
+\value{
+  \code{get_igblast_auxiliary_data()}: Returns a single string containing
+  the path to the auxiliary data included in the IgBLAST installation used
+  by \pkg{igblastr}, for the specified organism. Not necessarily suitable
+  to use with \code{\link{igblastn}()} (see WARNING below).
+
+  \code{load_igblast_auxiliary_data()}: Returns the auxiliary data in a
+  data.frame with 1 row per germline J sequence and the following columns:
+  \enumerate{
+    \item \code{sseqid}: gene/allele name a.k.a. subject sequence id;
+    \item \code{coding_frame_start}: first coding frame start position;
+    \item \code{chaintype}: chain type;
+    \item \code{CDR3_stop}: CDR3 stop;
+    \item \code{extra_bps}: extra base pairs beyond J coding end.
+  }
+}
+
+\section{WARNING}{
+  According to \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html}
   the auxiliary data included in IgBLAST is specific to a particular
   NCBI or IMGT germline db. Unfortunately this means that this data is
   NOT guaranteed to be compatible with the germline db that you will
   use with \code{\link{igblastn}()}. See documentation of the
   \code{auxiliary_data} argument in \code{?\link{igblastn}} for
   more information about this.
-}
-
-\value{
-  Returns a single string containing the path to the auxiliary data
-  included in the IgBLAST installation used by \pkg{igblastr}, for
-  the specified organism. Not necessarily suitable to use with
-  \code{\link{igblastn}()} (see above WARNING).
 }
 
 \seealso{
@@ -76,10 +87,12 @@ igblast_info()
 
 list_igblast_organisms()
 
+## Make sure to read the WARNING above before using the auxiliary
+## data below with igblastn()!
+
 get_igblast_auxiliary_data("human")
 
-## Make sure to read the WARNING above before using this auxiliary
-## data with igblastn().
+load_igblast_auxiliary_data("human")
 }
 
 \keyword{utilities}
