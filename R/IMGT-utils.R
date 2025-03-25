@@ -45,39 +45,12 @@ get_latest_IMGT_release <- function(recache=FALSE)
     release
 }
 
-.make_df_from_matrix_of_tds <- function(m)
-{
-    ## Drop empty columns.
-    col_is_empty <- vapply(seq_len(ncol(m)),
-                           function(j) all(is_white_str(m[ , j])),
-                           logical(1))
-    m <- m[ , !col_is_empty, drop=FALSE]
-
-    ## Sanity checks.
-    EXPECTED_COLNAMES <- c("Name", "Last modified", "Size")
-    stopifnot(ncol(m) == 3L)
-    stopifnot(identical(tolower(colnames(m)), tolower(EXPECTED_COLNAMES)))
-
-    m <- m[has_suffix(m[ , 1L], ".zip"), , drop=FALSE]
-    df <- as.data.frame(m)
-    df[[2L]] <- as.Date(df[[2L]])
-    df
-}
-
 ### Returns a data.frame with 3 columns (Name, Last modified, Size)
 ### and 1 row per .zip file.
 .fetch_list_of_archived_IMGT_zips <- function()
 {
-    html <- getUrlContent(.VQUEST_ARCHIVES_URL, type="text", encoding="UTF-8")
-    xml <- read_html(html)
-    #listing <- html_text(html_elements(xml, "section table tr td a"))
-    #listing[has_suffix(listing, ".zip")]
-    all_ths <- html_text(html_elements(xml, "section table tr th"))
-    all_tds <- html_text(html_elements(xml, "section table tr td"))
-    EXPECTED_NCOL <- 5L
-    m <- matrix(all_tds, ncol=EXPECTED_NCOL, byrow=TRUE)
-    colnames(m) <- all_ths[seq_len(EXPECTED_NCOL)]
-    .make_df_from_matrix_of_tds(m)
+    scrape_html_dir_index(.VQUEST_ARCHIVES_URL,
+                          css="body section", suffix=".zip")
 }
 
 ### If 'as.df' is TRUE then the listing is returned as a data.frame
@@ -94,7 +67,7 @@ list_archived_IMGT_zips <- function(as.df=FALSE, recache=FALSE)
         .IMGT_cache[["ARCHIVES_TABLE"]] <- listing
     }
     if (!as.df)
-        listing <- listing[ , 1L]
+        listing <- listing[ , "Name"]
     listing
 }
 

@@ -1,3 +1,10 @@
+- Supplying 'organism' must be mandatory when the user supplies their own
+  germline dbs. In other words, igblastn() must raise an error when
+  the user supplies the 'germline_db_*' arguments and 'organism' is not
+  supplied (i.e. set to "auto").
+
+- Check airr from CRAN.
+
 - How do we address the auxiliary data mess? See 'auxiliary_data' argument
   in '?igblastn'.
 
@@ -8,6 +15,9 @@
     * The output file will always contain the raw output (i.e.
       unparsed output).
     * If 'show.command.only' then 'out' is ignored.
+
+- Try online IgBLAST here https://www.ncbi.nlm.nih.gov/igblast/ and compare
+  results with igblastr.
 
 - Check support for Macaque.
 

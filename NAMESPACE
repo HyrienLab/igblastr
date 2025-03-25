@@ -8,6 +8,7 @@ importFrom(httr, GET, HEAD, content, user_agent, stop_for_status)
 importFrom(xml2, read_html)
 importFrom(rvest, html_elements, html_text)
 importFrom(xtable, xtable)
+importFrom(jsonlite, fromJSON)
 import(tibble)
 
 import(S4Vectors)
@@ -101,7 +102,17 @@ export(
     parse_outfmt7,
 
     ## igblastn.R:
-    igblastn, igblastn_help
+    igblastn, igblastn_help,
+
+    ## OAS-utils.R:
+    read_OAS_csv_metadata,
+    read_OAS_csv,
+    extract_sequences_from_paired_OAS_df,
+    list_paired_OAS_studies,
+    list_paired_OAS_units,
+    download_paired_OAS_units,
+    extract_metadata_from_OAS_units,
+    extract_sequences_from_paired_OAS_units
 )
 
 

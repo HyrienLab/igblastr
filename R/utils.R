@@ -96,6 +96,72 @@ strslice <- function(x, width)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### align_vectors_by_names()
+###
+
+align_vectors_by_names <- function(vectors)
+{
+    stopifnot(is.list(vectors), length(vectors) != 0L)
+    all_names <- lapply(vectors,
+        function(v) {
+            nms <- names(v)
+            if (is.null(nms))
+                stop(wmsg("all vectors must be named"))
+            if (anyDuplicated(nms))
+                stop(wmsg("some vectors have duplicated names"))
+            nms
+        })
+    unique_names <- unique(unlist(all_names))
+    ans <- lapply(vectors,
+        function(v) setNames(v[unique_names], unique_names))
+    stopifnot(all(lengths(ans) == length(ans[[1L]])))
+    ans
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### scrape_html_dir_index()
+###
+
+.make_df_from_matrix_of_tds <- function(mat, suffix=NULL)
+{
+    stopifnot(is.matrix(mat), !is.null(colnames(mat)))
+
+    EXPECTED_COLNAMES <- c("Name", "Last modified", "Size")
+    m <- match(tolower(EXPECTED_COLNAMES), tolower(colnames(mat)))
+    stopifnot(!anyNA(mat))
+    mat <- mat[ , m, drop=FALSE]
+    colnames(mat) <- EXPECTED_COLNAMES
+
+    ## Remove "Parent Directory" row.
+    if (tolower(trimws(mat[1L, 1L])) == "parent directory")
+        mat <- mat[-1L, , drop=FALSE]
+
+    if (!is.null(suffix))
+        mat <- mat[has_suffix(mat[ , 1L], suffix), , drop=FALSE]
+    df <- as.data.frame(mat)
+    df[[2L]] <- as.Date(df[[2L]])
+    df
+}
+
+### 'css' must be a single string specifying the CSS selector to the table
+### containing the index e.g. "body" or "body section".
+### Returns a data.frame with 3 columns: Name, Last modified, Size
+scrape_html_dir_index <- function(url, css="body", suffix=NULL)
+{
+    stopifnot(isSingleNonWhiteString(url), isSingleNonWhiteString(css))
+    html <- getUrlContent(url, type="text", encoding="UTF-8")
+    xml <- read_html(html)
+    all_ths <- html_text(html_elements(xml, paste0(css, " table tr th")))
+    all_tds <- html_text(html_elements(xml, paste0(css, " table tr td")))
+    EXPECTED_NCOL <- 5L
+    mat <- matrix(all_tds, ncol=EXPECTED_NCOL, byrow=TRUE)
+    colnames(mat) <- all_ths[seq_len(EXPECTED_NCOL)]
+    .make_df_from_matrix_of_tds(mat, suffix=suffix)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### disambiguate_fasta_seqids()
 ###
 

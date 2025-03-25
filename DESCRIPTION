@@ -7,7 +7,7 @@ Description: The igblastr package provides functions to conveniently install
 	Note that the package is still a WORK-IN-PROGRESS! Please use
 	<https://github.com/hpages/igblastr/issues> to report bugs,
 	provide feedback, request features, etc...
-Version: 0.3.3
+Version: 0.3.4
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
@@ -16,9 +16,9 @@ Authors@R: c(
 	       comment=c(ORCID="0009-0002-8272-4522")),
 	person("Ollivier", "Hyrien", role="fnd"))
 Depends: tibble, Biostrings
-Imports: methods, utils, stats, tools, httr, xml2, rvest, xtable,
+Imports: methods, utils, stats, tools, httr, xml2, rvest, xtable, jsonlite,
 	S4Vectors, IRanges, GenomeInfoDb
-Suggests: jsonlite, testthat, knitr
+Suggests: testthat, knitr
 SystemRequirements: Perl (for install_IMGT_germline_db() only)
 VignetteBuilder: knitr
 Collate:
@@ -43,4 +43,5 @@ Collate:
 	igblastn-args-utils.R
 	outfmt7-utils.R
 	igblastn.R
+	OAS-utils.R
 	zzz.R
