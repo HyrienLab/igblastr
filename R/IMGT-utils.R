@@ -135,8 +135,9 @@ download_and_unzip_IMGT_release <- function(release, exdir, ...)
 ### find_organism_in_IMGT_local_store()
 ###
 
-.list_organisms_in_IMGT_local_store <- function(refdir)
+list_organisms_in_IMGT_local_store <- function(local_store)
 {
+    refdir <- file.path(local_store, .VQUEST_REFERENCE_DIRECTORY)
     if (!dir.exists(refdir))
         stop(wmsg("Anomaly: directory ", refdir, " not found"))
     sort(list.files(refdir))
@@ -154,11 +155,12 @@ download_and_unzip_IMGT_release <- function(release, exdir, ...)
 ###                     └──  Homo_sapiens
 find_organism_in_IMGT_local_store <- function(organism, local_store)
 {
-    refdir <- file.path(local_store, .VQUEST_REFERENCE_DIRECTORY)
-    all_organisms <- .list_organisms_in_IMGT_local_store(refdir)
+    all_organisms <- list_organisms_in_IMGT_local_store(local_store)
     idx <- match(tolower(organism), tolower(all_organisms))
-    if (!is.na(idx))
+    if (!is.na(idx)) {
+        refdir <- file.path(local_store, .VQUEST_REFERENCE_DIRECTORY)
         return(file.path(refdir, all_organisms[[idx]]))
+    }
     all_in_1string <- paste0("\"", all_organisms, "\"", collapse=", ")
     stop(wmsg(organism, ": organism not found in ",
               "IMGT/V-QUEST release ", basename(local_store), "."),

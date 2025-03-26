@@ -1,0 +1,309 @@
+---
+title: "_igblastr_ overview"
+author:
+- name: Hervé Pagès
+  affiliation: Fred Hutch Cancer Center, Seattle, WA
+date: "Compiled `r BiocStyle::doc_date()`; Modified 24 March 2025"
+package: igblastr
+vignette: |
+  %\VignetteIndexEntry{igblastr overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document
+---
+
+
+```{r setup, include=FALSE}
+library(BiocStyle)
+```
+
+
+# Introduction
+
+
+`r Biocpkg("igblastr")` is an R/Bioconductor package that provides functions
+to conveniently install and use a local IgBLAST installation from R.
+The package aims at making as easy as possible to run IgBLAST from R,
+by making the installation of IgBLAST and associated germline databases
+as straightforward as possible. In particular, these installations can
+be performed with a single function call, don't require root access, and are
+persistent across R sessions.
+
+The main function in the package is `igblastn()`, a wrapper to the `igblastn`
+executable included in IgBLAST. In addition to `igblastn()`, the package
+provides:
+
+- A function (`install_igblast()`) for conveniently downloading and
+  installing a pre-compiled IgBLAST from NCBI.
+
+- Functions for downloading and installing germline databases from the
+  IMGT/V-QUEST download site, and for using them with `igblastn()`.
+
+- A set of builtin germline databases from the OGRDB database (AIRR community).
+
+- A set of builtin C-region databases (a.k.a. constant region databases)
+  from IMGT/V-QUEST.
+
+- Utilities to parse the results returned by `igblastn()`.
+
+- Utilities to download data from OAS, the Observed Antibody Space database,
+  and to prepare this data for use with IgBLAST.
+
+- and more...
+
+IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
+
+Online IgBLAST: https://www.ncbi.nlm.nih.gov/igblast/
+
+Please use https://github.com/hpages/igblastr/issues to report bugs,
+provide feedback, request features, etc... about `r Biocpkg("igblastr")`.
+
+
+# Install and load the package
+
+
+Like any other Bioconductor package, `r Biocpkg("igblastr")` should always
+be installed with `BiocManager::install()`:
+```{r, eval=FALSE}
+if (!require("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("igblastr")
+```
+
+`BiocManager::install()` will take care of installing the package dependencies
+that are missing.
+
+Load the package:
+```{r, message=FALSE}
+library(igblastr)
+```
+
+
+# Install IgBLAST
+
+
+If IgBLAST is already installed on your system, you can tell
+`r Biocpkg("igblastr")` to use it by setting environment variable
+`IGBLAST_ROOT` to the path of the IgBLAST installation.
+See `?IGBLAST_ROOT` for more information.
+
+Otherwise, simply call `install_igblast()` to install the latest
+version of IgBLAST. As of March 2025, NCBI provides pre-compiled
+versions of IgBLAST for Linux, Windows, Intel Mac and Mac Silicon.
+`install_igblast()` will download the pre-compiled IgBLAST that matches
+your platform from NCBI FTP site, and install it in a location that will
+be remembered across R sessions.
+```{r}
+if (!has_igblast())
+    install_igblast()
+```
+See `?install_igblast` for more information.
+
+Note that we used `has_igblast()` to avoid trying to reinstall IgBLAST if
+`r Biocpkg("igblastr")` has already access to an IgBLAST installation.
+
+Display basic information about the IgBLAST installation used
+by `r Biocpkg("igblastr")`:
+```{r}
+igblast_info()
+```
+
+
+# Install and select a germline database
+
+
+The `r Biocpkg("igblastr")` package includes a FASTA file that contains
+8437 pairs of human antibody sequences (16874 individual sequences)
+retrieved from OAS (the Observed Antibody Space database). These will
+be our _query sequences_ i.e. the immunoglobulin (IG) sequences that
+we're going to analyze in this vignette.
+
+Before we can do so, the `igblastn` executable in IgBLAST (and thus our
+`igblastn()` function) will need access to the germline V, D, and J gene
+sequences for human. And before `igblastn` can use these germline sequences,
+they must be stored in three separate blast databases. We'll refer to these
+databases as the V-region, D-region, and J-region databases.
+When the three databases are put together, we'll refer to the aggregated
+database as the _germline database_.
+
+## Builtin germline databases
+
+The `r Biocpkg("igblastr")` package includes a set of builtin germline
+databases for human and mouse that were obtained from the OGRDB database
+(AIRR community). These can be listed with:
+```{r}
+list_germline_dbs(builtin.only=TRUE)
+```
+The last part of the database name indicates the date of the download in
+YYYYMM format.
+
+If our query sequences are from human or from one of the mouse strains listed
+above, we can already select the appropriate database with `use_germline_db()`
+and skip the subsection below.
+
+## Install additional germline databases
+
+AIRR/OGRDB and IMGT/V-QUEST are two providers of germline databases that
+can be used with IgBLAST. If, for whatever reason, using one of the builtin
+AIRR/OGRDB germline databases is not an option (e.g. our query sequences
+are not from human or mouse), then we can use `install_IMGT_germline_db()`
+to install additional germline databases. Here we show how to install the
+latest human germline database from IMGT/V-QUEST.
+
+First we list the most recent IMGT/V-QUEST releases:
+```{r}
+head(list_IMGT_releases())
+```
+
+The organisms included in release 202506-1 are:
+```{r}
+list_IMGT_organisms("202506-1")
+```
+
+Then we install the human germline database from the latest IMGT/V-QUEST
+release:
+```{r, message=FALSE}
+install_IMGT_germline_db("202506-1", organism="Homo sapiens", force=TRUE)
+```
+See `?install_IMGT_germline_db` for more information.
+
+Finally we select this new germline db to use with `igblastn()`:
+```{r}
+use_germline_db("IMGT-202506-1.Homo_sapiens.IGH+IGK+IGL")
+```
+See `?use_germline_db` for more information.
+
+## Display the full list of local germline dbs
+
+To see the full list of local germline dbs:
+```{r}
+list_germline_dbs()
+```
+Note that the asterisk (`*`) displayed on the very right end
+of `list_germline_dbs()`'s output indicates the germline db that
+is currently selected (you might need to scroll the output to the
+right to see the asterisk).
+
+See `?list_germline_dbs` for more information.
+
+
+# Select a constant region database (optional)
+
+
+The `igblastn` executable in IgBLAST can also use C gene sequences, a.k.a.
+constant regions, to improve the analysis. Like with the germline V, D,
+and J gene sequences, the C sequences should typically be from the same
+organism than the query sequences, and they also need to be stored in a
+blast database. We'll refer to this database as the C-region db.
+
+The `r Biocpkg("igblastr")` package includes a set of builtin C-region dbs
+for human, mouse, and rabbit that were obtained from IMGT/V-QUEST. These
+can be listed with:
+```{r}
+list_c_region_dbs()
+```
+The last part of the database name indicates the date of the download in
+YYYYMM format.
+
+If our query sequences are from human, mouse, or rabbit, then we can
+select the appropriate database with `use_c_region_db()`:
+```{r}
+use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
+```
+
+Calling `list_c_region_dbs()` again now should display an asterisk on
+the very right end of the output to indicate the C-region db that
+is currently selected.
+
+See `?list_c_region_dbs` for more information.
+
+
+# Use igblastn()
+
+
+Now that we have selected a germline and C-region db to use with `igblastn()`,
+we're almost ready to call `igblastn()`.
+
+As mentioned previously, the `r Biocpkg("igblastr")` package includes a
+FASTA file with 8437 pairs of human antibody sequences retrieved from OAS.
+These are our _query sequences_ i.e. the immunoglobulin sequences that we're
+going to analyse with `igblastn()`.
+
+The path to our query sequences can be obtained with:
+```{r}
+query <- system.file(package="igblastr", "extdata", "1279067_1_Paired_sequences.fasta")
+```
+
+The `r Biocpkg("igblastr")` package also includes a JSON file that contains
+metadata associated with our query sequences:
+```{r}
+json <- system.file(package="igblastr", "extdata", "1279067_1_Paired_All.json")
+query_metadata <- jsonlite::fromJSON(json)
+query_metadata
+```
+All the sequences are peripheral blood memory B-cells from an unvaccinated
+human individual with no disease.
+
+Before we call `igblastn()`, we check the selected dbs by calling
+`use_germline_db()` and `use_c_region_db()` with no argument:
+```{r}
+use_germline_db()
+use_c_region_db()
+```
+
+Let's call `igblastn()`. Note that we're only interested in the best alignment
+for each query sequence so we set `num_alignments_V` to 1. This will take up
+to 3 min on an average laptop:
+```{r}
+out <- suppressWarnings(igblastn(query, num_alignments_V=1))
+```
+```{r, include=FALSE}
+#out <- readRDS(file.path("precomputed_results", "out.rds"))
+```
+
+By default the output is a tibble in AIRR format:
+```{r}
+out
+```
+
+See `?igblastn` for more information.
+
+
+# Downstream analysis
+
+
+TODO
+
+_If I understood correctly we want to plot the frequency of V genes.
+ The germline db that we're using contains 700 V genes (460 on the heavy
+ chain, 240 on the light chain). The number of V genes that are "hit" by
+ our query sequences is `length(unique(out$v_call))` = 253. The frequency
+ table can be computed with `table(out$v_call)`. Sounds like too many
+ V genes for a plot. How do we handle this? Should we restrict the plot
+ to the V-genes with most hits? The top-20 table can be obtained with
+ something like `head(sort(table(out$v_call), decreasing=TRUE), n=20)`._
+
+_Another thing that might be of interest is make two plots, one for the
+ heavy chain sequences (odd rows in `out`) and one for the light chain
+ sequences (even rows in `out`). Could be interesting to confirm that
+ the heavy chain sequences actually hit V genes in the IGHV group and
+ the light chain sequences actually hit V genes in the IGKV and IGLV groups._
+
+_Any other ideas to make this downstream analysis interesting/educative
+ welcome._
+
+
+# Future developments
+
+
+TODO
+
+
+# Session information
+
+
+```{r}
+sessionInfo()
+```
+

@@ -4,10 +4,7 @@ Description: The igblastr package provides functions to conveniently install
 	and use a local IgBLAST installation from R.
 	IgBLAST is described at <https://pubmed.ncbi.nlm.nih.gov/23671333/>.
 	Online IgBLAST: <https://www.ncbi.nlm.nih.gov/igblast/>.
-	Note that the package is still a WORK-IN-PROGRESS! Please use
-	<https://github.com/hpages/igblastr/issues> to report bugs,
-	provide feedback, request features, etc...
-Version: 0.3.4
+Version: 0.4.0
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
@@ -15,7 +12,7 @@ Authors@R: c(
 	       email="hpages.on.github@gmail.com",
 	       comment=c(ORCID="0009-0002-8272-4522")),
 	person("Ollivier", "Hyrien", role="fnd"))
-Depends: tibble, Biostrings
+Depends: R (>= 4.4.0), tibble, Biostrings
 Imports: methods, utils, stats, tools, httr, xml2, rvest, xtable, jsonlite,
 	S4Vectors, IRanges, GenomeInfoDb
 Suggests: testthat, knitr

@@ -118,12 +118,16 @@ get_germline_db_path <- function(db_name)
            dimnames=list(NULL, GERMLINE_GROUPS))
 }
 
-list_germline_dbs <- function(names.only=FALSE)
+list_germline_dbs <- function(builtin.only=FALSE, names.only=FALSE)
 {
+    if (!isTRUEorFALSE(builtin.only))
+        stop(wmsg("'builtin.only' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(names.only))
         stop(wmsg("'names.only' must be TRUE or FALSE"))
     germline_dbs_path <- get_germline_dbs_path(TRUE)  # guaranteed to exist
     all_db_names <- sort(setdiff(list.files(germline_dbs_path), "USING"))
+    if (builtin.only)
+        all_db_names <- all_db_names[has_prefix(all_db_names, "_")]
     if (names.only)
         return(all_db_names)
     basic_stats <- .tabulate_germline_dbs_by_group(all_db_names)
@@ -162,7 +166,7 @@ print.germline_dbs_df <- function(x, ...)
 
 .get_germline_db_in_use <- function()
 {
-    all_db_names <- list_germline_dbs(TRUE)
+    all_db_names <- list_germline_dbs(names.only=TRUE)
     if (length(all_db_names) == 0L)
         .stop_on_no_installed_germline_db_yet()
     germline_dbs_path <- get_germline_dbs_path(TRUE)  # guaranteed to exist
@@ -192,7 +196,7 @@ use_germline_db <- function(db_name=NULL)
     ## Check 'db_name'.
     if (!isSingleNonWhiteString(db_name))
         stop(wmsg("'db_name' must be a single (non-empty) string"))
-    all_db_names <- list_germline_dbs(TRUE)
+    all_db_names <- list_germline_dbs(names.only=TRUE)
     if (length(all_db_names) == 0L)
         .stop_on_no_installed_germline_db_yet()
     if (!(db_name %in% all_db_names))
@@ -253,7 +257,7 @@ clean_germline_blastdbs <- function()
 {
     germline_dbs_path <- get_germline_dbs_path()  # NOT guaranteed to exist
     if (dir.exists(germline_dbs_path)) {
-        all_db_names <- list_germline_dbs(TRUE)
+        all_db_names <- list_germline_dbs(names.only=TRUE)
         for (db_name in all_db_names) {
             db_path <- get_germline_db_path(db_name)
             clean_blastdbs(db_path)

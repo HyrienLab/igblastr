@@ -65,7 +65,7 @@ catnap_bnabs <- system.file(package="igblastr", "extdata",
                             "catnap_bnabs.fasta")
 query <- head(readDNAStringSet(catnap_bnabs), n=10)
 
-db_name <- install_IMGT_germline_db("202449-1", "Homo_sapiens", force=TRUE)
+db_name <- install_IMGT_germline_db("202506-1", "Homo_sapiens", force=TRUE)
 use_germline_db(db_name)
 use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 

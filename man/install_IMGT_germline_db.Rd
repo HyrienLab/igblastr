@@ -2,6 +2,7 @@
 
 \alias{install_IMGT_germline_db}
 \alias{list_IMGT_releases}
+\alias{list_IMGT_organisms}
 
 \title{Install a germline db from IMGT}
 
@@ -24,12 +25,14 @@ install_IMGT_germline_db(release, organism="Homo sapiens",
                          force=FALSE, ...)
 
 list_IMGT_releases(recache=FALSE)
+list_IMGT_organisms(release)
 }
 
 \arguments{
   \item{release}{
     A single string specifying the IMGT/V-QUEST release to get the
-    germline sequences from.
+    germline sequences from (or to list the organisms from for
+    \code{list_IMGT_organisms()}).
     Use \code{list_IMGT_releases()} to list all releases.
   }
   \item{organism}{
@@ -62,6 +65,9 @@ list_IMGT_releases(recache=FALSE)
   \code{list_IMGT_releases()} returns the list of IMGT/V-QUEST releases
   in a character vector. The releases are sorted from newest to oldest
   (latest release is first).
+
+  \code{list_IMGT_organisms()} returns the list of organisms included
+  in the specified IMGT/V-QUEST release in a character vector.
 }
 
 \seealso{
@@ -86,18 +92,20 @@ list_IMGT_releases(recache=FALSE)
 \examples{
 if (!has_igblast()) install_igblast()
 
-## As of Dec 27, 2024, the latest IMGT/V-QUEST release is 202449-1:
-\donttest{list_IMGT_releases()
-}
-## Download germline sequences from IMGT/V-QUEST 202449-1, and store
+## As of March 26, 2025, the latest IMGT/V-QUEST release is 202506-1:
+list_IMGT_releases()
+
+list_IMGT_organisms("202506-1")
+
+## Download germline sequences from IMGT/V-QUEST 202506-1, and store
 ## the IG sequences for Mouse in a local database:
-install_IMGT_germline_db("202449-1", organism="Mus musculus", force=TRUE)
+install_IMGT_germline_db("202506-1", organism="Mus musculus", force=TRUE)
 
 ## List the local germline databases:
 list_germline_dbs()
 
 ## Tell igblastn() to use the newly installed germline db:
-use_germline_db("IMGT-202449-1.Mus_musculus.IGH+IGK+IGL")
+use_germline_db("IMGT-202506-1.Mus_musculus.IGH+IGK+IGL")
 }
 
 \keyword{utilities}

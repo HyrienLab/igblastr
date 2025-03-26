@@ -92,6 +92,7 @@ export(
 
     ## install_IMGT_germline_db.R:
     list_IMGT_releases,
+    list_IMGT_organisms,
     install_IMGT_germline_db,
 
     ## install_AIRR_germline_db.R:

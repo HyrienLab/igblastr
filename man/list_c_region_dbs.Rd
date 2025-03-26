@@ -20,7 +20,7 @@
 }
 
 \usage{
-list_c_region_dbs(names.only=FALSE)
+list_c_region_dbs(builtin.only=FALSE, names.only=FALSE)
 
 use_c_region_db(db_name=NULL)
 
@@ -28,6 +28,12 @@ load_c_region_db(db_name)
 }
 
 \arguments{
+  \item{builtin.only}{
+    By default \code{list_germline_dbs()} returns the list of all local
+    germline dbs, including builtin germline dbs. Set \code{builtin.only}
+    to \code{TRUE} to return only the list of builtin germline dbs.
+    Note that builtin dbs are prefixed with an underscore (\code{_}).
+  }
   \item{names.only}{
     By default \code{list_c_region_dbs()} returns the list of local
     C-region dbs in a data.frame with one db per row. Set \code{names.only}
@@ -125,7 +131,7 @@ if (!has_igblast()) install_igblast()
 ## 3 builtin C-region dbs prefixed with an underscore:
 list_c_region_dbs()
 
-list_c_region_dbs(TRUE)  # return only the db names
+list_c_region_dbs(names.only=TRUE)  # db names only
 
 use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 

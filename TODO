@@ -1,3 +1,6 @@
+- Clarify provenance of 1279067_1_Paired_sequences.fasta and its licence.
+  Give appropriate credit. See https://opig.stats.ox.ac.uk/webapps/oas/
+
 - Supplying 'organism' must be mandatory when the user supplies their own
   germline dbs. In other words, igblastn() must raise an error when
   the user supplies the 'germline_db_*' arguments and 'organism' is not

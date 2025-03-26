@@ -20,7 +20,7 @@
 }
 
 \usage{
-list_germline_dbs(names.only=FALSE)
+list_germline_dbs(builtin.only=FALSE, names.only=FALSE)
 
 use_germline_db(db_name=NULL)
 
@@ -28,6 +28,12 @@ load_germline_db(db_name, region_types=NULL)
 }
 
 \arguments{
+  \item{builtin.only}{
+    By default \code{list_germline_dbs()} returns the list of all local
+    germline dbs, including builtin germline dbs. Set \code{builtin.only}
+    to \code{TRUE} to return only the list of builtin germline dbs.
+    Note that builtin dbs are prefixed with an underscore (\code{_}).
+  }
   \item{names.only}{
     By default \code{list_germline_dbs()} returns the list of local
     germline dbs in a data.frame with one db per row. Set \code{names.only}
@@ -130,14 +136,16 @@ load_germline_db(db_name, region_types=NULL)
 \examples{
 if (!has_igblast()) install_igblast()
 
+## Get list of builtin germline dbs only.
+list_germline_dbs(builtin.only=TRUE)
+list_germline_dbs(builtin.only=TRUE, names.only=TRUE)  # db names only
+
 ## Install Mouse germline db from IMGT (Perl required!):
-install_IMGT_germline_db("202449-1", "Mus_musculus", force=TRUE)
+install_IMGT_germline_db("202506-1", "Mus_musculus", force=TRUE)
 
-list_germline_dbs()
+list_germline_dbs()  # all germline dbs
 
-list_germline_dbs(TRUE)  # return only the db names
-
-db_name <- "IMGT-202449-1.Mus_musculus.IGH+IGK+IGL"
+db_name <- "IMGT-202506-1.Mus_musculus.IGH+IGK+IGL"
 use_germline_db(db_name)
 
 use_germline_db()

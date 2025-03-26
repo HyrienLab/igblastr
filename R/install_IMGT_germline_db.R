@@ -18,8 +18,19 @@ list_IMGT_releases <- function(recache=FALSE)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### install_IMGT_germline_db()
+### list_IMGT_organisms()
 ###
+
+.stop_on_missing_release <- function()
+{
+    all_releases <- list_IMGT_releases()
+    stop(wmsg("Argument 'release' is required and must be set ",
+              "to a valid IMGT/V-QUEST release."),
+         "\n  ",
+         wmsg("Latest IMGT/V-QUEST release is \"", all_releases[[1L]],
+              "\" (recommended). Use list_IMGT_releases() to list ",
+              "all releases."))
+}
 
 .path_to_IMGT_local_store <- function(release=NULL)
 {
@@ -50,24 +61,33 @@ list_IMGT_releases <- function(recache=FALSE)
     release
 }
 
+list_IMGT_organisms <- function(release)
+{
+    if (missing(release))
+        .stop_on_missing_release()
+    release <- .validate_IMGT_release(release)
+
+    ## Download IMGT/V-QUEST release to local store if it's not there already.
+    local_store <- .path_to_IMGT_local_store(release)
+    if (!dir.exists(local_store))
+        download_and_unzip_IMGT_release(release, local_store)
+    list_organisms_in_IMGT_local_store(local_store)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### install_IMGT_germline_db()
+###
+
 ### Requires Perl.
 install_IMGT_germline_db <- function(release, organism="Homo sapiens",
                                      force=FALSE, ...)
 {
     ## Check arguments.
-    if (missing(release)) {
-        all_releases <- list_IMGT_releases()
-        stop(wmsg("Argument 'release' is required and must be set ",
-                  "to a valid IMGT/V-QUEST release."),
-             "\n  ",
-             wmsg("Latest IMGT/V-QUEST release is \"", all_releases[[1L]],
-                  "\" (recommended). Use list_IMGT_releases() to list ",
-                  "all releases."))
-    }
-
+    if (missing(release))
+        .stop_on_missing_release()
     release <- .validate_IMGT_release(release)
     organism <- normalize_IMGT_organism(organism)
-    #db_type <- match.arg(db_type)
     if (!isTRUEorFALSE(force))
         stop(wmsg("'force' must be TRUE or FALSE"))
 

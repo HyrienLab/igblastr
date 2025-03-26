@@ -98,12 +98,16 @@ get_c_region_db_path <- function(db_name)
            dimnames=list(NULL, GENE_LOCI))
 }
 
-list_c_region_dbs <- function(names.only=FALSE)
+list_c_region_dbs <- function(builtin.only=FALSE, names.only=FALSE)
 {
+    if (!isTRUEorFALSE(builtin.only))
+        stop(wmsg("'builtin.only' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(names.only))
         stop(wmsg("'names.only' must be TRUE or FALSE"))
     c_region_dbs_path <- .get_c_region_dbs_path(TRUE)  # guaranteed to exist
     all_db_names <- sort(setdiff(list.files(c_region_dbs_path), "USING"))
+    if (builtin.only)
+        all_db_names <- all_db_names[has_prefix(all_db_names, "_")]
     if (names.only)
         return(all_db_names)
     basic_stats <- .tabulate_c_region_dbs_by_locus(all_db_names)
