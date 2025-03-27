@@ -3,7 +3,7 @@ title: "_igblastr_ overview"
 author:
 - name: Hervé Pagès
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 24 March 2025"
+date: "Compiled `r BiocStyle::doc_date()`; Modified 26 March 2025"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
@@ -275,23 +275,37 @@ See `?igblastn` for more information.
 
 TODO
 
-_If I understood correctly we want to plot the frequency of V genes.
- The germline db that we're using contains 700 V genes (460 on the heavy
- chain, 240 on the light chain). The number of V genes that are "hit" by
- our query sequences is `length(unique(out$v_call))` = 253. The frequency
- table can be computed with `table(out$v_call)`. Sounds like too many
- V genes for a plot. How do we handle this? Should we restrict the plot
- to the V-genes with most hits? The top-20 table can be obtained with
- something like `head(sort(table(out$v_call), decreasing=TRUE), n=20)`._
+- _If I understood correctly we want to plot the frequency of V genes.
+  The germline db that we're using contains 700 V genes (460 on the heavy
+  chain, 240 on the light chain). The number of V genes that are "hit" by
+  our query sequences is `length(unique(out$v_call))` = 253. The frequency
+  table can be computed with `table(out$v_call)`. Sounds like too many
+  V genes for a plot. How do we handle this? Should we restrict the plot
+  to the V-genes with most hits? The top-20 table can be obtained with
+  something like_
+    ```
+    head(sort(table(out$v_call), decreasing=TRUE), n=20)
+    ```
 
-_Another thing that might be of interest is make two plots, one for the
- heavy chain sequences (odd rows in `out`) and one for the light chain
- sequences (even rows in `out`). Could be interesting to confirm that
- the heavy chain sequences actually hit V genes in the IGHV group and
- the light chain sequences actually hit V genes in the IGKV and IGLV groups._
+- _I realize now that what's in `out$v_call` are gene alleles, not gene names.
+  So what I was referring to as "genes" above are in fact gene alleles.
+  We can extract the gene names from the allele names in `out$v_call` with
+  `V_genes <- as.character(heads(strsplit(out$v_call, "*", fixed=TRUE), n=1))`.
+  The number of V genes that are "hit" by our query sequences is
+  `length(unique(V_genes))` = 108. Still too many V genes for a plot.
+  The top-20 table can be obtained with something like_
+    ```
+    head(sort(table(V_genes), decreasing=TRUE), n=20)
+    ```
 
-_Any other ideas to make this downstream analysis interesting/educative
- welcome._
+- _Another thing that might be of interest is to make two plots, one for the
+  heavy chain sequences (odd rows in `out`) and one for the light chain
+  sequences (even rows in `out`). Could be interesting to confirm that
+  the heavy chain sequences actually hit V genes in the IGHV group and
+  the light chain sequences actually hit V genes in the IGKV and IGLV groups._
+
+- _Any other ideas to make this downstream analysis interesting/educative
+  welcome._
 
 
 # Future developments

@@ -702,7 +702,7 @@ function toggle_visibility(id1) {
 <h1 class="title toc-ignore"><em>igblastr</em> overview</h1>
 <p class="author-name">Hervé Pagès<span class="affil-mark">1</span></p>
 <p class="author-affiliation"><span class="affil-mark">1</span>Fred Hutch Cancer Center, Seattle, WA</p>
-<h4 class="date">Compiled 26 March 2025; Modified 24 March 2025</h4>
+<h4 class="date">Compiled 26 March 2025; Modified 26 March 2025</h4>
 <h4 class="package">Package</h4>
 <p>igblastr 0.4.0</p>
 
@@ -874,6 +874,7 @@ release:</p>
 <pre class="r"><code>list_germline_dbs()</code></pre>
 <pre><code>##  db_name                                   IGHV IGHD IGHJ IGKV IGKJ IGLV IGLJ  
 ##  IMGT-202506-1.Homo_sapiens.IGH+IGK+IGL     460   47   15  126    9  114   10 *
+##  IMGT-202506-1.Mus_musculus.IGH+IGK+IGL     675   61    9  168   10   19    8  
 ##  _AIRR.human.IGH+IGK+IGL.202501             205   33    7   69    7   80   10  
 ##  _AIRR.mouse.CAST_EiJ.IGH+IGK+IGL.202501     87    9    4   88   11    9    7  
 ##  _AIRR.mouse.LEWES_EiJ.IGH+IGK+IGL.202501    78   11    4   87   11    4    7  
@@ -1007,21 +1008,32 @@ to 3 min on an average laptop:</p>
 <div id="downstream-analysis" class="section level1" number="7">
 <h1><span class="header-section-number">7</span> Downstream analysis</h1>
 <p>TODO</p>
-<p><em>If I understood correctly we want to plot the frequency of V genes.
+<ul>
+<li><p><em>If I understood correctly we want to plot the frequency of V genes.
 The germline db that we’re using contains 700 V genes (460 on the heavy
 chain, 240 on the light chain). The number of V genes that are “hit” by
 our query sequences is <code>length(unique(out$v_call))</code> = 253. The frequency
 table can be computed with <code>table(out$v_call)</code>. Sounds like too many
 V genes for a plot. How do we handle this? Should we restrict the plot
 to the V-genes with most hits? The top-20 table can be obtained with
-something like <code>head(sort(table(out$v_call), decreasing=TRUE), n=20)</code>.</em></p>
-<p><em>Another thing that might be of interest is make two plots, one for the
+something like</em>
+<code>head(sort(table(out$v_call), decreasing=TRUE), n=20)</code></p></li>
+<li><p><em>I realize now that what’s in <code>out$v_call</code> are gene alleles, not gene names.
+So what I was referring to as “genes” above are in fact gene alleles.
+We can extract the gene names from the allele names in <code>out$v_call</code> with
+<code>V_genes &lt;- as.character(heads(strsplit(out$v_call, &quot;*&quot;, fixed=TRUE), n=1))</code>.
+The number of V genes that are “hit” by our query sequences is
+<code>length(unique(V_genes))</code> = 108. Still too many V genes for a plot.
+The top-20 table can be obtained with something like</em>
+<code>head(sort(table(V_genes), decreasing=TRUE), n=20)</code></p></li>
+<li><p><em>Another thing that might be of interest is to make two plots, one for the
 heavy chain sequences (odd rows in <code>out</code>) and one for the light chain
 sequences (even rows in <code>out</code>). Could be interesting to confirm that
 the heavy chain sequences actually hit V genes in the IGHV group and
-the light chain sequences actually hit V genes in the IGKV and IGLV groups.</em></p>
-<p><em>Any other ideas to make this downstream analysis interesting/educative
-welcome.</em></p>
+the light chain sequences actually hit V genes in the IGKV and IGLV groups.</em></p></li>
+<li><p><em>Any other ideas to make this downstream analysis interesting/educative
+welcome.</em></p></li>
+</ul>
 </div>
 <div id="future-developments" class="section level1" number="8">
 <h1><span class="header-section-number">8</span> Future developments</h1>
