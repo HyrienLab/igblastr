@@ -25,9 +25,9 @@
   set environment variable IGBLAST_ROOT to the path of the installation.
   Note that this must be the path to the \emph{root directory} of the
   IgBLAST installation, that is, to a directory with a \code{bin}
-  subdirectory in it that has the \emph{igblastn} and \emph{igblastp}
-  executables (on Windows these executables are files named
-  \code{igblastn.exe} and \code{igblastp.exe}, respectively).
+  subdirectory in it that has the \code{igblastn} and \code{igblastp}
+  \emph{standalone executables} (on Windows these executables are files
+  named \code{igblastn.exe} and \code{igblastp.exe}, respectively).
 
   This can be done within your current R session with
   \code{Sys.setenv(IGBLAST_ROOT="path/to/igblast_root")}
@@ -44,9 +44,9 @@
 
 \seealso{
   \itemize{
-    \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          executable from R. This is the main function in the \pkg{igblastr}
-          package.
+    \item The \code{\link{igblastn}} function to run the \code{igblastn}
+          \emph{standalone executable} included in IgBLAST from R. This
+          is the main function in the \pkg{igblastr} package.
 
     \item \code{\link{install_igblast}} to perform an \emph{internal}
           IgBLAST installation.

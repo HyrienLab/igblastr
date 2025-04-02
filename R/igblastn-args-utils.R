@@ -7,51 +7,6 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### .normarg_organism()
-###
-
-### Maps 'db_name' to one of the "igblast organisms" (these are the organisms
-### returned by list_igblast_organisms()).
-.infer_igblast_organism_from_germline_db_name <- function(db_name)
-{
-    stopifnot(isSingleNonWhiteString(db_name))
-    if (grepl("human", db_name, ignore.case=TRUE) ||
-        grepl("Homo.sapiens", db_name, ignore.case=TRUE))
-        return("human")
-    if (grepl("mouse", db_name, ignore.case=TRUE) ||
-        grepl("Mus.musculus", db_name, ignore.case=TRUE))
-        return("mouse")
-    if (grepl("rabbit", db_name, ignore.case=TRUE) ||
-        grepl("Oryctolagus.cuniculus", db_name, ignore.case=TRUE))
-        return("rabbit")
-    if (grepl("rat", db_name, ignore.case=TRUE) ||
-        grepl("Rattus.norvegicus", db_name, ignore.case=TRUE))
-        return("rat")
-    if (grepl("rhesus.monkey", db_name, ignore.case=TRUE) ||
-        grepl("Macaca.mulatta", db_name, ignore.case=TRUE))
-        return("rhesus_monkey")
-    NA_character_
-}
-
-.normarg_organism <- function(organism="auto")
-{
-    if (!isSingleNonWhiteString(organism))
-        stop(wmsg("'organism' must be a single (non-empty) string"))
-    if (organism != "auto")
-        return(normalize_igblast_organism(organism))
-    germline_db_name <- use_germline_db()  # cannot be ""
-    organism <- .infer_igblast_organism_from_germline_db_name(germline_db_name)
-    if (is.na(organism))
-        stop(wmsg("Don't know how to infer 'organism' from germline ",
-                  "db name \"", germline_db_name, "\". Please set ",
-                  "the 'organism' argument to the name of the IgBLAST ",
-                  "internal data to use. ",
-                  "Use list_igblast_organisms() to list all valid names."))
-    organism
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .normarg_germline_db_X() and .normarg_c_region_db()
 ###
 
@@ -205,6 +160,54 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### .normarg_organism()
+###
+
+### Maps 'db_name' to one of the "igblast organisms" (these are the organisms
+### returned by list_igblast_organisms()).
+.infer_igblast_organism_from_germline_db_name <- function(db_name)
+{
+    stopifnot(isSingleNonWhiteString(db_name))
+    if (grepl("human", db_name, ignore.case=TRUE) ||
+        grepl("Homo.sapiens", db_name, ignore.case=TRUE))
+        return("human")
+    if (grepl("mouse", db_name, ignore.case=TRUE) ||
+        grepl("Mus.musculus", db_name, ignore.case=TRUE))
+        return("mouse")
+    if (grepl("rabbit", db_name, ignore.case=TRUE) ||
+        grepl("Oryctolagus.cuniculus", db_name, ignore.case=TRUE))
+        return("rabbit")
+    if (grepl("rat", db_name, ignore.case=TRUE) ||
+        grepl("Rattus.norvegicus", db_name, ignore.case=TRUE))
+        return("rat")
+    if (grepl("rhesus.monkey", db_name, ignore.case=TRUE) ||
+        grepl("Macaca.mulatta", db_name, ignore.case=TRUE))
+        return("rhesus_monkey")
+    NA_character_
+}
+
+.normarg_organism <- function(organism="auto", ok_to_infer_organism)
+{
+    if (!isSingleNonWhiteString(organism))
+        stop(wmsg("'organism' must be a single (non-empty) string"))
+    if (organism != "auto")
+        return(normalize_igblast_organism(organism))
+    if (!ok_to_infer_organism)
+        stop(wmsg("'organism' must be specified when 'germline_db_V', ",
+                  "'germline_db_D', and 'germline_db_J' are supplied"))
+    germline_db_name <- use_germline_db()  # cannot be ""
+    organism <- .infer_igblast_organism_from_germline_db_name(germline_db_name)
+    if (is.na(organism))
+        stop(wmsg("Don't know how to infer 'organism' from germline ",
+                  "db name \"", germline_db_name, "\". Please set ",
+                  "the 'organism' argument to the name of the IgBLAST ",
+                  "internal data to use. ",
+                  "Use list_igblast_organisms() to list all valid names."))
+    organism
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .normarg_auxiliary_data()
 ###
 
@@ -281,16 +284,23 @@
 ### are valid igblastn command line argument names (e.g. "organism")
 ### and the values valid argument values (e.g. "rabbit").
 make_igblastn_command_line_args <-
-    function(query, outfmt="AIRR", organism="auto",
+    function(query, outfmt="AIRR",
              germline_db_V="auto", germline_db_V_seqidlist=NULL,
              germline_db_D="auto", germline_db_D_seqidlist=NULL,
              germline_db_J="auto", germline_db_J_seqidlist=NULL,
-             c_region_db="auto", auxiliary_data=NULL, ...)
+             organism="auto", c_region_db="auto", auxiliary_data=NULL, ...)
 {
     stopifnot(isSingleNonWhiteString(query),
               isSingleNonWhiteString(outfmt))
 
-    organism <- .normarg_organism(organism)
+    ## It will only make sense to infer the organism from the local
+    ## germline db returned by use_germline_db() if the user didn't
+    ## supply all the germline_db_X arguments, that is, if at least
+    ## one of them is identical to "auto".
+    ok_to_infer_organism <- identical(germline_db_V, "auto") ||
+                            identical(germline_db_D, "auto") ||
+                            identical(germline_db_J, "auto")
+
     germline_db_V <- .normarg_germline_db_X(germline_db_V, "V")
     germline_db_V_seqidlist <- .normarg_seqidlist(germline_db_V_seqidlist,
                                                   germline_db_V, "V")
@@ -300,16 +310,18 @@ make_igblastn_command_line_args <-
     germline_db_J <- .normarg_germline_db_X(germline_db_J, "J")
     germline_db_J_seqidlist <- .normarg_seqidlist(germline_db_J_seqidlist,
                                                   germline_db_J, "J")
+    organism <- .normarg_organism(organism, ok_to_infer_organism)
     c_region_db <- .normarg_c_region_db(c_region_db)
     auxiliary_data <- .normarg_auxiliary_data(auxiliary_data)
 
-    cmd_args <- c(query=query, outfmt=outfmt, organism=organism,
+    cmd_args <- c(query=query, outfmt=outfmt,
                   germline_db_V=germline_db_V,
                   germline_db_V_seqidlist=germline_db_V_seqidlist,
                   germline_db_D=germline_db_D,
                   germline_db_D_seqidlist=germline_db_D_seqidlist,
                   germline_db_J=germline_db_J,
                   germline_db_J_seqidlist=germline_db_J_seqidlist,
+                  organism=organism,
                   c_region_db=c_region_db,
                   auxiliary_data=auxiliary_data)
 
@@ -325,6 +337,7 @@ make_igblastn_command_line_args <-
 
 ### 'cmd_args' must be a named character vector as returned by
 ### make_igblastn_command_line_args() above.
+### Returns an **unnamed** character vector parallel to 'cmd_args'.
 make_exe_args <- function(cmd_args)
 {
     stopifnot(is.character(cmd_args))

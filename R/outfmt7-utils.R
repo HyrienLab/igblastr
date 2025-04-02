@@ -433,14 +433,16 @@ print.fmt7footer <- function(x, ...) cat(class(x)[[1L]], " object\n", sep="")
 .RECORD_SEP <- "# IGBLASTN"
 
 ### Returns a list with 2 components: 'records' and 'footer'.
-parse_outfmt7 <- function(out)
+parse_outfmt7 <- function(out_lines)
 {
-    footer_start <- grep("^Total queries = ", out)
+    if (!is.character(out_lines))
+        stop(wmsg("'out_lines' must be a character vector"))
+    footer_start <- grep("^Total queries = ", out_lines)
     stopifnot(length(footer_start) == 1L)
-    footer_lines <- out[footer_start:length(out)]
+    footer_lines <- out_lines[footer_start:length(out_lines)]
     footer <- .parse_fmt7footer(footer_lines)
 
-    all_record_lines <- head(out, n=footer_start-1L)
+    all_record_lines <- head(out_lines, n=footer_start-1L)
     all_record_starts <- which(all_record_lines == .RECORD_SEP)
     if (length(all_record_starts) == 0L) {
         all_record_ends <- integer(0)

@@ -277,6 +277,32 @@ read_version_file <- function(dirpath)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### sort_db_names()
+###
+
+### The sorting is guaranteed to be the same everywhere. In particular it's
+### guaranteed to put the db names prefixed with an underscore first.
+sort_db_names <- function(db_names, decreasing=FALSE)
+{
+    stopifnot(is.character(db_names))
+    ok <- has_prefix(db_names, "_")
+    ## We set LC_COLLATE to C so:
+    ## 1. sort() gives the same output whatever the platform or country;
+    ## 2. sort() will behave the same way when called in the context
+    ##    of 'R CMD build' or 'R CMD check' (both set 'R CMD check'
+    ##    LC_COLLATE to C when building the vignette or running the tests)
+    ##    vs when called in the context of an interactive session;
+    ## 3. sort() is about 4x faster vs when LC_COLLATE is set to en_US.UTF-8.
+    prev_locale <- Sys.getlocale("LC_COLLATE")
+    Sys.setlocale("LC_COLLATE", "C")
+    on.exit(Sys.setlocale("LC_COLLATE", prev_locale))
+    ans1 <- sort(db_names[ok], decreasing=decreasing)
+    ans2 <- sort(db_names[!ok], decreasing=decreasing)
+    c(ans1, ans2)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### get_db_in_use()
 ###
 

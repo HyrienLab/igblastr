@@ -7,16 +7,19 @@
 \title{BLAST for Ig and TCR sequences}
 
 \description{
-  \code{igblastn()} runs the \emph{igblastn} executable from R. This is
-  the main function in the \pkg{igblastr} package.
+  The \code{igblastn()} function is a wrapper to the \code{igblastn}
+  \emph{standalone executable} included in IgBLAST. This is the main
+  function in the \pkg{igblastr} package.
 }
 
 \usage{
-igblastn(query, outfmt="AIRR", parse.out=TRUE, organism="auto",
+igblastn(query, outfmt="AIRR",
          germline_db_V="auto", germline_db_V_seqidlist=NULL,
          germline_db_D="auto", germline_db_D_seqidlist=NULL,
          germline_db_J="auto", germline_db_J_seqidlist=NULL,
-         c_region_db="auto", auxiliary_data=NULL, ...,
+         organism="auto", c_region_db="auto", auxiliary_data=NULL,
+         ...,
+         out=NULL, parse.out=TRUE,
          show.in.browser=FALSE, show.command.only=FALSE)
 
 igblastn_help(long.help=FALSE, show.in.browser=FALSE)
@@ -35,27 +38,6 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     e.g. \code{"7 qseqid sseqid pident nident length score"}.
     See \code{?\link{list_outfmt7_specifiers}} for more information about
     customizing format 7.
-  }
-  \item{parse.out}{
-    Whether the output of the \emph{igblastn} executable should be parsed
-    or not. \code{TRUE} by default. If set to \code{FALSE}, the output is
-    a text that \code{igblastn()} returns in a character vector with one
-    element per line. Note that the character vector has a class attribute
-    \code{"igblastn_raw_output"} on it which allows compact display of the
-    vector via a dedicated \code{print()} method. The class attribute can
-    be dropped with \code{unclass()}.
-  }
-  \item{organism}{
-    \code{"auto"} (the default), or the organism associated with the query
-    sequences. Supported organisms include human, mouse, rat, rabbit and
-    rhesus_monkey. Use \code{\link{list_igblast_organisms}()} to obtain
-    this list programmatically.
-
-    Note that by default (i.e. when \code{organism} is omitted or set
-    to \code{"auto"}), \code{igblastn()} infers the organism from the
-    name of the local germline db currently selected.
-    See \code{?\link{use_germline_db}} for how to select the local
-    germline db to use with \code{igblastn()}.
   }
   \item{germline_db_V}{
     \code{"auto"} (the default), or the path to a V-region db.
@@ -83,6 +65,18 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     \code{germline_db_J_seqidlist} argument. The \code{file} object will
     typically be constructed with something like
     \code{file("path/to/some/file")}.
+  }
+  \item{organism}{
+    \code{"auto"} (the default), or the organism associated with the query
+    sequences. Supported organisms include human, mouse, rat, rabbit and
+    rhesus_monkey. Use \code{\link{list_igblast_organisms}()} to obtain
+    this list programmatically.
+
+    Note that by default (i.e. when \code{organism} is omitted or set
+    to \code{"auto"}), \code{igblastn()} infers the organism from the
+    name of the local germline db currently selected.
+    See \code{?\link{use_germline_db}} for how to select the local
+    germline db to use with \code{igblastn()}.
   }
   \item{c_region_db}{
     \code{"auto"} (the default), \code{NULL}, or the path to a C-region db.
@@ -116,35 +110,67 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     information (other returned information will still be correct).
   }
   \item{...}{
-    Extra arguments to be passed to the \emph{igblastn} executable.
+    Extra arguments to be passed to the \code{igblastn}
+    \emph{standalone executable}. The list of valid arguments can be
+    displayed with \code{igblastn_help()}.
+
+    Note that the argument/value pairs must be passed to the \code{igblastn()}
+    function in the usual R fashion. For example, what would be passed
+    as \code{-num_alignments 1 -num_threads 8} when invoking the
+    \code{igblastn} \emph{standalone executable} in a terminal should
+    be passed as \code{num_alignments_V=1, num_threads=8} when
+    calling the \code{igblastn()} function:
+    \preformatted{    igblastn(query, num_alignments_V=1, num_threads=8)}
+  }
+  \item{out}{
+    \code{NULL} (the default), or the path to the file where the
+    \code{igblastn} \emph{standalone executable} should write its output.
+
+    Note that by default (i.e. when \code{out} is omitted or set
+    to \code{NULL}), \code{igblastn()} instructs the \code{igblastn}
+    \emph{standalone executable} to write its output to a temporary file.
+  }
+  \item{parse.out}{
+    Whether \code{igblastn()} should parse the plain-text output produced
+    by the \code{igblastn} \emph{standalone executable} or not, before
+    returning it to the user. \code{TRUE} by default.
+
+    If set to \code{FALSE}, then \code{igblastn()} returns the output
+    as-is in a character vector, with one line per element in the vector.
+    Note that \code{igblastn()} sets the \code{"igblastn_raw_output"} class
+    attribute on this character vector, which allows compact display of the
+    vector (this is achieved via a dedicated \code{print()} method defined
+    in the \pkg{igblastr} package). The class attribute can be dropped with
+    \code{unclass()}.
   }
   \item{show.in.browser}{
-    For \code{igblastn()}: Whether the output of the \emph{igblastn}
-    executable should also be displayed in the browser or not (in addition
-    to being returned by the \code{igblastn()} function call). \code{FALSE}
-    by default.
+    For \code{igblastn()}: Whether the output of the \code{igblastn}
+    \emph{standalone executable} should also be displayed in the browser
+    or not (in addition to being returned by the \code{igblastn()}
+    function call). \code{FALSE} by default.
 
     For \code{igblastn_help()}: Whether the help printed by the
-    \emph{igblastn} executable (when called with the -h or -help argument)
-    should be displayed in the browser or not. \code{FALSE} by default.
+    \code{igblastn} \emph{standalone executable} (when invoked with
+    the -h or -help argument) should be displayed in the browser or not.
+    \code{FALSE} by default.
   }
   \item{show.command.only}{
     \code{TRUE} or \code{FALSE}. If set to \code{TRUE}, \code{igblastn()}
-    won't call the \emph{igblastn} executable and instead will display
-    the full command that shows how it would have called it. Note that
-    the command is also returned in an invisible character vector.
-    \code{FALSE} by default.
+    won't invoke the \code{igblastn} \emph{standalone executable} and
+    instead will display the full command that shows how it would have
+    invoked it. Note that the command is also returned in an invisible
+    character vector. \code{FALSE} by default.
   }
   \item{long.help}{
     \code{TRUE} or \code{FALSE}. If set to \code{FALSE} (the default),
-    the \emph{igblastn} executable is called with the -h argument.
-    Otherwise, it's called with the -help argument.
+    the \code{igblastn} \emph{standalone executable} is invoked with
+    the -h argument. Otherwise, it's invoked with the -help argument.
   }
 }
 
 \value{
-  \code{igblastn()} captures the output of calling the \emph{igblastn}
-  executable and returns it as:
+  \code{igblastn()} captures the output produced by the \code{igblastn}
+  \emph{standalone executable} and returns it as:
   \itemize{
     \item A \link[tibble]{tibble} with 1 row per query sequence if
           \code{outfmt} is \code{"AIRR"} or \code{19} and \code{parse.out}

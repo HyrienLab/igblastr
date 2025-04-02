@@ -125,9 +125,10 @@ list_germline_dbs <- function(builtin.only=FALSE, names.only=FALSE)
     if (!isTRUEorFALSE(names.only))
         stop(wmsg("'names.only' must be TRUE or FALSE"))
     germline_dbs_path <- get_germline_dbs_path(TRUE)  # guaranteed to exist
-    all_db_names <- sort(setdiff(list.files(germline_dbs_path), "USING"))
+    all_db_names <- setdiff(list.files(germline_dbs_path), "USING")
     if (builtin.only)
         all_db_names <- all_db_names[has_prefix(all_db_names, "_")]
+    all_db_names <- sort_db_names(all_db_names)
     if (names.only)
         return(all_db_names)
     basic_stats <- .tabulate_germline_dbs_by_group(all_db_names)

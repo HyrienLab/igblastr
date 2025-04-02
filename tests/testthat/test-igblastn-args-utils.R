@@ -2,8 +2,9 @@ test_that("make_igblastn_command_line_args()", {
     ## make_igblastn_command_line_args() is not exported.
     make_igblastn_command_line_args <-
         igblastr:::make_igblastn_command_line_args
-    CORE_COLNAMES <- c("query", "outfmt", "organism",
-                       paste0("germline_db_", c("V", "D", "J")))
+    CORE_COLNAMES <- c("query", "outfmt",
+                       paste0("germline_db_", c("V", "D", "J")),
+                       "organism")
 
     ## For this test, we use invalid V-, D-, J-region dbs but
     ## make_igblastn_command_line_args() should still accept them.
@@ -13,10 +14,10 @@ test_that("make_igblastn_command_line_args()", {
     germline_db_D <- file.path(db_path, "D")
     germline_db_J <- file.path(db_path, "J")
     cmd_args <- make_igblastn_command_line_args("path/to/query",
-                     organism="rhesus_monkey",
                      germline_db_V=germline_db_V,
                      germline_db_D=germline_db_D,
                      germline_db_J=germline_db_J,
+                     organism="rhesus_monkey",
                      c_region_db=NULL)
     expect_true(is.character(cmd_args))
     expect_identical(names(cmd_args), CORE_COLNAMES)

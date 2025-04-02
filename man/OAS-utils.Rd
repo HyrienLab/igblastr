@@ -201,9 +201,9 @@ extract_sequences_from_paired_OAS_units(dir=".", pattern="\\\\.csv\\\\.gz$")
   \itemize{
     \item OAS's homepage at: \url{https://opig.stats.ox.ac.uk/webapps/oas/}
 
-    \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          executable from R. This is the main function in the \pkg{igblastr}
-          package.
+    \item The \code{\link{igblastn}} function to run the \code{igblastn}
+          \emph{standalone executable} included in IgBLAST from R. This
+          is the main function in the \pkg{igblastr} package.
 
     \item \link[tibble]{tibble} objects implemented in the
           \pkg{tibble} package.

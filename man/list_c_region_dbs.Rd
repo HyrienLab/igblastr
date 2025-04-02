@@ -110,9 +110,9 @@ load_c_region_db(db_name)
 
 \seealso{
   \itemize{
-    \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          executable from R. This is the main function in the \pkg{igblastr}
-          package.
+    \item The \code{\link{igblastn}} function to run the \code{igblastn}
+          \emph{standalone executable} included in IgBLAST from R. This
+          is the main function in the \pkg{igblastr} package.
 
     \item \code{\link{use_germline_db}} to select the local germline db
           to use with \code{igblastn()}.

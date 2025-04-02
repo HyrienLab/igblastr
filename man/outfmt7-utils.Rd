@@ -28,12 +28,13 @@
 \usage{
 list_outfmt7_specifiers()
 
-parse_outfmt7(out)
+parse_outfmt7(out_lines)
 }
 
 \arguments{
-  \item{out}{
-    The output of \code{igblatsn(query, outfmt=7, parse.out=FALSE, ...)}.
+  \item{out_lines}{
+    The character vector returned by
+    \code{igblatsn(query, outfmt=7, parse.out=FALSE, ...)}.
   }
 }
 
@@ -41,14 +42,15 @@ parse_outfmt7(out)
   \code{list_outfmt7_specifiers()} returns the list of format specifiers
   supported by \code{igblastn()} formatting option 7.
 
-  \code{parse_outfmt7(out)} returns the parsed form of \code{out} in a list.
+  \code{parse_outfmt7(out_lines)} returns the parsed form of \code{out_lines}
+  in a list.
 }
 
 \seealso{
   \itemize{
-    \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          executable from R. This is the main function in the \pkg{igblastr}
-          package.
+    \item The \code{\link{igblastn}} function to run the \code{igblastn}
+          \emph{standalone executable} included in IgBLAST from R. This
+          is the main function in the \pkg{igblastr} package.
 
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.
@@ -74,10 +76,10 @@ use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 ## ---------------------------------------------------------------------
 
 ## For this first run we specify 'outfmt=7' and 'parse.out=FALSE':
-out <- igblastn(query, outfmt=7, parse.out=FALSE)
-out  # raw output
+out_lines <- igblastn(query, outfmt=7, parse.out=FALSE)
+out_lines  # raw output
 
-out <- parse_outfmt7(out)  # parse the output
+out <- parse_outfmt7(out_lines)  # parse the output
 
 ## Output contains one record per query sequence:
 length(out$records)  # 10

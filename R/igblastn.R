@@ -115,21 +115,48 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### .parse_igblastn_output()
+### .normarg_out()
+###
+
+### Must return an absolute path.
+.normarg_out <- function(out)
+{
+    if (is.null(out)) {
+        dirpath <- file.path(tempdir(), "igblastr")
+        if (!dir.exists(dirpath)) {
+            if (file.exists(dirpath))
+                stop(wmsg("Anomaly: '", dirpath, "' already exists ",
+                          "as a file, not as a directory."))
+            dir.create(dirpath)
+        }
+        return(file.path(dirpath, "blastn_out.txt"))
+    }
+    if (!isSingleNonWhiteString(out))
+        stop(wmsg("'out' must be NULL or a single (non-empty) string"))
+    dirpath <- dirname(out)
+    if (!dir.exists(dirpath))
+        stop(wmsg(dirpath, ": no such directory"))
+    dirpath <- file_path_as_absolute(dirpath)
+    file.path(dirpath, basename(out))
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### .parse_igblastn_out()
 ###
 
 ### TODO: Parse output format 3 and 4.
-.parse_igblastn_output <- function(out_file, outfmt_nb)
+.parse_igblastn_out <- function(out, outfmt_nb)
 {
-    stopifnot(isSingleNonWhiteString(out_file),
+    stopifnot(isSingleNonWhiteString(out),
               isSingleInteger(outfmt_nb), outfmt_nb %in% c(3L, 4L, 7L))
-    out <- readLines(out_file)
+    out_lines <- readLines(out)
     if (outfmt_nb == 7L)
-        return(parse_outfmt7(out))
+        return(parse_outfmt7(out_lines))
     warning(wmsg("parsing of igblastn output format ",
                  outfmt_nb, " is not supported yet"))
-    class(out) <- "igblastn_raw_output"
-    out
+    class(out_lines) <- "igblastn_raw_output"
+    out_lines
 }
 
 
@@ -174,31 +201,34 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
     stop(paste(err_msgs, collapse="\n  "))
 }
 
-### Returns the path to the output file.
+### The function calls setwd() before invoking the 'igblastn' executable so
+### make sure that any file path passed thru 'exe_args' (e.g. the '-out' file
+### path) is an **absolute** path.
 .run_igblastn_exe <- function(igblast_root, exe_args)
 {
+    stopifnot(is.character(exe_args))
     igblastn_exe <- make_igblast_exe_path(igblast_root, "igblastn")
     oldwd <- getwd()
     setwd(igblast_root)
     on.exit(setwd(oldwd))
 
-    out_file <- tempfile()
     stderr_file <- tempfile()
-    exe_args <- c(exe_args, paste("-out", out_file))
     status <- system2(igblastn_exe, args=exe_args, stderr=stderr_file)
     .parse_and_issue_warnings(stderr_file)
     if (status != 0)
         .stop_on_igblastn_exe_error(stderr_file)
-    out_file
 }
 
-igblastn <- function(query, outfmt="AIRR", parse.out=TRUE, organism="auto",
+igblastn <- function(query, outfmt="AIRR",
                      germline_db_V="auto", germline_db_V_seqidlist=NULL,
                      germline_db_D="auto", germline_db_D_seqidlist=NULL,
                      germline_db_J="auto", germline_db_J_seqidlist=NULL,
-                     c_region_db="auto", auxiliary_data=NULL, ...,
+                     organism="auto", c_region_db="auto", auxiliary_data=NULL,
+                     ...,
+                     out=NULL, parse.out=TRUE,
                      show.in.browser=FALSE, show.command.only=FALSE)
 {
+    out <- .normarg_out(out)
     if (!isTRUEorFALSE(parse.out))
         stop(wmsg("'parse.out' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(show.in.browser))
@@ -211,49 +241,51 @@ igblastn <- function(query, outfmt="AIRR", parse.out=TRUE, organism="auto",
     outfmt <- .normarg_outfmt(outfmt)
     outfmt_nb <- .extract_outfmt_nb(outfmt)
     cmd_args <- make_igblastn_command_line_args(
-                     query, outfmt=outfmt, organism=organism,
+                     query, outfmt=outfmt,
                      germline_db_V=germline_db_V,
                      germline_db_V_seqidlist=germline_db_V_seqidlist,
                      germline_db_D=germline_db_D,
                      germline_db_D_seqidlist=germline_db_D_seqidlist,
                      germline_db_J=germline_db_J,
                      germline_db_J_seqidlist=germline_db_J_seqidlist,
-                     c_region_db=c_region_db, auxiliary_data=auxiliary_data,
+                     organism=organism,
+                     c_region_db=c_region_db,
+                     auxiliary_data=auxiliary_data,
                      ...)
-    exe_args <- make_exe_args(cmd_args)
+    exe_args <- make_exe_args(c(cmd_args, out=out))
 
     if (show.command.only) {
-        out <- .show_igblastn_command(igblast_root, exe_args,
+        ans <- .show_igblastn_command(igblast_root, exe_args,
                                       show.in.browser=show.in.browser)
-        return(invisible(out))
+        return(invisible(ans))
     }
 
-    ## Run igblastn executable.
-    out_file <- .run_igblastn_exe(igblast_root, exe_args)
+    ## Run the 'igblastn' standalone executable included in IgBLAST.
+    .run_igblastn_exe(igblast_root, exe_args)
 
     if (outfmt_nb == 19L) {
         ## AIRR output format is tabulated.
-        AIRR_df <- read.table(out_file, header=TRUE, sep="\t")
+        AIRR_df <- read.table(out, header=TRUE, sep="\t")
         if (show.in.browser)
             display_data_frame_in_browser(AIRR_df)
         if (parse.out) {
-            out  <- tibble(AIRR_df)
+            ans  <- tibble(AIRR_df)
         } else {
-            out <- readLines(out_file)
-            class(out) <- "igblastn_raw_output"
+            ans <- readLines(out)
+            class(ans) <- "igblastn_raw_output"
         }
-        return(out)
+        return(ans)
     }
 
     if (show.in.browser)
-        display_local_file_in_browser(out_file)
+        display_local_file_in_browser(out)
     if (parse.out) {
-        out <- .parse_igblastn_output(out_file, outfmt_nb)
+        ans <- .parse_igblastn_out(out, outfmt_nb)
     } else {
-        out <- readLines(out_file)
-        class(out) <- "igblastn_raw_output"
+        ans <- readLines(out)
+        class(ans) <- "igblastn_raw_output"
     }
-    out
+    ans
 }
 
 

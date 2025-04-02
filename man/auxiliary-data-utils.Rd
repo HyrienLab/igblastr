@@ -66,9 +66,9 @@ load_igblast_auxiliary_data(organism)
     \item \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html}
           for important information about the IgBLAST auxiliary data.
 
-    \item The \code{\link{igblastn}} function to run the \emph{igblastn}
-          executable from R. This is the main function in the \pkg{igblastr}
-          package.
+    \item The \code{\link{igblastn}} function to run the \code{igblastn}
+          \emph{standalone executable} included in IgBLAST from R. This
+          is the main function in the \pkg{igblastr} package.
 
     \item \code{\link{install_igblast}} to perform an \emph{internal}
           IgBLAST installation.
