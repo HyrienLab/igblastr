@@ -272,41 +272,70 @@ See `?igblastn` for more information.
 
 # Downstream analysis
 
+Note: `out` does not have columns indicating participant, time point, etc. so we
+cannot stratify the below analysis by those sorts of variables. These analyses
+therefore look at all sequences pooled together.
 
-TODO
+```{r}
 
-- _If I understood correctly we want to plot the frequency of V genes.
-  The germline db that we're using contains 700 V genes (460 on the heavy
-  chain, 240 on the light chain). The number of V genes that are "hit" by
-  our query sequences is `length(unique(out$v_call))` = 253. The frequency
-  table can be computed with `table(out$v_call)`. Sounds like too many
-  V genes for a plot. How do we handle this? Should we restrict the plot
-  to the V-genes with most hits? The top-20 table can be obtained with
-  something like_
-    ```
-    head(sort(table(out$v_call), decreasing=TRUE), n=20)
-    ```
+library(ggplot2)
+library(stringr)
+library(dplyr)
 
-- _I realize now that what's in `out$v_call` are gene alleles, not gene names.
-  So what I was referring to as "genes" above are in fact gene alleles.
-  We can extract the gene names from the allele names in `out$v_call` with
-  `V_genes <- as.character(heads(strsplit(out$v_call, "*", fixed=TRUE), n=1))`.
-  The number of V genes that are "hit" by our query sequences is
-  `length(unique(V_genes))` = 108. Still too many V genes for a plot.
-  The top-20 table can be obtained with something like_
-    ```
-    head(sort(table(V_genes), decreasing=TRUE), n=20)
-    ```
+for (loc in c("IGH", "IGK", "IGL")) {
+  
+  df_v_gene <- out %>%
+    filter(locus == loc) %>%
+    mutate(v_gene = str_remove_all(v_call, "\\*[0-9]{2}")) %>% # drop allele info
+    group_by(v_gene) %>%
+    summarize(n = n(), .groups = "drop") %>%
+    mutate(frac = n / sum(n))
+  
+  plt <- df_v_gene %>%
+    ggplot(aes(frac, v_gene)) +
+    geom_col() +
+    scale_x_continuous('Percent of sequences', labels = scales::percent) +
+    ylab("Germline gene") +
+    ggtitle(paste0(loc, "V gene prevalence"))
+  
+  print(plt)
+  
+}
+```
 
-- _Another thing that might be of interest is to make two plots, one for the
-  heavy chain sequences (odd rows in `out`) and one for the light chain
-  sequences (even rows in `out`). Could be interesting to confirm that
-  the heavy chain sequences actually hit V genes in the IGHV group and
-  the light chain sequences actually hit V genes in the IGKV and IGLV groups._
+TODO: make a sequence logo plot of (kappa chain?) CDR3 AA sequences.
 
-- _Any other ideas to make this downstream analysis interesting/educative
-  welcome._
+NOTE: currently there are no valid CDR3 sequences in the data.....
 
+```{r}
+
+# what are the unique CDR3 sequences in the data?
+out %>% pull(cdr3) %>% unique()
+out %>% pull(cdr3_aa) %>% unique()
+
+# view percent of each column that has missing values
+percent_missing <- round(100 * colSums(is.na(out)) / nrow(out), 0)
+percent_missing[percent_missing > 0]
+```
+
+TODO: the following columns contain entirely missing values in `out` and need to be addressed:
+
+- vj_in_frame
+- v_frameshift
+- productive
+- fwr4
+- fwr4_aa
+- cdr3
+- cdr3_aa
+- junction
+- junction_length
+- junction_aa
+- junction_aa_length
+- fwr4_start
+- fwr4_end
+- cdr3_start
+- cdr3_end
+ 
 
 # Future developments
 
