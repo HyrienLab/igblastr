@@ -4,7 +4,7 @@ Description: The igblastr package provides functions to conveniently install
 	and use a local IgBLAST installation from R.
 	IgBLAST is described at <https://pubmed.ncbi.nlm.nih.gov/23671333/>.
 	Online IgBLAST: <https://www.ncbi.nlm.nih.gov/igblast/>.
-Version: 0.4.1
+Version: 0.4.2
 License: Artistic-2.0
 Encoding: UTF-8
 Authors@R: c(
@@ -15,7 +15,7 @@ Authors@R: c(
 Depends: R (>= 4.4.0), tibble, Biostrings
 Imports: methods, utils, stats, tools, httr, xml2, rvest, xtable, jsonlite,
 	S4Vectors, IRanges, GenomeInfoDb
-Suggests: testthat, knitr
+Suggests: testthat, knitr, rmarkdown, BiocStyle
 SystemRequirements: Perl (for install_IMGT_germline_db() only)
 VignetteBuilder: knitr
 Collate:

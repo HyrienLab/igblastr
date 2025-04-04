@@ -25,8 +25,8 @@
     on.exit(nuke_file(tmp_destdir))
 
     ## Create IMGT C-region dbs.
-    IMGT_c_region_dir <- system.file(package="igblastr", "extdata",
-                                     "constant_regions", "IMGT",
+    IMGT_c_region_dir <- system.file(package="igblastr",
+                                     "extdata", "constant_regions", "IMGT",
                                      mustWork=TRUE)
     organism_paths <- list.dirs(IMGT_c_region_dir, recursive=FALSE)
     for (organism_path in organism_paths) {

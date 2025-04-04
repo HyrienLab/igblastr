@@ -25,16 +25,16 @@
     on.exit(nuke_file(tmp_destdir))
 
     ## Create AIRR germline db for Human.
-    human_path <- system.file(package="igblastr", "extdata",
-                              "germline_sequences", "AIRR", "human",
+    human_path <- system.file(package="igblastr",
+                              "extdata", "germline_sequences", "AIRR", "human",
                               mustWork=TRUE)
     db_name <- form_AIRR_germline_db_name(human_path)
     db_path <- file.path(tmp_destdir, db_name)
     create_germline_db(human_path, db_path)
 
     ## Create AIRR germline dbs for Mouse strains.
-    mouse_path <- system.file(package="igblastr", "extdata",
-                              "germline_sequences", "AIRR", "mouse",
+    mouse_path <- system.file(package="igblastr",
+                              "extdata", "germline_sequences", "AIRR", "mouse",
                               mustWork=TRUE)
     strain_paths <- list.dirs(mouse_path, recursive=FALSE)
     for (strain_path in strain_paths) {

@@ -145,10 +145,13 @@
         dir.create(internal_roots, recursive=TRUE)
     if (has_suffix(ncbi_igblast_name, ".tar.gz")) {
         extract_igblast_tarball(downloaded_file, ncbi_igblast_name,
-                            destdir=internal_roots)
+                                destdir=internal_roots)
     } else if (has_suffix(ncbi_igblast_name, ".dmg")) {
-        extract_igblast_dmg(downloaded_file, ncbi_igblast_name,
-                            destdir=internal_roots)
+        igblast_root <- extract_igblast_dmg(downloaded_file, ncbi_igblast_name,
+                                destdir=internal_roots)
+        ## See README.txt in igblastr/inst/extdata/ncbi_igblast_data_files/
+        ## for why we need to do this.
+        install_ncbi_igblast_data_files(igblast_root)
     } else {
         stop(wmsg("Anomaly: file to extract must be ",
                   "a tarball (.tar.gz file) or .dmg file"))

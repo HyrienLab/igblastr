@@ -29,3 +29,8 @@ Content
 
 - constant_regions/: See README.txt in constant_regions/ subfolder.
 
+- germline_sequences/: See README.txt in germline_sequences/ subfolder.
+
+- ncbi_igblast_data_files/: See README.txt in ncbi_igblast_data_files/
+  subfolder.
+

@@ -50,11 +50,12 @@ extract_igblast_tarball <- function(tarfile, ncbi_name, destdir=".")
     rootbasename <- .infer_igblast_rootbasename_from_ncbi_name(ncbi_name)
     version <- infer_igblast_version_from_ncbi_name(ncbi_name)
 
-    ## Move <destdir>/tmpexdir/<rootbasename> (newdir)
-    ## to <destdir>/<version> (olddir) after nuking the latter if needed.
-    olddir <- file.path(destdir, version)
-    newdir <- file.path(tmp_exdir, rootbasename)
-    rename_file(newdir, olddir, replace=TRUE)
+    ## Move <destdir>/tmpexdir/<rootbasename> (tmp_igblast_root)
+    ## to <destdir>/<version> (igblast_root) after nuking the latter
+    ## if needed.
+    igblast_root <- file.path(destdir, version)
+    tmp_igblast_root <- file.path(tmp_exdir, rootbasename)
+    rename_file(tmp_igblast_root, igblast_root, replace=TRUE)
 }
 
 
@@ -106,9 +107,28 @@ extract_igblast_dmg <- function(dmgfile, ncbi_name, destdir=".")
     .attach_dmg(dmgfile)
     on.exit(.detach_dmg(dmg_mounting_point))
     .full_expand_pkgfile(pkg_path, expand_dir)
-    olddir <- file.path(destdir, version)
-    newdir <- file.path(expand_dir, "binaries.pkg", "Payload")
-    rename_file(newdir, olddir, replace=TRUE)
+    igblast_root <- file.path(destdir, version)
+    tmp_igblast_root <- file.path(expand_dir, "binaries.pkg", "Payload")
+    rename_file(tmp_igblast_root, igblast_root, replace=TRUE)
     nuke_file(expand_dir)
+    igblast_root
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### install_ncbi_igblast_data_files()
+###
+
+### Only call this to repair an IgBLAST installation that is missing
+### the internal_data/ or optional_file/ folders. See README.txt in
+### igblastr/inst/extdata/ncbi_igblast_data_files/ for more information.
+install_ncbi_igblast_data_files <- function(igblast_root)
+{
+    if (!isSingleNonWhiteString(igblast_root))
+        stop(wmsg("'igblast_root' must be a single (non-empty) string"))
+    datadir <- system.file(package="igblastr",
+                           "extdata", "ncbi_igblast_data_files", mustWork=TRUE)
+    from <- list.dirs(datadir, recursive=FALSE)
+    file.copy(from, igblast_root, recursive=TRUE)
 }
 
