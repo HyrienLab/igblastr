@@ -3,7 +3,7 @@ title: "_igblastr_ overview"
 author:
 - name: Hervé Pagès
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 2 April 2025"
+date: "Compiled `r BiocStyle::doc_date()`; Modified 9 April 2025"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
@@ -256,7 +256,7 @@ Let's call `igblastn()`. Note that we're only interested in the best alignment
 for each query sequence so we set `num_alignments_V` to 1. This will take up
 to 3 min on an average laptop:
 ```{r}
-out <- suppressWarnings(igblastn(query, num_alignments_V=1))
+out <- igblastn(query, num_alignments_V=1)
 ```
 ```{r, include=FALSE}
 #out <- readRDS(file.path("precomputed_results", "out.rds"))

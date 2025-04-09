@@ -2,10 +2,13 @@
 {
     expect_equal(class(rec), "fmt7record")
     expect_true(is.list(rec))
-    expect_equal(length(rec), 5)
+    expect_true(length(rec) %in% 5:6)
     expected_names <- c("query_details", "VDJ_rearrangement_summary",
                         "VDJ_junction_details",
                         "alignment_summary", "hit_table")
+    if (length(rec) == 6L)
+        expected_names <- append(expected_names, "subregion_sequence_details",
+                                 after=3L)
     expect_identical(names(rec), expected_names)
     expect_equal(qseqid(rec), expected_qseqid)
 
@@ -13,6 +16,9 @@
     expect_identical(class(rec$VDJ_rearrangement_summary),
                      "VDJ_rearrangement_summary")
     expect_identical(class(rec$VDJ_junction_details), "VDJ_junction_details")
+    if (length(rec) == 6L)
+        expect_identical(class(rec$subregion_sequence_details),
+                         "subregion_sequence_details")
     expect_identical(class(rec$alignment_summary),
                      c("alignment_summary", "data.frame"))
     expect_identical(class(rec$hit_table), c("hit_table", "data.frame"))

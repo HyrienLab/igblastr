@@ -1,10 +1,24 @@
+- Drop the persistent selection of the germline and constant region db.
+  This selection is currently recorded in a file which is a very bad idea
+  because that means that if the user uses igblastr in more than one R
+  session, all sessions must use the same dbs. It also means that changing
+  the selection in one session will change it for all other sessions which
+  is hugely problematic!
+  So the db selection should be recorded in memory and not on file. This means
+  that it will be remembered for the duration of the session only, and not
+  persist across sessions. It also means that the user will need to specify
+  the selection at the beginning of each session, which is actually a good
+  thing!
+
+- Set GHA to build/check the package on pushes.
+
 - Clarify provenance of 1279067_1_Paired_sequences.fasta and its licence.
   Give appropriate credit. See https://opig.stats.ox.ac.uk/webapps/oas/
 
 - Check airr from CRAN.
 
-- How do we address the auxiliary data mess? See 'auxiliary_data' argument
-  in '?igblastn'.
+- More investigation to assess the consequences of using the static auxiliary
+  data included in IgBLAST.
 
 - Try online IgBLAST here https://www.ncbi.nlm.nih.gov/igblast/ and compare
   results with igblastr.

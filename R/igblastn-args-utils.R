@@ -211,14 +211,17 @@
 ### .normarg_auxiliary_data()
 ###
 
-.normarg_auxiliary_data <- function(auxiliary_data)
+.normarg_auxiliary_data <- function(auxiliary_data="auto", organism)
 {
     if (is.null(auxiliary_data))
         return(NULL)
     if (!isSingleNonWhiteString(auxiliary_data))
-        stop(wmsg("'auxiliary_data' must be NULL or a single string ",
+        stop(wmsg("'auxiliary_data' must be \"auto\", or a single string ",
                   "that is the path to a file containing the coding frame ",
-                  "start positions for the sequences in the J-region db"))
+                  "start positions for the sequences in the J-region db",
+                  "or NULL"))
+    if (auxiliary_data == "auto")
+        return(get_igblast_auxiliary_data(organism))
     file_path_as_absolute(auxiliary_data)
 }
 
@@ -288,7 +291,7 @@ make_igblastn_command_line_args <-
              germline_db_V="auto", germline_db_V_seqidlist=NULL,
              germline_db_D="auto", germline_db_D_seqidlist=NULL,
              germline_db_J="auto", germline_db_J_seqidlist=NULL,
-             organism="auto", c_region_db="auto", auxiliary_data=NULL, ...)
+             organism="auto", c_region_db="auto", auxiliary_data="auto", ...)
 {
     stopifnot(isSingleNonWhiteString(query),
               isSingleNonWhiteString(outfmt))
@@ -312,7 +315,7 @@ make_igblastn_command_line_args <-
                                                   germline_db_J, "J")
     organism <- .normarg_organism(organism, ok_to_infer_organism)
     c_region_db <- .normarg_c_region_db(c_region_db)
-    auxiliary_data <- .normarg_auxiliary_data(auxiliary_data)
+    auxiliary_data <- .normarg_auxiliary_data(auxiliary_data, organism)
 
     cmd_args <- c(query=query, outfmt=outfmt,
                   germline_db_V=germline_db_V,
