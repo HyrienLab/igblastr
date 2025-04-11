@@ -242,8 +242,12 @@ json <- system.file(package="igblastr", "extdata", "1279067_1_Paired_All.json")
 query_metadata <- jsonlite::fromJSON(json)
 query_metadata
 ```
-All the sequences are peripheral blood memory B-cells from an unvaccinated
-human individual with no disease.
+There are 8347 sequences, which are paired (i.e., both heavy and light chain
+sequences are included). These sequences come from memory B cells from
+peripheral blood mononuclear cell (PBMC) samples from one human individual
+(age 38) with no particular disease or vaccination history.
+The source for these sequences is the Jaffe et al. (2022) study, with DOI link
+to the corresponding publication shown above.
 
 Before we call `igblastn()`, we check the selected dbs by calling
 `use_germline_db()` and `use_c_region_db()` with no argument:
@@ -270,17 +274,35 @@ out
 See `?igblastn` for more information.
 
 
-# Downstream analysis
+# Downstream analysis examples
 
-Note: `out` does not have columns indicating participant, time point, etc. so we
-cannot stratify the below analysis by those sorts of variables. These analyses
-therefore look at all sequences pooled together.
-
-```{r}
+```{r, message = F}
 
 library(ggplot2)
 library(stringr)
 library(dplyr)
+library(ggseqlogo)
+
+```
+
+One common type of analysis of AIRR format data is to look at the distribution of percent mutation
+in each sequence. For example, here we can look at percent mutation in the V
+segments of each chain type (heavy, kappa, and lambda). Note that V percent mutation is 100 - v_identity.
+
+```{r}
+
+out %>%
+  ggplot(aes(locus, 100 - v_identity)) +
+  geom_point(position = position_jitter(width = 0.3), alpha = 0.1) +
+  geom_boxplot(color = "blue", fill = NA, outliers = F, alpha = 0.3) +
+  ggtitle("Distribution of V percent mutation by locus") +
+  xlab(NULL)
+```
+
+Another common type of analysis is investigating the distribution of germline
+genes (for example, V genes). Again, we want to stratify by locus or chain type.
+
+```{r}
 
 for (loc in c("IGH", "IGK", "IGL")) {
   
@@ -303,39 +325,31 @@ for (loc in c("IGH", "IGK", "IGL")) {
 }
 ```
 
-TODO: make a sequence logo plot of (kappa chain?) CDR3 AA sequences.
-
-NOTE: currently there are no valid CDR3 sequences in the data.....
+A third category of analyses investigates CDR3 sequences, including their
+lengths and motifs (often visualized using sequence logo plots).
 
 ```{r}
 
-# what are the unique CDR3 sequences in the data?
-out %>% pull(cdr3) %>% unique()
-out %>% pull(cdr3_aa) %>% unique()
+out$cdr3_aa_length <- nchar(out$cdr3_aa)
 
-# view percent of each column that has missing values
-percent_missing <- round(100 * colSums(is.na(out)) / nrow(out), 0)
-percent_missing[percent_missing > 0]
+out %>%
+  group_by(locus, cdr3_aa_length) %>%
+  summarize(n = n(), .groups = "drop") %>%
+  ggplot(aes(cdr3_aa_length, n)) +
+  facet_wrap(~locus) +
+  geom_col() +
+  ggtitle("Histograms of CDR3 length by locus")
 ```
 
-TODO: the following columns contain entirely missing values in `out` and need to be addressed:
+```{r}
 
-- vj_in_frame
-- v_frameshift
-- productive
-- fwr4
-- fwr4_aa
-- cdr3
-- cdr3_aa
-- junction
-- junction_length
-- junction_aa
-- junction_aa_length
-- fwr4_start
-- fwr4_end
-- cdr3_start
-- cdr3_end
- 
+out %>%
+  filter(locus == "IGK", cdr3_aa_length == 9) %>%
+  pull(cdr3_aa) %>%
+  ggseqlogo(method = "probability") +
+  ggtitle("Logo plot of kappa chain CDR3 sequences that are 9 AA long")
+```
+
 
 # Future developments
 
