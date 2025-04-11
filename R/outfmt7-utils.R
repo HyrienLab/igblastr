@@ -345,12 +345,13 @@ print.hit_table <- function(x, ...)
 
 .SECTION_SEP <- ""
 
-### An fmt7 record is expected to have 6 (typical) or 5 (rare) sections, or
-### only 1 section if 0 hits found:
+### An fmt7 record is expected to have 6 (typical) or 5 (less typical)
+### sections, or only 1 section if 0 hits found:
 ###   1. query_details
 ###   2. VDJ_rearrangement_summary
 ###   3. VDJ_junction_details
-###   4. subregion_sequence_details (can be missing)
+###   4. subregion_sequence_details (can be missing e.g. if igblastn() was
+###      called with 'auxiliary_data=NULL')
 ###   5. alignment_summary
 ###   6. hit_table
 .parse_fmt7record <- function(record_lines)

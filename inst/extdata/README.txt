@@ -16,7 +16,7 @@ Content
     library(igblastr)
     download_paired_OAS_units("Jaffe_2022", "1279067_1_Paired_All.csv.gz")
     df <- read_OAS_csv("1279067_1_Paired_All.csv.gz")
-    sequences <- extract_sequences_from_paired_OAS_df(df)
+    sequences <- extract_sequences_from_paired_OAS_df(df, add.prefix=TRUE)
     writeXStringSet(sequences, "1279067_1_Paired_sequences.fasta")
 
 - 1279067_1_Paired_All.json: JSON file containing the metadata associated

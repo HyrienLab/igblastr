@@ -2,7 +2,7 @@ test_that("make_igblastn_command_line_args()", {
     ## make_igblastn_command_line_args() is not exported.
     make_igblastn_command_line_args <-
         igblastr:::make_igblastn_command_line_args
-    CORE_COLNAMES <- c("query", "outfmt",
+    CORE_ARGNAMES <- c("query", "outfmt",
                        paste0("germline_db_", c("V", "D", "J")),
                        "organism")
 
@@ -18,29 +18,45 @@ test_that("make_igblastn_command_line_args()", {
                      germline_db_D=germline_db_D,
                      germline_db_J=germline_db_J,
                      organism="rhesus_monkey",
-                     c_region_db=NULL)
+                     c_region_db=NULL,
+                     auxiliary_data=NULL)
     expect_true(is.character(cmd_args))
-    expect_identical(names(cmd_args), CORE_COLNAMES)
+    expect_identical(names(cmd_args), CORE_ARGNAMES)
 
     ## For this test we're not specifying any of the 'germline_db_[VDJ]'
-    ## argument so we need to select a local germline db. Once we do
+    ## arguments so we need to select a local germline db. Once we do
     ## this, we don't need to specify 'organism' either.
     db_name <- "_AIRR.human.IGH+IGK+IGL.202501"
     use_germline_db(db_name)
     cmd_args <- make_igblastn_command_line_args("path/to/query",
+                                                c_region_db=NULL,
+                                                auxiliary_data=NULL)
+    expect_true(is.character(cmd_args))
+    expect_identical(names(cmd_args), CORE_ARGNAMES)
+
+    cmd_args <- make_igblastn_command_line_args("path/to/query",
                                                 c_region_db=NULL)
     expect_true(is.character(cmd_args))
-    expect_identical(names(cmd_args), CORE_COLNAMES)
+    expected_argnames <- c(CORE_ARGNAMES, "auxiliary_data")
+    expect_identical(names(cmd_args), expected_argnames)
 
     use_c_region_db("")
-    cmd_args <- make_igblastn_command_line_args("path/to/query")
+    cmd_args <- make_igblastn_command_line_args("path/to/query",
+                                                auxiliary_data=NULL)
     expect_true(is.character(cmd_args))
-    expect_identical(names(cmd_args), CORE_COLNAMES)
+    expect_identical(names(cmd_args), CORE_ARGNAMES)
 
     db_name <- "_IMGT.rabbit.IGH.202412"
     use_c_region_db(db_name)
+    cmd_args <- make_igblastn_command_line_args("path/to/query",
+                                                auxiliary_data=NULL)
+    expect_true(is.character(cmd_args))
+    expected_argnames <- c(CORE_ARGNAMES, "c_region_db")
+    expect_identical(names(cmd_args), expected_argnames)
+
     cmd_args <- make_igblastn_command_line_args("path/to/query")
-    expected_colnames <- c(CORE_COLNAMES, "c_region_db")
-    expect_identical(names(cmd_args), expected_colnames)
+    expect_true(is.character(cmd_args))
+    expected_argnames <- c(CORE_ARGNAMES, "c_region_db", "auxiliary_data")
+    expect_identical(names(cmd_args), expected_argnames)
 })
 

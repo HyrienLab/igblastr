@@ -5,6 +5,10 @@
 ### Nothing in this file is exported.
 
 
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### infer_igblast_version_from_ncbi_name()
+###
+
 PRECOMPILED_NCBI_IGBLAST_PREFIX <- "ncbi-igblast-"
 
 .get_precompiled_ncbi_igblast_pattern <- function()
@@ -126,9 +130,40 @@ install_ncbi_igblast_data_files <- function(igblast_root)
 {
     if (!isSingleNonWhiteString(igblast_root))
         stop(wmsg("'igblast_root' must be a single (non-empty) string"))
+    if (!dir.exists(igblast_root))
+        stop(wmsg("directory '", igblast_root, "' does not exist"))
     datadir <- system.file(package="igblastr",
                            "extdata", "ncbi_igblast_data_files", mustWork=TRUE)
-    from <- list.dirs(datadir, recursive=FALSE)
-    file.copy(from, igblast_root, recursive=TRUE)
+    subdirs <- list.dirs(datadir, recursive=FALSE)
+    file.copy(subdirs, igblast_root, recursive=TRUE)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### check_ncbi_igblast_data_files()
+###
+
+### Only used in unit tests at the moment. Relies on Unix command 'diff' so
+### not supported on Windows.
+check_ncbi_igblast_data_files <- function(igblast_root)
+{
+    if (!isSingleNonWhiteString(igblast_root))
+        stop(wmsg("'igblast_root' must be a single (non-empty) string"))
+    if (!dir.exists(igblast_root))
+        stop(wmsg("directory '", igblast_root, "' does not exist"))
+    datadir <- system.file(package="igblastr",
+                           "extdata", "ncbi_igblast_data_files", mustWork=TRUE)
+    subdirs <- list.dirs(datadir, recursive=FALSE)
+    for (subdir in subdirs) {
+        subdir2 <- file.path(igblast_root, basename(subdir))
+        if (!dir.exists(subdir2))
+            stop(wmsg("invalid IgBLAST installation at '", igblast_root, "': ",
+                      "directory has no '", basename(subdir), "' subdirectory"))
+        args <- c("-r", "--brief", subdir, subdir2)
+        out <- suppressWarnings(system2("diff", args, stdout=TRUE))
+        status <- attr(out, "status")
+        if (!is.null(status) || length(out) != 0L)
+            warning(wmsg("content of ", subdir, " and ", subdir2, " differ"))
+    }
 }
 

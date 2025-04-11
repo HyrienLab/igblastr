@@ -17,7 +17,7 @@ igblastn(query, outfmt="AIRR",
          germline_db_V="auto", germline_db_V_seqidlist=NULL,
          germline_db_D="auto", germline_db_D_seqidlist=NULL,
          germline_db_J="auto", germline_db_J_seqidlist=NULL,
-         organism="auto", c_region_db="auto", auxiliary_data=NULL,
+         organism="auto", c_region_db="auto", auxiliary_data="auto",
          ...,
          out=NULL, parse.out=TRUE,
          show.in.browser=FALSE, show.command.only=FALSE)
@@ -88,26 +88,32 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     C-region db to use with \code{igblastn()}.
   }
   \item{auxiliary_data}{
-    \code{NULL} (the default), or the path to a file containing the
-    coding frame start positions for the sequences in the J-region db.
+    \code{"auto"} (the default), or the path to a file containing the
+    coding frame start positions for the sequences in the J-region db,
+    or \code{NULL}.
 
-    IMPORTANT NOTE:
+    Note that by default (i.e. when \code{auxiliary_data} is omitted or
+    set to \code{"auto"}), \code{igblastn()} uses one of the auxiliary
+    data files included in the IgBLAST installation used by \pkg{igblastr}.
+    More precisely, \code{igblastn()} uses \code{get_igblast_auxiliary_data()}
+    internally to obtain the path to the organism-specific auxiliary data file.
 
-    Unfortunately, \code{igblastn()} can emit a significant number
-    of the following warning when the \code{auxiliary_data} argument
-    is not specified:
-    \preformatted{    Warning: Auxilary data file could not be found}
-    Note that you can use \code{\link{get_igblast_auxiliary_data}()} to
-    obtain the path to the auxiliary data included in the IgBLAST
-    installation used by the \pkg{igblastr} package for a given organism,
-    and pass the returned path to the \code{auxiliary_data} argument.
-    This will silence the annoying warnings. However, be aware that this
-    data is NOT guaranteed to be compatible with the germline db that you
-    are using. See \code{?\link{get_igblast_auxiliary_data}} for the details.
-
-    If you supply auxiliary data that is not compatible with your germline
-    dbs, then \code{igblastn()} will NOT return proper frame status or CDR3
-    information (other returned information will still be correct).
+    IMPORTANT NOTES:
+    \itemize{
+        \item Supplying auxiliary data that is not compatible with the
+              V gene sequences of the selected germline db can cause
+              \code{igblastn()} to return improper frame status or CDR3
+              information (other returned information will still be correct).
+              See \code{?\link{get_igblast_auxiliary_data}} for more
+              information.
+        \item When \code{auxiliary_data} is set to \code{NULL}, then no
+              auxiliary data is used. In this case, \code{igblastn()} can
+              emit a significant number of the following warning:
+              \preformatted{    Warning: Auxilary data file could not be found}
+              and various columns of the returned AIRR-formatted tibble (e.g.
+              columns \code{vj_in_frame}, \code{productive}, \code{cdr3},
+              \code{fwr4}, and others) will be filled with \code{NA}s.
+      }
   }
   \item{...}{
     Extra arguments to be passed to the \code{igblastn}
@@ -249,11 +255,7 @@ use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 ## ---------------------------------------------------------------------
 
 ## We don't specify the 'outfmt' argument so output will be in AIRR format.
-## Since we're not supplying auxiliary data, igblastn() will emit many
-## warnings (see documentation of the 'auxiliary_data' argument above for
-## the details). We silence them by wrapping the call to igblastn() in
-## suppressWarnings().
-out <- suppressWarnings(igblastn(catnap_bnabs))
+out <- igblastn(catnap_bnabs)
 out
 
 ## The result is a tibble with one row per query sequence:
