@@ -266,7 +266,7 @@
     xargs_names <- names(xargs)
     stopifnot(!is.null(xargs_names), !anyDuplicated(xargs_names))
 
-    todo_url <- "https://github.com/hpages/igblastr/blob/devel/TODO"
+    todo_url <- "https://github.com/HyrienLab/igblastr/blob/devel/TODO"
 
     ## Check 'ig_seqtype' arg (see TODO file for the details).
     idx <- match("ig_seqtype", xargs_names)

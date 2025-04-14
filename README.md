@@ -5,7 +5,7 @@ IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
 
 Online IgBLAST: https://www.ncbi.nlm.nih.gov/igblast/
 
-Please use https://github.com/hpages/igblastr/issues to report bugs,
+Please use https://github.com/HyrienLab/igblastr/issues to report bugs,
 provide feedback, request features, etc...
 
 
@@ -20,7 +20,7 @@ provide feedback, request features, etc...
         install.packages("BiocManager")
     
     BiocManager::install("remotes")
-    BiocManager::install("hpages/igblastr")
+    BiocManager::install("HyrienLab/igblastr")
 
 #### Load igblastr
 

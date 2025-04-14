@@ -58,7 +58,7 @@ IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
 
 Online IgBLAST: https://www.ncbi.nlm.nih.gov/igblast/
 
-Please use https://github.com/hpages/igblastr/issues to report bugs,
+Please use https://github.com/HyrienLab/igblastr/issues to report bugs,
 provide feedback, request features, etc... about `r Biocpkg("igblastr")`.
 
 
@@ -278,21 +278,18 @@ See `?igblastn` for more information.
 
 # Downstream analysis examples
 
-```{r, message = F}
 
+```{r, message = F}
 library(ggplot2)
 library(stringr)
 library(dplyr)
 library(ggseqlogo)
-
 ```
 
 One common type of analysis of AIRR format data is to look at the distribution of percent mutation
 in each sequence. For example, here we can look at percent mutation in the V
 segments of each chain type (heavy, kappa, and lambda). Note that V percent mutation is 100 - v_identity.
-
 ```{r}
-
 out %>%
   ggplot(aes(locus, 100 - v_identity)) +
   geom_point(position = position_jitter(width = 0.3), alpha = 0.1) +
@@ -303,9 +300,7 @@ out %>%
 
 Another common type of analysis is investigating the distribution of germline
 genes (for example, V genes). Again, we want to stratify by locus or chain type.
-
 ```{r}
-
 for (loc in c("IGH", "IGK", "IGL")) {
   
   df_v_gene <- out %>%
@@ -329,9 +324,7 @@ for (loc in c("IGH", "IGK", "IGL")) {
 
 A third category of analyses investigates CDR3 sequences, including their
 lengths and motifs (often visualized using sequence logo plots).
-
 ```{r}
-
 out$cdr3_aa_length <- nchar(out$cdr3_aa)
 
 out %>%
@@ -344,7 +337,6 @@ out %>%
 ```
 
 ```{r}
-
 out %>%
   filter(locus == "IGK", cdr3_aa_length == 9) %>%
   pull(cdr3_aa) %>%
