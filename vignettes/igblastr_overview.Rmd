@@ -3,7 +3,9 @@ title: "_igblastr_ overview"
 author:
 - name: Hervé Pagès
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 9 April 2025"
+- name: Kellie MacPhee
+  affiliation: Fred Hutch Cancer Center, Seattle, WA
+date: "Compiled `r BiocStyle::doc_date()`; Modified 11 April 2025"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
