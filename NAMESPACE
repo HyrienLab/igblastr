@@ -96,7 +96,7 @@ export(
     install_IMGT_germline_db,
 
     ## install_AIRR_germline_db.R:
-    install_AIRR_germline_db,
+    #install_AIRR_germline_db,
 
     ## outfmt7-utils.R:
     list_outfmt7_specifiers,
