@@ -346,9 +346,11 @@ make_exe_args <- function(cmd_args)
     stopifnot(is.character(cmd_args))
     args_names <- names(cmd_args)
     stopifnot(!is.null(args_names))
+    ## For now we only put quotes around arguments that contain a space.
+    ## Should we preventively quote all arguments, just in case?
     quoteme_idx <- grep(" ", cmd_args, fixed=TRUE)
     if (length(quoteme_idx) != 0L)
-        cmd_args[quoteme_idx] <- paste0("'", cmd_args[quoteme_idx], "'")
+        cmd_args[quoteme_idx] <- shQuote(cmd_args[quoteme_idx])
     paste0("-", args_names, " ", cmd_args)
 }
 
