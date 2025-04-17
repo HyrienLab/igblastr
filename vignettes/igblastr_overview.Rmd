@@ -113,19 +113,19 @@ igblast_info()
 # Install and select a germline database
 
 
-The `r Biocpkg("igblastr")` package includes a FASTA file that contains
-8437 pairs of human antibody sequences (16874 individual sequences)
-retrieved from OAS (the Observed Antibody Space database). These will
-be our _query sequences_ i.e. the immunoglobulin (IG) sequences that
-we're going to analyze in this vignette.
+The `r Biocpkg("igblastr")` package includes a FASTA file containing
+8,437 paired heavy and light chain human antibody sequences (16,874 individual sequences)
+retrieved from OAS. These sequences will serve as our _query sequences_ that is, the immunoglobulin (Ig) sequences that
+we will analyze in this vignette.
 
-Before we can do so, the `igblastn` _standalone executable_ in IgBLAST (and
-thus our `igblastn()` function) will need access to the germline V, D,
-and J gene sequences for human. And before `igblastn` can use these
-germline sequences, they must be stored in three separate blast databases.
-We'll refer to these databases as the V-region, D-region, and J-region
-databases. When the three databases are put together, we'll refer to the
-aggregated database as the _germline database_.
+Before we can do so, the `igblastn` _standalone executable_ in IgBLAST (and,
+by extension, our `igblastn()` function) needs access to the germline V, D,
+and J gene sequences for humans. Before `igblastn` can use them, these
+germline sequences must first be stored in three separate BLAST databases: 
+one each for the V, D, and J regions. We will refer to these as the V-region, 
+D-region, and J-region databases, respectively. When considered together, we 
+will refer to them as the _germline database_.
+
 
 ## Builtin germline databases
 
