@@ -219,43 +219,41 @@ See `?list_c_region_dbs` for more information.
 # Use igblastn()
 
 
-Now that we have selected a germline and C-region db to use with `igblastn()`,
-we're almost ready to call `igblastn()`.
+Now that we have selected a germline and C-region database for use with `igblastn()`,
+we are almost ready to call `igblastn()` to perform the alignment.
 
-As mentioned previously, the `r Biocpkg("igblastr")` package includes a
-FASTA file with 8437 pairs of human antibody sequences retrieved from OAS.
-These are our _query sequences_ i.e. the immunoglobulin sequences that we're
-going to analyse with `igblastn()`.
+As mentioned earlier, the `r Biocpkg("igblastr")` package includes a
+FASTA file containing 8,437 paired heavy and light chain human antibody sequences retrieved from OAS.
+These serves as our _query sequences_ that is, the set of BCR sequences that we will analyse using `igblastn()`.
 
-The path to our query sequences can be obtained with:
+To get the path to the query sequences, use:
 ```{r}
 query <- system.file(package="igblastr", "extdata", "1279067_1_Paired_sequences.fasta")
 ```
 
-The `r Biocpkg("igblastr")` package also includes a JSON file that contains
-metadata associated with our query sequences:
+The `r Biocpkg("igblastr")` package also includes a JSON file containing
+metadata associated with the query BCR sequences:
 ```{r}
 json <- system.file(package="igblastr", "extdata", "1279067_1_Paired_All.json")
 query_metadata <- jsonlite::fromJSON(json)
 query_metadata
 ```
-There are 8347 sequences, which are paired (i.e., both heavy and light chain
-sequences are included). These sequences come from memory B cells from
-peripheral blood mononuclear cell (PBMC) samples from one human individual
-(age 38) with no particular disease or vaccination history.
-The source for these sequences is the Jaffe et al. (2022) study, with DOI link
-to the corresponding publication shown above.
+Ther 8,347 paired sequences come from memory B cells isolated from
+peripheral blood mononuclear cell (PBMC) samples of a single human donor
+(age 38) with no known disease or vaccination history.
+The source for these sequences is the Jaffe et al. (2022) study; the DOI link
+to the publication is provided above.
 
-Before we call `igblastn()`, we check the selected dbs by calling
-`use_germline_db()` and `use_c_region_db()` with no argument:
+Before calling `igblastn()`, we first check the selected databases by calling
+`use_germline_db()` and `use_c_region_db()` with no arguments:
 ```{r}
 use_germline_db()
 use_c_region_db()
 ```
 
-Let's call `igblastn()`. Note that we're only interested in the best alignment
-for each query sequence so we set `num_alignments_V` to 1. This will take up
-to 3 min on an average laptop:
+Now, let's call `igblastn()`. Since we are only interested in the best alignment
+for each query sequence, we set `num_alignments_V` to 1. This may take up
+to around 3 min on a standard laptop:
 ```{r}
 out <- igblastn(query, num_alignments_V=1)
 ```
@@ -263,7 +261,7 @@ out <- igblastn(query, num_alignments_V=1)
 #out <- readRDS(file.path("precomputed_results", "out.rds"))
 ```
 
-By default the output is a tibble in AIRR format:
+By default, the output is a tibble in AIRR format:
 ```{r}
 out
 ```
@@ -281,8 +279,8 @@ library(dplyr)
 library(ggseqlogo)
 ```
 
-One common type of analysis of AIRR format data is to look at the distribution of percent mutation
-in each sequence. For example, here we can look at percent mutation in the V
+One common analysis of AIRR format data is to examine the distribution of percent mutation
+across BCR sequences. Here we analyze the percent mutation in the V
 segments of each chain type (heavy, kappa, and lambda). Note that V percent mutation is 100 - v_identity.
 ```{r}
 out %>%
@@ -293,8 +291,8 @@ out %>%
   xlab(NULL)
 ```
 
-Another common type of analysis is investigating the distribution of germline
-genes (for example, V genes). Again, we want to stratify by locus or chain type.
+Another common analysis is to investigate the distribution of germline
+genes (e.g., V genes). In this case, we typically stratify the analysis by locus or chain type.
 ```{r}
 for (loc in c("IGH", "IGK", "IGL")) {
   
@@ -317,8 +315,8 @@ for (loc in c("IGH", "IGK", "IGL")) {
 }
 ```
 
-A third category of analyses investigates CDR3 sequences, including their
-lengths and motifs (often visualized using sequence logo plots).
+A third category of analysis focuses on CDR3 sequences, including their
+lengths and motifs, which are often visualized using sequence logo plots.
 ```{r}
 out$cdr3_aa_length <- nchar(out$cdr3_aa)
 
