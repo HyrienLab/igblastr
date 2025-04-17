@@ -29,10 +29,10 @@ load_c_region_db(db_name)
 
 \arguments{
   \item{builtin.only}{
-    By default \code{list_germline_dbs()} returns the list of all local
-    germline dbs, including builtin germline dbs. Set \code{builtin.only}
-    to \code{TRUE} to return only the list of builtin germline dbs.
-    Note that builtin dbs are prefixed with an underscore (\code{_}).
+    By default \code{list_c_region_dbs()} returns the list of all local
+    C-region dbs, including built-in C-region dbs. Set \code{builtin.only}
+    to \code{TRUE} to return only the list of built-in C-region dbs.
+    Note that built-in dbs are prefixed with an underscore (\code{_}).
   }
   \item{names.only}{
     By default \code{list_c_region_dbs()} returns the list of local
@@ -90,8 +90,8 @@ load_c_region_db(db_name)
   is \code{TRUE}). Columns IGH, IGK, and IGL in the data.frame indicate
   the number of sequences from each locus.
 
-  Builtin dbs are prefixed with an underscore (\code{_}).
-  Note that the C-region builtin dbs from IMGT were downloaded from
+  Built-in dbs are prefixed with an underscore (\code{_}).
+  Note that the C-region built-in dbs from IMGT were downloaded from
   \url{https://www.imgt.org/vquest/refseqh.html#constant-sets} and
   included in the \pkg{igblastr} package on the date indicated by the
   suffix of the db name.
@@ -128,7 +128,7 @@ load_c_region_db(db_name)
 \examples{
 if (!has_igblast()) install_igblast()
 
-## 3 builtin C-region dbs prefixed with an underscore:
+## 3 built-in C-region dbs prefixed with an underscore:
 list_c_region_dbs()
 
 list_c_region_dbs(names.only=TRUE)  # db names only

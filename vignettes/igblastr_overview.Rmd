@@ -5,7 +5,9 @@ author:
   affiliation: Fred Hutch Cancer Center, Seattle, WA
 - name: Kellie MacPhee
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 11 April 2025"
+- name: Ollivier Hyrien
+  affiliation: Fred Hutch Cancer Center, Seattle, WA
+date: "Compiled `r BiocStyle::doc_date()`; Modified 17 April 2025"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
@@ -23,13 +25,21 @@ library(BiocStyle)
 
 # Introduction
 
-The Immunoglobulin Basic Local Alignment Search Tool (IgBLAST) is a specialized bioinformatics tool developed by the National Center for Biotechnology Information (NCBI) for the analysis of B-cell receptor (BCR) and T-cell receptor (TCR) sequences (Ye et al., 2013). IgBLAST performs sequence alignment and annotation, with key outputs including germline V, D, and J gene assignments; detection of somatic hypermutations introduced during affinity maturation; identification and annotation of complementarity-determining regions (CDR1–CDR3) and framework regions (FR1–FR4); and both nucleotide and protein-level alignments. 
+The Immunoglobulin Basic Local Alignment Search Tool (IgBLAST) is a
+specialized bioinformatics tool developed by the National Center for
+Biotechnology Information (NCBI) for the analysis of B-cell receptor (BCR)
+and T-cell receptor (TCR) sequences (Ye et al., 2013). IgBLAST performs
+sequence alignment and annotation, with key outputs including germline
+V, D, and J gene assignments; detection of somatic hypermutations
+introduced during affinity maturation; identification and annotation
+of complementarity-determining regions (CDR1–CDR3) and framework
+regions (FR1–FR4); and both nucleotide and protein-level alignments.
 
 `r Biocpkg("igblastr")` is an R/Bioconductor package that provides functions
 to conveniently install and run a local IgBLAST installation from within R.
 The package is designed to make it as easy as possible to use IgBLAST in R
-by streamlining the installation of both IgBLAST and its associated germline 
-databases. In particular, these installations can be performed with a single 
+by streamlining the installation of both IgBLAST and its associated germline
+databases. In particular, these installations can be performed with a single
 function call, do not require root access, and persist across R sessions.
 
 The main function in the package is `igblastn()`, a wrapper to the `igblastn`
@@ -42,14 +52,16 @@ the package provides:
 - Functions to download and install germline databases from the
   IMGT/V-QUEST download site, and to configure them for use with `igblastn()`.
 
-- A set of built-in germline databases from OGRDB, the AIRR Community’s Open Germline Reference Database.
+- A set of built-in germline databases from OGRDB, the AIRR Community’s
+  Open Germline Reference Database.
 
-- A set of built-in  constant region (C-region) databases (a.k.a. constant region databases) from IMGT/V-QUEST.
+- A set of built-in constant region (C-region) databases (a.k.a. constant
+  region databases) from IMGT/V-QUEST.
 
 - Utility functions to parse the results returned by `igblastn()`.
 
-- Utilities to download data from OAS, the Observed Antibody Space database,
-  and prepare it for use with IgBLAST.
+- Utility functions to download data from OAS, the Observed Antibody
+  Space database, and prepare it for use with IgBLAST.
 
 - Etc.
 
@@ -64,7 +76,8 @@ provide feedback, request features (etc) about `r Biocpkg("igblastr")`.
 # Install and load the package
 
 
-Like any Bioconductor package, `r Biocpkg("igblastr")` should be installed with `BiocManager::install()`:
+Like any Bioconductor package, `r Biocpkg("igblastr")` should be installed
+with `BiocManager::install()`:
 ```{r, eval=FALSE}
 if (!require("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
@@ -91,16 +104,16 @@ See `?IGBLAST_ROOT` for more information.
 Otherwise, simply call `install_igblast()` to install the latest
 version of IgBLAST. As of March 2025, NCBI provides pre-compiled
 versions of IgBLAST for Linux, Windows, Intel Mac and Mac Silicon.
-`install_igblast()` will automatically download the appropriate pre-compiled 
-version of IgBLAST for your platform from the NCBI FTP site and install it in a location that will
-be remembered across R sessions.
+`install_igblast()` will automatically download the appropriate pre-compiled
+version of IgBLAST for your platform from the NCBI FTP site, and install it
+in a location that will be remembered across R sessions.
 ```{r}
 if (!has_igblast())
     install_igblast()
 ```
 See `?install_igblast` for more information.
 
-Note that we use `has_igblast()` to avoid  reinstalling IgBLAST if
+Note that we use `has_igblast()` to avoid reinstalling IgBLAST if
 `r Biocpkg("igblastr")` already has access to a working IgBLAST installation.
 
 Display basic information about the IgBLAST installation used
@@ -114,17 +127,18 @@ igblast_info()
 
 
 The `r Biocpkg("igblastr")` package includes a FASTA file containing
-8,437 paired heavy and light chain human antibody sequences (16,874 individual sequences)
-retrieved from OAS. These sequences will serve as our _query sequences_ that is, the immunoglobulin (Ig) sequences that
+8,437 paired heavy and light chain human antibody sequences (16,874
+individual sequences) retrieved from OAS. These sequences will serve as
+our _query sequences_, that is, the immunoglobulin (Ig) sequences that
 we will analyze in this vignette.
 
 Before we can do so, the `igblastn` _standalone executable_ in IgBLAST (and,
 by extension, our `igblastn()` function) needs access to the germline V, D,
 and J gene sequences for humans. Before `igblastn` can use them, these
-germline sequences must first be stored in three separate BLAST databases: 
-one each for the V, D, and J regions. We will refer to these as the V-region, 
-D-region, and J-region databases, respectively. When considered together, we 
-will refer to them as the _germline database_.
+germline sequences must first be stored in three separate BLAST databases.
+We will refer to these as the V-region, D-region, and J-region databases,
+respectively. When considered together, we will refer to them as the
+_germline database_.
 
 
 ## Built-in germline databases
@@ -145,8 +159,8 @@ and skip the subsection below.
 ## Install additional germline databases
 
 AIRR/OGRDB and IMGT/V-QUEST are two providers of germline databases that
-can be used with IgBLAST. If, for any reason, one of the built-in
-AIRR/OGRDB germline databases is not suitable (e.g., if your query sequences
+can be used with IgBLAST. If, for any reason, none of the built-in
+AIRR/OGRDB germline databases is suitable (e.g., if your query sequences
 are not from human or mouse), you can use `install_IMGT_germline_db()`
 to install additional germline databases. Below, we show how to install the
 latest human germline database from IMGT/V-QUEST.
@@ -168,7 +182,8 @@ install_IMGT_germline_db("202506-1", organism="Homo sapiens", force=TRUE)
 ```
 See `?install_IMGT_germline_db` for more information.
 
-Finally, we select the newly installed germline database for use with `igblastn()`:
+Finally, we select the newly installed germline database for use
+with `igblastn()`:
 ```{r}
 use_germline_db("IMGT-202506-1.Homo_sapiens.IGH+IGK+IGL")
 ```
@@ -181,8 +196,8 @@ To see the full list of local germline dbs:
 list_germline_dbs()
 ```
 Note that the asterisk (`*`) displayed at the far right of the output
-from `list_germline_dbs()` indicates the currently selected germline database
-(you may need to scroll horizontally to see the asterisk).
+from `list_germline_dbs()` indicates the currently selected germline
+database (you may need to scroll horizontally to see the asterisk).
 
 See `?list_germline_dbs` for more information.
 
@@ -190,28 +205,31 @@ See `?list_germline_dbs` for more information.
 # Select a constant region database (optional)
 
 
-The `igblastn` _standalone executable_ in IgBLAST can also use constant region 
-(C region) sequences to improve the analysis. As with the
-germline V, D, and J gene sequences, the C-region sequences should typically come
-from the same organism as the query sequences, and they must also be
-formatted as a BLAST database. We will refer to this database as the C-region database.
+The `igblastn` _standalone executable_ in IgBLAST can also use constant
+region (C region) sequences to improve the analysis. As with the
+germline V, D, and J gene sequences, the C-region sequences should
+typically come from the same organism as the query sequences, and they
+must also be formatted as a BLAST database. We will refer to this database
+as the C-region database.
 
-The `r Biocpkg("igblastr")` package includes a set of built-in C-region databases
-for human, mouse, and rabbit, obtained from IMGT/V-QUEST. These can be listed using:
+The `r Biocpkg("igblastr")` package includes a set of built-in C-region
+databases for human, mouse, and rabbit, obtained from IMGT/V-QUEST. These
+can be listed using:
 ```{r}
 list_c_region_dbs()
 ```
 The last part of the database name indicates the date of the download in
 YYYYMM format.
 
-If your query sequences are from human, mouse, or rabbit, we can
+If your query sequences are from human, mouse, or rabbit, you can
 select the appropriate database using `use_c_region_db()`:
 ```{r}
 use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 ```
 
-Calling `list_c_region_dbs()` again  should display an asterisk (*) at
-the far right of the output, indicating the currently selected C-region database.
+Calling `list_c_region_dbs()` again should display an asterisk (`*`)
+at the far right of the output, indicating the currently selected
+C-region database.
 
 See `?list_c_region_dbs` for more information.
 
@@ -219,12 +237,14 @@ See `?list_c_region_dbs` for more information.
 # Use igblastn()
 
 
-Now that we have selected a germline and C-region database for use with `igblastn()`,
-we are almost ready to call `igblastn()` to perform the alignment.
+Now that we have selected a germline and C-region database for use
+with `igblastn()`, we are almost ready to call `igblastn()` to perform
+the alignment.
 
 As mentioned earlier, the `r Biocpkg("igblastr")` package includes a
-FASTA file containing 8,437 paired heavy and light chain human antibody sequences retrieved from OAS.
-These serves as our _query sequences_ that is, the set of BCR sequences that we will analyse using `igblastn()`.
+FASTA file containing 8,437 paired heavy and light chain human antibody
+sequences retrieved from OAS. These serve as our _query sequences_,
+that is, the set of BCR sequences that we will analyse using `igblastn()`.
 
 To get the path to the query sequences, use:
 ```{r}
@@ -238,22 +258,22 @@ json <- system.file(package="igblastr", "extdata", "1279067_1_Paired_All.json")
 query_metadata <- jsonlite::fromJSON(json)
 query_metadata
 ```
-Ther 8,347 paired sequences come from memory B cells isolated from
-peripheral blood mononuclear cell (PBMC) samples of a single human donor
-(age 38) with no known disease or vaccination history.
-The source for these sequences is the Jaffe et al. (2022) study; the DOI link
-to the publication is provided above.
+The 8,347 paired sequences come from memory B cells isolated from
+peripheral blood mononuclear cell (PBMC) samples of a single human
+donor (age 38) with no known disease or vaccination history.
+The source for these sequences is the Jaffe et al. (2022) study; the
+DOI link to the publication is provided above.
 
-Before calling `igblastn()`, we first check the selected databases by calling
-`use_germline_db()` and `use_c_region_db()` with no arguments:
+Before calling `igblastn()`, we first check the selected databases by
+calling `use_germline_db()` and `use_c_region_db()` with no arguments:
 ```{r}
 use_germline_db()
 use_c_region_db()
 ```
 
-Now, let's call `igblastn()`. Since we are only interested in the best alignment
-for each query sequence, we set `num_alignments_V` to 1. This may take up
-to around 3 min on a standard laptop:
+Now, let's call `igblastn()`. Since we are only interested in the best
+alignment for each query sequence, we set `num_alignments_V` to 1. This
+may take up to around 3 min on a standard laptop:
 ```{r}
 out <- igblastn(query, num_alignments_V=1)
 ```
@@ -272,76 +292,102 @@ See `?igblastn` for more information.
 # Downstream analysis examples
 
 
-```{r, message = F}
+```{r, message=FALSE}
 library(ggplot2)
-library(stringr)
 library(dplyr)
 library(ggseqlogo)
 ```
 
-One common analysis of AIRR format data is to examine the distribution of percent mutation
-across BCR sequences. Here we analyze the percent mutation in the V
-segments of each chain type (heavy, kappa, and lambda). Note that V percent mutation is 100 - v_identity.
+One common analysis of AIRR format data is to examine the distribution of
+percent mutation across BCR sequences. Here we analyze the percent mutation
+in the V segments of each chain type (heavy, kappa, and lambda).
+Note that V percent mutation is 100 - v\_identity.
 ```{r}
-out %>%
-  ggplot(aes(locus, 100 - v_identity)) +
-  geom_point(position = position_jitter(width = 0.3), alpha = 0.1) +
-  geom_boxplot(color = "blue", fill = NA, outliers = F, alpha = 0.3) +
-  ggtitle("Distribution of V percent mutation by locus") +
-  xlab(NULL)
+out |>
+    ggplot(aes(locus, 100 - v_identity)) +
+    theme_bw(base_size=14) +
+    geom_point(position = position_jitter(width = 0.3), alpha = 0.1) +
+    geom_boxplot(color = "blue", fill = NA, outliers = FALSE, alpha = 0.3) +
+    ggtitle("Distribution of V percent mutation by locus") +
+    xlab(NULL)
 ```
 
 Another common analysis is to investigate the distribution of germline
-genes (e.g., V genes). In this case, we typically stratify the analysis by locus or chain type.
+genes (e.g., V genes). In this case, we typically stratify the analysis
+by locus or chain type.
 ```{r}
-for (loc in c("IGH", "IGK", "IGL")) {
-  
-  df_v_gene <- out %>%
-    filter(locus == loc) %>%
-    mutate(v_gene = str_remove_all(v_call, "\\*[0-9]{2}")) %>% # drop allele info
-    group_by(v_gene) %>%
-    summarize(n = n(), .groups = "drop") %>%
-    mutate(frac = n / sum(n))
-  
-  plt <- df_v_gene %>%
-    ggplot(aes(frac, v_gene)) +
-    geom_col() +
-    scale_x_continuous('Percent of sequences', labels = scales::percent) +
-    ylab("Germline gene") +
-    ggtitle(paste0(loc, "V gene prevalence"))
-  
-  print(plt)
-  
+plot_gene_dist <- function(out, loc) {
+    df_v_gene <- out |>
+        filter(locus == loc) |>
+        mutate(v_gene = sub("\\*[0-9]*", "", v_call)) |> # drop allele info
+        group_by(v_gene) |>
+        summarize(n = n(), .groups = "drop") |>
+        mutate(frac = n / sum(n))
+    df_v_gene |>
+        ggplot(aes(frac, v_gene)) +
+        theme_bw(base_size=13) +
+        geom_col() +
+        scale_x_continuous('Percent of sequences', labels = scales::percent) +
+        ylab("Germline gene") +
+        ggtitle(paste0(loc, "V gene prevalence"))
 }
+```
+```{r, fig.height=8}
+plot_gene_dist(out, "IGH")
+```
+```{r, fig.height=5.9}
+plot_gene_dist(out, "IGK")
+```
+```{r, fig.height=5.3}
+plot_gene_dist(out, "IGL")
 ```
 
 A third category of analysis focuses on CDR3 sequences, including their
 lengths and motifs, which are often visualized using sequence logo plots.
-```{r}
+```{r, fig.height=4.5}
 out$cdr3_aa_length <- nchar(out$cdr3_aa)
 
-out %>%
-  group_by(locus, cdr3_aa_length) %>%
-  summarize(n = n(), .groups = "drop") %>%
-  ggplot(aes(cdr3_aa_length, n)) +
-  facet_wrap(~locus) +
-  geom_col() +
-  ggtitle("Histograms of CDR3 length by locus")
+out |>
+    group_by(locus, cdr3_aa_length) |>
+    summarize(n = n(), .groups = "drop") |>
+    ggplot(aes(cdr3_aa_length, n)) +
+    theme_bw(base_size=14) +
+    facet_wrap(~locus) +
+    geom_col() +
+    ggtitle("Histograms of CDR3 length by locus")
 ```
 
 ```{r}
-out %>%
-  filter(locus == "IGK", cdr3_aa_length == 9) %>%
-  pull(cdr3_aa) %>%
-  ggseqlogo(method = "probability") +
-  ggtitle("Logo plot of kappa chain CDR3 sequences that are 9 AA long")
+out |>
+    filter(locus == "IGK", cdr3_aa_length == 9) |>
+    pull(cdr3_aa) |>
+    ggseqlogo(method = "probability") +
+    theme_bw(base_size=14) +
+    ggtitle("Logo plot of kappa chain CDR3 sequences that are 9 AA long")
 ```
 
 
 # Future developments
 
 
-TODO
+At the moment, the `r Biocpkg("igblastr")` package does not provide
+access to the full functionality of the IgBLAST software. In particular,
+the `igblastn()` function only supports the analysis of B-cell receptor (BCR)
+sequences. Also, the `igblastp` _standalone executable_ included in IgBLAST
+has no counterpart in `r Biocpkg("igblastr")`.
+
+Some future developments include:
+
+- Adding support for T-cell receptor (TCR) sequence analysis.
+  This will require adding facilities to download and install TCR
+  oriented germline databases, and to configure them for use
+  with `igblastn(..., ig_seqtype="TCR")`.
+
+- Implement `igblastp()`, a wrapper to the `igblastp` _standalone executable_
+  included in IgBLAST for protein-level alignments.
+
+- Facilities to retrieve germline databases from OGRDB, the AIRR Community’s
+  Open Germline Reference Database.
 
 
 # Session information

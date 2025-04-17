@@ -403,7 +403,7 @@ form_AIRR_germline_db_name <- function(organism_path, strain=NULL)
     organism <- basename(organism_path)
     if (!is.null(strain))
         organism <- paste0(organism, ".", strain)
-    ## Prefix name with underscore because it's a builtin db.
+    ## Prefix name with underscore because it's a built-in db.
     paste("_AIRR", organism, loci, version, sep=".")
 }
 

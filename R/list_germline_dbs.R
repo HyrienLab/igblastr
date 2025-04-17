@@ -44,7 +44,7 @@
         create_germline_db(strain_path, db_path)
     }
 
-    ## Any other builtin germline dbs to create?
+    ## Any other built-in germline dbs to create?
 
     ## Everyting went fine so we can rename 'tmp_destdir' to 'destdir'.
     rename_file(tmp_destdir, destdir)
@@ -61,7 +61,7 @@
 ### When 'init.path=TRUE':
 ### - if the path to return exists then no further action is performed;
 ### - if the path to return does NOT exist then it's created and populated
-###   with the builtin germline dbs.
+###   with the built-in germline dbs.
 ### This means that the returned path is only guaranteed to exist
 ### when 'init.path' is set to TRUE.
 get_germline_dbs_path <- function(init.path=FALSE)

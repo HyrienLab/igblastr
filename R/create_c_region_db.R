@@ -74,7 +74,7 @@ form_IMGT_c_region_db_name <- function(organism_path)
     loci <- paste(sort(substr(fasta_files, 1L, 3L)), collapse="+")
     version <- read_version_file(organism_path)
     organism <- basename(organism_path)
-    ## Prefix name with underscore because it's a builtin db.
+    ## Prefix name with underscore because it's a built-in db.
     paste("_IMGT", organism, loci, version, sep=".")
 }
 

@@ -1,3 +1,7 @@
+- IgBLAST is typically used in the field of immunology and immunogenetics
+  but Bioconductor does not have biocViews terms for this. Request their
+  addition.
+
 - Drop the persistent selection of the germline and constant region db.
   This selection is currently recorded in a file which is a very bad idea
   because that means that if the user uses igblastr in more than one R
@@ -10,12 +14,8 @@
   the selection at the beginning of each session, which is actually a good
   thing!
 
-- Set GHA to build/check the package on pushes.
-
 - Clarify provenance of 1279067_1_Paired_sequences.fasta and its licence.
   Give appropriate credit. See https://opig.stats.ox.ac.uk/webapps/oas/
-
-- Check airr from CRAN.
 
 - More investigation to assess the consequences of using the static auxiliary
   data included in IgBLAST.
@@ -94,8 +94,6 @@
 
 - Implement install_AIRR_germline_db(). Will download the germline sequences
   from https://ogrdb.airr-community.org/ (link provided by Kellie).
-
-- Add vignette.
 
 - Update README.md.
 
