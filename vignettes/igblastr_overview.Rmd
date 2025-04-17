@@ -138,20 +138,20 @@ list_germline_dbs(builtin.only=TRUE)
 The last part of the database name indicates the date of the download in
 YYYYMM format.
 
-If our query sequences are from human or from one of the mouse strains listed
+If our query sequences are from humans or from one of the mouse strains listed
 above, we can already select the appropriate database with `use_germline_db()`
 and skip the subsection below.
 
 ## Install additional germline databases
 
 AIRR/OGRDB and IMGT/V-QUEST are two providers of germline databases that
-can be used with IgBLAST. If, for whatever reason, using one of the builtin
-AIRR/OGRDB germline databases is not an option (e.g. our query sequences
-are not from human or mouse), then we can use `install_IMGT_germline_db()`
-to install additional germline databases. Here we show how to install the
+can be used with IgBLAST. If, for any reason, one of the built-in
+AIRR/OGRDB germline databases is not suitable (e.g., if your query sequences
+are not from human or mouse), you can use `install_IMGT_germline_db()`
+to install additional germline databases. Below, we show how to install the
 latest human germline database from IMGT/V-QUEST.
 
-First we list the most recent IMGT/V-QUEST releases:
+First, we list the most recent IMGT/V-QUEST releases:
 ```{r}
 head(list_IMGT_releases())
 ```
@@ -161,14 +161,14 @@ The organisms included in release 202506-1 are:
 list_IMGT_organisms("202506-1")
 ```
 
-Then we install the human germline database from the latest IMGT/V-QUEST
+Next, we install the human germline database from the latest IMGT/V-QUEST
 release:
 ```{r, message=FALSE}
 install_IMGT_germline_db("202506-1", organism="Homo sapiens", force=TRUE)
 ```
 See `?install_IMGT_germline_db` for more information.
 
-Finally we select this new germline db to use with `igblastn()`:
+Finally, we select the newly installed germline database for use with `igblastn()`:
 ```{r}
 use_germline_db("IMGT-202506-1.Homo_sapiens.IGH+IGK+IGL")
 ```
