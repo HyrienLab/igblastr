@@ -127,9 +127,9 @@ D-region, and J-region databases, respectively. When considered together, we
 will refer to them as the _germline database_.
 
 
-## Builtin germline databases
+## Built-in germline databases
 
-The `r Biocpkg("igblastr")` package includes a set of builtin germline
+The `r Biocpkg("igblastr")` package includes a set of built-in germline
 databases for human and mouse that were obtained from the OGRDB database
 (AIRR community). These can be listed with:
 ```{r}
