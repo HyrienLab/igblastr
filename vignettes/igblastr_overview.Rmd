@@ -190,30 +190,28 @@ See `?list_germline_dbs` for more information.
 # Select a constant region database (optional)
 
 
-The `igblastn` _standalone executable_ in IgBLAST can also use C gene
-sequences, a.k.a. constant regions, to improve the analysis. Like with the
-germline V, D, and J gene sequences, the C sequences should typically be
-from the same organism than the query sequences, and they also need to be
-stored in a blast database. We'll refer to this database as the C-region db.
+The `igblastn` _standalone executable_ in IgBLAST can also use constant region 
+(C region) sequences to improve the analysis. As with the
+germline V, D, and J gene sequences, the C-region sequences should typically come
+from the same organism as the query sequences, and they must also be
+formatted as a BLAST database. We will refer to this database as the C-region database.
 
-The `r Biocpkg("igblastr")` package includes a set of builtin C-region dbs
-for human, mouse, and rabbit that were obtained from IMGT/V-QUEST. These
-can be listed with:
+The `r Biocpkg("igblastr")` package includes a set of built-in C-region databases
+for human, mouse, and rabbit, obtained from IMGT/V-QUEST. These can be listed using:
 ```{r}
 list_c_region_dbs()
 ```
 The last part of the database name indicates the date of the download in
 YYYYMM format.
 
-If our query sequences are from human, mouse, or rabbit, then we can
-select the appropriate database with `use_c_region_db()`:
+If your query sequences are from human, mouse, or rabbit, we can
+select the appropriate database using `use_c_region_db()`:
 ```{r}
 use_c_region_db("_IMGT.human.IGH+IGK+IGL.202412")
 ```
 
-Calling `list_c_region_dbs()` again now should display an asterisk on
-the very right end of the output to indicate the C-region db that
-is currently selected.
+Calling `list_c_region_dbs()` again  should display an asterisk (*) at
+the far right of the output, indicating the currently selected C-region database.
 
 See `?list_c_region_dbs` for more information.
 
