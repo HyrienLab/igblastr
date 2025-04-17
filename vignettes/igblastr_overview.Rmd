@@ -180,10 +180,9 @@ To see the full list of local germline dbs:
 ```{r}
 list_germline_dbs()
 ```
-Note that the asterisk (`*`) displayed on the very right end
-of `list_germline_dbs()`'s output indicates the germline db that
-is currently selected (you might need to scroll the output to the
-right to see the asterisk).
+Note that the asterisk (`*`) displayed at the far right of the output
+from `list_germline_dbs()` indicates the currently selected germline database
+(you may need to scroll horizontally to see the asterisk).
 
 See `?list_germline_dbs` for more information.
 
