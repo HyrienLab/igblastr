@@ -1,3 +1,6 @@
+- Add bibliography to vignette. See AuthoringRmdVignettes.Rmd vignette in
+  BiocStyle for how to do this.
+
 - IgBLAST is typically used in the field of immunology and immunogenetics
   but Bioconductor does not have biocViews terms for this. Request their
   addition.
