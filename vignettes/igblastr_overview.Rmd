@@ -84,15 +84,15 @@ library(igblastr)
 
 
 If IgBLAST is already installed on your system, you can tell
-`r Biocpkg("igblastr")` to use it by setting environment variable
-`IGBLAST_ROOT` to the path of the IgBLAST installation.
+`r Biocpkg("igblastr")` to use it by setting the environment variable
+`IGBLAST_ROOT` to the path of your IgBLAST installation.
 See `?IGBLAST_ROOT` for more information.
 
 Otherwise, simply call `install_igblast()` to install the latest
 version of IgBLAST. As of March 2025, NCBI provides pre-compiled
 versions of IgBLAST for Linux, Windows, Intel Mac and Mac Silicon.
-`install_igblast()` will download the pre-compiled IgBLAST that matches
-your platform from NCBI FTP site, and install it in a location that will
+`install_igblast()` will automatically download the appropriate pre-compiled 
+version of IgBLAST for your platform from the NCBI FTP site and install it in a location that will
 be remembered across R sessions.
 ```{r}
 if (!has_igblast())
@@ -100,8 +100,8 @@ if (!has_igblast())
 ```
 See `?install_igblast` for more information.
 
-Note that we used `has_igblast()` to avoid trying to reinstall IgBLAST if
-`r Biocpkg("igblastr")` has already access to an IgBLAST installation.
+Note that we use `has_igblast()` to avoid  reinstalling IgBLAST if
+`r Biocpkg("igblastr")` already has access to a working IgBLAST installation.
 
 Display basic information about the IgBLAST installation used
 by `r Biocpkg("igblastr")`:
