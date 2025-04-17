@@ -58,14 +58,13 @@ IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
 Online IgBLAST: https://www.ncbi.nlm.nih.gov/igblast/
 
 Please use https://github.com/HyrienLab/igblastr/issues to report bugs,
-provide feedback, request features, etc... about `r Biocpkg("igblastr")`.
+provide feedback, request features (etc) about `r Biocpkg("igblastr")`.
 
 
 # Install and load the package
 
 
-Like any other Bioconductor package, `r Biocpkg("igblastr")` should always
-be installed with `BiocManager::install()`:
+Like any Bioconductor package, `r Biocpkg("igblastr")` should be installed with `BiocManager::install()`:
 ```{r, eval=FALSE}
 if (!require("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
