@@ -23,14 +23,14 @@ library(BiocStyle)
 
 # Introduction
 
+The Immunoglobulin Basic Local Alignment Search Tool (IgBLAST) is a specialized bioinformatics tool developed by the National Center for Biotechnology Information (NCBI) for the analysis of B-cell receptor (BCR) and T-cell receptor (TCR) sequences (Ye et al., 2013). IgBLAST performs sequence alignment and annotation, with key outputs including germline V, D, and J gene assignments; detection of somatic hypermutations introduced during affinity maturation; identification and annotation of complementarity-determining regions (CDR1–CDR3) and framework regions (FR1–FR4); and both nucleotide and protein-level alignments. 
 
 `r Biocpkg("igblastr")` is an R/Bioconductor package that provides functions
-to conveniently install and use a local IgBLAST installation from R.
-The package aims at making as easy as possible to run IgBLAST from R,
-by making the installation of IgBLAST and associated germline databases
-as straightforward as possible. In particular, these installations can
-be performed with a single function call, don't require root access, and are
-persistent across R sessions.
+to conveniently install and run a local IgBLAST installation from within R.
+The package is designed to make it as easy as possible to use IgBLAST in R
+by streamlining the installation of both IgBLAST and its associated germline 
+databases. In particular, these installations can be performed with a single 
+function call, do not require root access, and persist across R sessions.
 
 The main function in the package is `igblastn()`, a wrapper to the `igblastn`
 _standalone executable_ included in IgBLAST. In addition to `igblastn()`,
@@ -39,20 +39,19 @@ the package provides:
 - A function (`install_igblast()`) for conveniently downloading and
   installing a pre-compiled IgBLAST from NCBI.
 
-- Functions for downloading and installing germline databases from the
-  IMGT/V-QUEST download site, and for using them with `igblastn()`.
+- Functions to download and install germline databases from the
+  IMGT/V-QUEST download site, and to configure them for use with `igblastn()`.
 
-- A set of builtin germline databases from the OGRDB database (AIRR community).
+- A set of built-in germline databases from OGRDB, the AIRR Community’s Open Germline Reference Database.
 
-- A set of builtin C-region databases (a.k.a. constant region databases)
-  from IMGT/V-QUEST.
+- A set of built-in  constant region (C-region) databases (a.k.a. constant region databases) from IMGT/V-QUEST.
 
-- Utilities to parse the results returned by `igblastn()`.
+- Utility functions to parse the results returned by `igblastn()`.
 
 - Utilities to download data from OAS, the Observed Antibody Space database,
-  and to prepare this data for use with IgBLAST.
+  and prepare it for use with IgBLAST.
 
-- and more...
+- Etc.
 
 IgBLAST is described at https://pubmed.ncbi.nlm.nih.gov/23671333/
 
