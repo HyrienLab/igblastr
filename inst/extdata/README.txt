@@ -8,7 +8,7 @@ Content
 
 - README.txt: This file.
 
-- 1279067_1_Paired_sequences.fasta: FASTA file containing 8437 pairs of
+- 1279067_1_Paired_sequences.fasta.gz: FASTA file containing 8437 pairs of
   human antibody sequences (16874 individual sequences) retrieved from OAS (the
   Observed Antibody Space database). The file was obtained programmatically
   by running the following code in this folder on March 26, 2025:
@@ -17,10 +17,11 @@ Content
     download_paired_OAS_units("Jaffe_2022", "1279067_1_Paired_All.csv.gz")
     df <- read_OAS_csv("1279067_1_Paired_All.csv.gz")
     sequences <- extract_sequences_from_paired_OAS_df(df, add.prefix=TRUE)
-    writeXStringSet(sequences, "1279067_1_Paired_sequences.fasta")
+    writeXStringSet(sequences, "1279067_1_Paired_sequences.fasta.gz",
+                    compress=TRUE)
 
 - 1279067_1_Paired_All.json: JSON file containing the metadata associated
-  with the sequences in 1279067_1_Paired_sequences.fasta.
+  with the sequences in 1279067_1_Paired_sequences.fasta.gz.
   This file was obtained by downloading 1279067_1_Paired_All.json directly
   from https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Jaffe_2022/json/
 

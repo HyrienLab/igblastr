@@ -22,7 +22,8 @@ Authors@R: c(
 	       comment=c(ORCID="0009-0008-4279-0756")),
 	person("Jason", "Taylor", role="ctb"))
 Depends: R (>= 4.4.0), tibble, Biostrings
-Imports: methods, utils, stats, tools, httr, xml2, rvest, xtable, jsonlite,
+Imports: methods, utils, stats, tools,
+	R.utils, httr, xml2, rvest, xtable, jsonlite,
 	S4Vectors, IRanges, GenomeInfoDb
 Suggests: testthat, knitr, rmarkdown, BiocStyle, ggplot2, dplyr, ggseqlogo
 SystemRequirements: Perl (for install_IMGT_germline_db() only)

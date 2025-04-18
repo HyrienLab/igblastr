@@ -3,6 +3,19 @@
 ### -------------------------------------------------------------------------
 
 
+.get_igblastr_tempdir <- function()
+{
+    dirpath <- file.path(tempdir(), "igblastr")
+    if (!dir.exists(dirpath)) {
+        if (file.exists(dirpath))
+            stop(wmsg("Anomaly: '", dirpath, "' already exists ",
+                      "as a file, not as a directory."))
+        dir.create(dirpath)
+    }
+    dirpath
+}
+
+
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .normarg_query()
 ###
@@ -25,6 +38,11 @@
 {
     if (isSingleNonWhiteString(query)) {
         path <- file_path_as_absolute(query)
+        if (has_suffix(path, ".gz")) {
+            destname <- file.path(.get_igblastr_tempdir(), "query.fasta")
+            gunzip(path, destname=destname, remove=FALSE)
+            path <- destname
+        }
         .check_query_seq_lengths(fasta.seqlengths(path))
     } else if (is(query, "DNAStringSet")) {
         if (is.null(names(query)))
@@ -121,16 +139,8 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
 ### Must return an absolute path.
 .normarg_out <- function(out)
 {
-    if (is.null(out)) {
-        dirpath <- file.path(tempdir(), "igblastr")
-        if (!dir.exists(dirpath)) {
-            if (file.exists(dirpath))
-                stop(wmsg("Anomaly: '", dirpath, "' already exists ",
-                          "as a file, not as a directory."))
-            dir.create(dirpath)
-        }
-        return(file.path(dirpath, "blastn_out.txt"))
-    }
+    if (is.null(out))
+        return(file.path(.get_igblastr_tempdir(), "blastn_out.txt"))
     if (!isSingleNonWhiteString(out))
         stop(wmsg("'out' must be NULL or a single (non-empty) string"))
     dirpath <- dirname(out)

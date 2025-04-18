@@ -248,7 +248,7 @@ that is, the set of BCR sequences that we will analyse using `igblastn()`.
 
 To get the path to the query sequences, use:
 ```{r}
-query <- system.file(package="igblastr", "extdata", "1279067_1_Paired_sequences.fasta")
+query <- system.file(package="igblastr", "extdata", "1279067_1_Paired_sequences.fasta.gz")
 ```
 
 The `r Biocpkg("igblastr")` package also includes a JSON file containing
