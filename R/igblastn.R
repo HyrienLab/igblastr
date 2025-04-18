@@ -40,7 +40,7 @@
         path <- file_path_as_absolute(query)
         if (has_suffix(path, ".gz")) {
             destname <- file.path(.get_igblastr_tempdir(), "query.fasta")
-            gunzip(path, destname=destname, remove=FALSE)
+            gunzip(path, destname=destname, overwrite=TRUE, remove=FALSE)
             path <- destname
         }
         .check_query_seq_lengths(fasta.seqlengths(path))
