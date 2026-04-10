@@ -57,8 +57,7 @@ write_auxdata(auxdata, file="")
     \item \code{\link{compute_auxdata}} to annotate a set of
           germline J gene allele sequences.
 
-    \item \link{auxdata_utils} to access and manipulate IgBLAST
-          \emph{auxiliary data}.
+    \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 
     \item The \code{\link{igblastn}} function to run the \code{igblastn}
           \emph{standalone executable} included in IgBLAST from R. This

@@ -98,6 +98,11 @@ export(
     ## compute_auxata.R:
     compute_auxdata,
 
+    ## J_alleles-utils.R:
+    translate_J_alleles,
+    J_allele_has_stop_codon,
+    translate_fwr4,
+
     ## get_igblast_root.R:
     get_igblast_root, set_igblast_root,
 
@@ -122,9 +127,7 @@ export(
     ## auxdata-utils.R:
     get_auxdata_path, get_igblast_auxiliary_data,
     load_auxdata, load_igblast_auxiliary_data,
-    translate_J_alleles,
-    J_allele_has_stop_codon,
-    translate_fwr4,
+    compute_germline_db_auxdata,
 
     ## install_igblast.R:
     install_igblast,

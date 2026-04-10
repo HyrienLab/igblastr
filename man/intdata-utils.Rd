@@ -137,8 +137,7 @@ V_allele_has_stop_codon(V_alleles, intdata)
     \item \code{\link{compute_V_gene_delineations}} to annotate a set of
           germline V gene allele sequences.
 
-    \item \link{auxdata_utils} to access, manipulate, and generate IgBLAST
-          \emph{auxiliary data}.
+    \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 
     \item \code{\link{update_live_igdata}} for more information about "live"
           and "original" IgBLAST data.

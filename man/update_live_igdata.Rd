@@ -90,8 +90,7 @@ reset_live_igdata(subdirs=c("all", "internal_data", "optional_file"))
     \item \link{intdata_utils} to access and manipulate IgBLAST
           \emph{internal data}.
 
-    \item \link{auxdata_utils} to access, manipulate, and generate IgBLAST
-          \emph{auxiliary data}.
+    \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 
     \item The \code{\link{igblastn}} function to run the \code{igblastn}
           \emph{standalone executable} included in IgBLAST from R. This

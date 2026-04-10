@@ -53,6 +53,7 @@ Collate:
 	clean_allele_set.R
 	auxdata-IO.R
 	compute_auxdata.R
+	J_alleles-utils.R
 	LATIN_NAMES.R
 	IMGT-utils.R
 	IMGT-c_region-utils.R
