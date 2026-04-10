@@ -22,7 +22,8 @@
 
 \usage{
 install_IMGT_germline_db(release, organism="Homo sapiens", tcr.db=FALSE,
-                         loci="auto", without.intdata=FALSE,
+                         loci="auto",
+                         without.intdata=FALSE, without.auxdata=FALSE,
                          overwrite=FALSE, verbose=FALSE, ...)
 
 ## Can only be used to "subset" a built-in C-region databse (see
@@ -68,6 +69,9 @@ install_IMGT_c_region_db(organism, loci,
 
     Also see \code{?\link{intdata_utils}} for more information about IgBLAST
     \emph{internal data}.
+  }
+  \item{without.auxdata}{
+    COMING SOON...
   }
   \item{overwrite}{
     Set to \code{TRUE} to reinstall if the requested database is already
@@ -172,20 +176,20 @@ if (IMGT_is_up()) {
 
   list_IMGT_organisms("202518-3")
 
-  ## Download Mouse BCR germline gene allele sequences from IMGT/V-QUEST
-  ## 202518-3, and store them in a cached germline database:
-  install_IMGT_germline_db("202518-3", organism="Mus musculus",
+  ## Download human BCR germline gene allele sequences from IMGT/V-QUEST
+  ## release 202518-3, and store them in a cached germline database:
+  install_IMGT_germline_db("202518-3", organism="Homo sapiens",
                            overwrite=TRUE)
 
   ## List the cached germline databases:
   list_germline_dbs()
 
   ## Select newly installed germline db to use with igblastn():
-  use_germline_db("IMGT-202518-3.Mus_musculus.IGH+IGK+IGL")
+  use_germline_db("IMGT-202518-3.Homo_sapiens.IGH+IGK+IGL")
 
-  ## Download Mouse TCR germline gene allele sequences from IMGT/V-QUEST
-  ## 202518-3, and store them in a cached germline database:
-  install_IMGT_germline_db("202518-3", organism="Mus musculus",
+  ## Download human TCR germline gene allele sequences from IMGT/V-QUEST
+  ## release 202518-3, and store them in a cached germline database:
+  install_IMGT_germline_db("202518-3", organism="Homo sapiens",
                            tcr.db=TRUE, overwrite=TRUE)
   list_germline_dbs()
 

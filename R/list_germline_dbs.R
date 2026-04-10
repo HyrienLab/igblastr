@@ -85,13 +85,16 @@ warn_if_old_AIRR_dbs_are_present <- function()
 
 ### 'long.listing' is ignored when 'names.only' is TRUE.
 ### Returns a germline_dbs_df object (data.frame extension) by default.
-list_germline_dbs <- function(builtin.only=FALSE, with.intdata.only=FALSE,
+list_germline_dbs <- function(builtin.only=FALSE,
+                              with.intdata.only=FALSE,
+                              with.auxdata.only=FALSE,
                               names.only=FALSE, long.listing=FALSE)
 {
     germline_dbs_home <- get_germline_dbs_home(TRUE)  # guaranteed to exist
     ans <- list_dbs(germline_dbs_home, what="germline",
                     builtin.only=builtin.only,
                     with.intdata.only=with.intdata.only,
+                    with.auxdata.only=with.auxdata.only,
                     names.only=names.only, long.listing=long.listing)
     if (is.data.frame(ans))
         class(ans) <- c("germline_dbs_df", class(ans))
@@ -102,13 +105,19 @@ list_germline_dbs <- function(builtin.only=FALSE, with.intdata.only=FALSE,
 
 print.germline_dbs_df <- function(x, ...)
 {
-    germline_dbs_home <- get_germline_dbs_home(TRUE)  # guaranteed to exist
+    ## list_germline_dbs() already called 'get_germline_dbs_home(TRUE)' so
+    ## it's reasonable to assume that 'germline_dbs_home' already exists and
+    ## was initialized. So we don't need to call 'get_germline_dbs_home(TRUE)'
+    ## again (it would call install_missing_builtin_germline_dbs() which has
+    ## a small non-negligible cost).
+    germline_dbs_home <- get_germline_dbs_home()
     print_dbs_df(x, germline_dbs_home, what="germline")
 }
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### list_germline_db_names()
+### valid_germline_db_name()
+### check_germline_db_name()
 ###
 
 .stop_on_no_installed_germline_db_yet <- function()
@@ -119,8 +128,7 @@ print.germline_dbs_df <- function(x, ...)
     stop(wmsg(msg))
 }
 
-### Not exported!
-list_germline_db_names <- function()
+.list_germline_db_names <- function()
 {
     all_db_names <- list_germline_dbs(names.only=TRUE)
     ## Should never happen because of the built-in OGRDB dbs but we keep this
@@ -131,10 +139,12 @@ list_germline_db_names <- function()
     all_db_names
 }
 
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### check_germline_db_name()
-###
+### Not exported!
+valid_germline_db_name <- function(db_name)
+{
+    stopifnot(isSingleNonWhiteString(db_name))
+    db_name %in% .list_germline_db_names()
+}
 
 .stop_on_invalid_germline_db_name <- function(db_name)
 {
@@ -152,8 +162,7 @@ check_germline_db_name <- function(db_name)
 {
     if (!isSingleNonWhiteString(db_name))
         stop(wmsg("'db_name' must be a single (non-empty) string"))
-    all_db_names <- list_germline_db_names()
-    if (!(db_name %in% all_db_names))
+    if (!valid_germline_db_name(db_name))
         .stop_on_invalid_germline_db_name(db_name)
 }
 

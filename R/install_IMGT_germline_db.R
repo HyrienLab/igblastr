@@ -56,6 +56,7 @@
 install_IMGT_germline_db <- function(release, organism="Homo sapiens",
                                      tcr.db=FALSE, loci="auto",
                                      without.intdata=FALSE,
+                                     without.auxdata=FALSE,
                                      overwrite=FALSE, verbose=FALSE, ...)
 {
     ## Check arguments.
@@ -65,6 +66,8 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
     loci_prefix <- extract_loci_prefix(loci)
     if (!isTRUEorFALSE(without.intdata))
         stop(wmsg("'without.intdata' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(without.auxdata))
+        stop(wmsg("'without.auxdata' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(overwrite))
         stop(wmsg("'overwrite' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(verbose))
@@ -87,9 +90,11 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
 
     ## Create and install germline db.
     install_dir <- get_germline_dbs_home(TRUE)  # guaranteed to exist
+    with.auxdata <- !(without.auxdata || loci_prefix == "TR")
     if.exists <- if (overwrite) "overwrite" else "error"
     install_germline_db(install_dir, db_name, fasta_store, loci,
                         gapped=TRUE, with.intdata=!without.intdata,
+                        with.auxdata=with.auxdata,
                         if.exists=if.exists, verbose=verbose,
                         cheer.if.success=TRUE)
 }

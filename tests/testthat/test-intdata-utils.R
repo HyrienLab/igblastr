@@ -67,7 +67,10 @@ test_that("load_intdata()", {
     intdata <- load_intdata("_OGRDB.rhesus_monkey.IGH+IGK+IGL.202602")
     expect_true(all(validate_ndm_rows(intdata)))
 
-    expect_error(load_intdata("toto"), regexp="no internal data found")
+    expect_error(
+        load_intdata("toto"),
+        regexp="'organism' must be one of \"human\", \"mouse\", "
+    )
     expect_error(
         load_intdata("_OGRDB.human.IGH+IGK+IGL.202410", domain_system="kabat"),
         regexp="V.ndm.kabat not found"

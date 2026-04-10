@@ -39,6 +39,13 @@ translate_fwr4(J_alleles, auxdata, max.codons=NA)
   \item{organism}{
     A single string containing the name of an organism as
     returned by \code{\link{list_igblast_organisms}()}.
+
+    Alternatively, this can be the name of a cached germline db.
+    Note that this works only for germline dbs that include their
+    own \emph{auxiliary data}. You can use:
+    \preformatted{    list_germline_dbs(with.auxdata.only=TRUE)}
+    to list them.
+    See \code{?\link{list_germline_dbs}} for more information.
   }
   \item{which}{
     By default, \code{get_auxdata_path()} and \code{load_auxdata()}
@@ -162,6 +169,13 @@ get_auxdata_path("human")
 human_auxdata <- load_auxdata("human")
 head(human_auxdata)
 
+## Get the auxiliary data included in germline db
+## _OGRDB.rhesus_monkey.IGH+IGK+IGL.202602 (this data
+## was computed with compute_auxdata()):
+db_name <- "_OGRDB.rhesus_monkey.IGH+IGK+IGL.202602"
+rhesus_monkey_auxdata <- load_intdata(db_name)
+head(rhesus_monkey_auxdata)
+
 ## ---------------------------------------------------------------------
 ## 2. A close look at IgBLAST auxiliary data for rabbit
 ## ---------------------------------------------------------------------
@@ -172,6 +186,7 @@ rabbit_auxdata <- load_auxdata("rabbit")
 ## It turns out that IgBLAST auxiliary data for rabbit matches exactly
 ## the set of rabbit germline J alleles available at IMGT:
 db_name <- install_IMGT_germline_db("202531-1", "Oryctolagus cuniculus",
+                                    without.auxdata=TRUE,
                                     overwrite=TRUE)
 J_alleles <- load_germline_db(db_name, region_types="J")
 J_alleles  # DNAStringSet object

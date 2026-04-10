@@ -177,7 +177,8 @@ list_db_original_fasta_files <- function(db_path, region_type=VDJC_REGION_TYPES)
 
 ### 'long.listing' is ignored when 'names.only' is TRUE.
 list_dbs <- function(dbs_home, what=c("germline", "C-region"),
-                     builtin.only=FALSE, with.intdata.only=FALSE,
+                     builtin.only=FALSE,
+                     with.intdata.only=FALSE, with.auxdata.only=FALSE,
                      names.only=FALSE, long.listing=FALSE)
 {
     stopifnot(isSingleNonWhiteString(dbs_home), dir.exists(dbs_home))
@@ -186,6 +187,8 @@ list_dbs <- function(dbs_home, what=c("germline", "C-region"),
         stop(wmsg("'builtin.only' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(with.intdata.only))
         stop(wmsg("'with.intdata.only' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(with.auxdata.only))
+        stop(wmsg("'with.auxdata.only' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(names.only))
         stop(wmsg("'names.only' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(long.listing))
@@ -197,10 +200,16 @@ list_dbs <- function(dbs_home, what=c("germline", "C-region"),
     if (what == "germline") {
         intdata_dirs <- file.path(dbs_home, db_names, "internal_data")
         intdata <- dir.exists(intdata_dirs)  # logical vector
-        if (with.intdata.only) {
-            db_names <- db_names[intdata]
-            intdata <- intdata[intdata]  # keep only TRUEs
-        }
+        auxdata_dirs <- file.path(dbs_home, db_names, "auxiliary_data")
+        auxdata <- dir.exists(auxdata_dirs)  # logical vector
+        keep_me <- rep.int(TRUE, length(db_names))
+        if (with.intdata.only)
+            keep_me <- keep_me & intdata
+        if (with.auxdata.only)
+            keep_me <- keep_me & auxdata
+        db_names <- db_names[keep_me]
+        intdata <- intdata[keep_me]
+        auxdata <- auxdata[keep_me]
     }
     if (names.only)
         return(db_names)
@@ -210,7 +219,7 @@ list_dbs <- function(dbs_home, what=c("germline", "C-region"),
                                                     region_types)
         ans <- data.frame(db_name=db_names, basic_stats)
         if (what == "germline")
-            ans <- cbind(ans, intdata=intdata)
+            ans <- cbind(ans, intdata=intdata, auxdata=auxdata)
         return(ans)
     }
     if (what == "germline") {

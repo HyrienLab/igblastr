@@ -64,8 +64,8 @@ test_that(".normarg_auxiliary_data()", {
     expect_error(normarg_auxiliary_data(data.frame(aa=1:3)))
 
     db_name <- "_OGRDB.human.IGH+IGK+IGL.202410"
+    use_germline_db(db_name)
     db_path <- igblastr:::get_germline_db_path(db_name)
-    germline_db_V <- file.path(db_path, "V")
     germline_db_J <- file.path(db_path, "J")
 
     auxdata_path <- get_auxdata_path("human")
@@ -101,15 +101,29 @@ test_that(".normarg_auxiliary_data()", {
     expect_identical(read_auxdata(auxiliary_data), auxdata)
     expect_identical(attr(auxiliary_data, "safe_to_remove"), TRUE)
 
-    auxiliary_data <- normarg_auxiliary_data("auto", organism="human")
-    expect_identical(auxiliary_data, get_auxdata_path("human"))
+    auxiliary_data <- normarg_auxiliary_data("auto", organism="human",
+                                             germline_db_J=germline_db_J)
+    expect_identical(auxiliary_data, get_auxdata_path(db_name))
 
     auxiliary_data <- normarg_auxiliary_data("auto", organism=NULL,
-                                             germline_db_V=germline_db_V)
-    expect_identical(auxiliary_data, get_auxdata_path("human"))
+                                             germline_db_J=germline_db_J,
+                                             no_auto_germline_dbs=FALSE)
+    expect_identical(auxiliary_data, get_auxdata_path(db_name))
+
+    db_name <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501"
+    use_germline_db(db_name)
+    db_path <- igblastr:::get_germline_db_path(db_name)
+    germline_db_J <- file.path(db_path, "J")
+
+    auxiliary_data <- normarg_auxiliary_data("auto", organism=NULL,
+                                             germline_db_J=germline_db_J,
+                                             no_auto_germline_dbs=FALSE)
+    expect_identical(auxiliary_data, get_auxdata_path("mouse"))
 
     expect_error(
-        normarg_auxiliary_data("auto", organism=NULL, germline_db_V="aaa"),
+        normarg_auxiliary_data("auto", organism=NULL,
+                               germline_db_J=germline_db_J,
+                               no_auto_germline_dbs=TRUE),
         regexp="Failed to automatically figure out"
     )
 })
@@ -226,7 +240,7 @@ test_that("prepare_igblastn_cmdline_args()", {
     expect_identical(cmd_args$query, "path/to/query")
     expect_identical(cmd_args$outfmt, "AIRR")
     expect_identical(cmd_args$custom_internal_data, get_intdata_path(db_name))
-    expect_identical(cmd_args$auxiliary_data, get_auxdata_path("human"))
+    expect_identical(cmd_args$auxiliary_data, get_auxdata_path(db_name))
     expect_identical(cmd_args$domain_system, "imgt")
     expect_identical(cmd_args$ig_seqtype, "Ig")
     expect_true(attr(cmd_args$out, "safe_to_remove"))
@@ -265,6 +279,7 @@ test_that("prepare_igblastn_cmdline_args()", {
     db_name <- install_IMGT_germline_db("202531-1", "Mus musculus",
                                         tcr.db=TRUE, overwrite=TRUE)
     suppressMessages(use_germline_db(db_name))
+
     cmd_args <- prepare_igblastn_cmdline_args("path/to/query",
                                               c_region_db=NULL,
                                               auxiliary_data=NULL)
@@ -285,9 +300,6 @@ test_that("prepare_igblastn_cmdline_args()", {
     suppressMessages(use_germline_db(db_name))
     use_c_region_db("")
 
-    regexp <- "what auxiliary data to use"
-    expect_error(prepare_igblastn_cmdline_args("path/to/query", regexp=regexp))
-
     cmd_args <- prepare_igblastn_cmdline_args("path/to/query",
                                               auxiliary_data=NULL)
     expected_argnames <- CORE_ARGNAMES
@@ -295,7 +307,8 @@ test_that("prepare_igblastn_cmdline_args()", {
     expect_identical(names(cmd_args), expected_argnames)
 
     db_name <- install_IMGT_germline_db("202518-3", "Sus_scrofa",
-                                        without.intdata=TRUE, overwrite=TRUE)
+                                        without.intdata=TRUE,
+                                        without.auxdata=TRUE, overwrite=TRUE)
     suppressMessages(use_germline_db(db_name))
 
     errmsg <- "Don't know how to infer 'organism' from germline db name"

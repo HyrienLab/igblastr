@@ -207,9 +207,7 @@
     V_names <- names(readDNAStringSet(V_fasta_file))
     num_missing <- sum(!(V_names %in% intdata[ , "allele_name"]))
     if (num_missing != 0L) {
-        ## Note that 'basename(dirname(germline_db_V))' is not guaranteed
-        ## to be the same as the name of the selected germline db so do NOT
-        ## use use_germline_db() here.
+        ## Seems slightly better than using use_germline_db().
         db_name <- basename(dirname(germline_db_V))
         warning(wmsg("Incomplete custom internal data: ", num_missing, " ",
                      "V allele(s) (out of ", length(V_names), " in ",
@@ -222,16 +220,14 @@
 {
     if (!.region_bdb_is_internal(germline_db_V, "V"))
         return(NULL)
-    intdata_dir <- file.path(dirname(germline_db_V), "internal_data")
-    if (!dir.exists(intdata_dir))
+    db_path <- dirname(germline_db_V)
+    intdata_path <- make_germline_db_intdata_path(db_path, FALSE, domain_system)
+    if (!dir.exists(dirname(intdata_path)))  # db has no internal data dir
         return(NULL)
-    intdata_filename <- paste0("V.ndm.", domain_system)
-    intdata_path <- file.path(intdata_dir, intdata_filename)
     if (!file.exists(intdata_path)) {
-        db_name <- basename(dirname(germline_db_V))
-        warning(wmsg("internal data file ", intdata_filename, " ",
-                     "not found in germline db ", db_name, " --> ",
-                     "using IgBLAST internal data from NCBI instead"),
+        warning(wmsg("internal data file ", basename(intdata_path), " ",
+                     "not found in germline db ", basename(db_path), " ",
+                     "--> using IgBLAST internal data from NCBI instead"),
                 immediate.=TRUE)
         return(NULL)
     }
@@ -286,8 +282,8 @@
 ### https://ncbi.github.io/igblast/cook/How-to-set-up.html (see Procedure
 ### to use custom FWR/CDR annotation). But then how is igblastn supposed to
 ### find the auxiliary data?
-.normarg_organism <- function(organism="auto", num_auto_germline_dbs,
-                              custom_internal_data)
+.normarg_organism <- function(organism="auto", custom_internal_data,
+                              no_auto_germline_dbs)
 {
     if (!isSingleNonWhiteString(organism))
         stop(wmsg("'organism' must be a single (non-empty) string"))
@@ -300,16 +296,16 @@
     }
     if (!is.null(custom_internal_data))
         return(NULL)
-    if (num_auto_germline_dbs == 0L)
+    if (no_auto_germline_dbs)
         stop(wmsg("'organism' must be specified when 'germline_db_V', ",
                   "'germline_db_D', and 'germline_db_J' are supplied ",
                   "(unless you also supply your own internal data thru ",
                   "the 'custom_internal_data' argument)"))
-    germline_db_name <- use_germline_db()  # cannot be ""
-    organism <- infer_organism_shortname_from_db_name(germline_db_name)
+    db_name <- use_germline_db()  # cannot be ""
+    organism <- infer_organism_shortname_from_db_name(db_name)
     if (is.na(organism))
-        stop(wmsg("Don't know how to infer 'organism' from germline ",
-                  "db name \"", germline_db_name, "\". Please set ",
+        stop(wmsg("Don't know how to infer 'organism' from ",
+                  "germline db name \"", db_name, "\". Please set ",
                   "the 'organism' argument to the name of the IgBLAST ",
                   "internal data to use. ",
                   "Use list_igblast_organisms() to list all valid names."))
@@ -334,9 +330,7 @@
     J_names <- names(readDNAStringSet(J_fasta_file))
     num_missing <- sum(!(J_names %in% auxdata[ , "allele_name"]))
     if (num_missing != 0L) {
-        ## Note that 'basename(dirname(germline_db_J))' is not guaranteed
-        ## to be the same as the name of the selected germline db so do NOT
-        ## use use_germline_db() here.
+        ## Seems slightly better than using use_germline_db().
         db_name <- basename(dirname(germline_db_J))
         warning(wmsg("Incomplete auxiliary data: ", num_missing, " ",
                      "J allele(s) (out of ", length(J_names), " in ",
@@ -345,10 +339,28 @@
     }
 }
 
-.try_to_infer_organism_for_auxdata <- function(germline_db_V)
+.get_auto_auxiliary_data <- function(germline_db_J)
 {
-    ## The only way that the normalized 'organism' is NULL is if the
-    ## normalized 'custom_internal_data' is **not** NULL. And the only
+    if (!.region_bdb_is_internal(germline_db_J, "J"))
+        return(NULL)
+    db_path <- dirname(germline_db_J)
+    auxdata_path <- make_germline_db_auxdata_path(db_path)
+    if (!dir.exists(dirname(auxdata_path)))  # db has no auxiliary data dir
+        return(NULL)
+    if (!file.exists(auxdata_path)) {
+        warning(wmsg("auxiliary data file ", basename(auxdata_path), " ",
+                     "not found in germline db ", basename(db_path), " ",
+                     "--> using IgBLAST auxiliary data from NCBI instead"),
+                immediate.=TRUE)
+        return(NULL)
+    }
+    auxdata_path
+}
+
+.infer_organism_for_auxdata <- function(no_auto_germline_dbs)
+{
+    ## Note that the only way that the normalized 'organism' is NULL is if
+    ## the normalized 'custom_internal_data' is **not** NULL. And the only
     ## way that this can happen is if either:
     ## - the user supplied their own internal data thru 'custom_internal_data';
     ## - or they didn't supply the 'germline_db_V' argument and the selected
@@ -363,11 +375,11 @@
               "the path to the auxiliary data shipped with IgBLAST ",
               "for a given organism.")
     msg5 <- c("See '?get_auxdata_path' for more information.")
-    if (!.region_bdb_is_internal(germline_db_V, "V")) {
+    if (no_auto_germline_dbs) {
         stop(wmsg(msg1), "\n\n  ",
              wmsg(msg3), "\n  ", wmsg(msg4), "\n  ", wmsg(msg5))
     }
-    db_name <- basename(dirname(germline_db_V))
+    db_name <- use_germline_db()  # cannot be ""
     organism <- infer_organism_shortname_from_db_name(db_name)
     if (is.na(organism)) {
         msg2 <- c("The germline db in use (", db_name, ") ",
@@ -393,7 +405,7 @@
 ### Has its own tests in tests/testthat/test-prepare_igblastn_cmdline_args.R!
 ### Can return a NULL.
 .normarg_auxiliary_data <- function(auxiliary_data="auto", organism,
-                                    germline_db_V, germline_db_J)
+                                    germline_db_J, no_auto_germline_dbs)
 {
     if (is.null(auxiliary_data))
         return(NULL)
@@ -410,8 +422,11 @@
                   "containing auxiliary data, or the path to a file ",
                   "containing auxiliary data (.aux file), or NULL"))
     if (auxiliary_data == "auto") {
+        auxiliary_data <- .get_auto_auxiliary_data(germline_db_J)
+        if (!is.null(auxiliary_data))
+            return(auxiliary_data)
         if (is.null(organism))
-            organism <- .try_to_infer_organism_for_auxdata(germline_db_V)
+            organism <- .infer_organism_for_auxdata(no_auto_germline_dbs)
         return(get_auxdata_path(organism))
     }
     auxdata <- .load_user_supplied_auxdata(auxiliary_data)
@@ -425,19 +440,19 @@
 ### .normarg_ig_seqtype()
 ###
 
-.infer_ig_seqtype_from_db_name <- function(germline_db_name)
+.infer_ig_seqtype_from_db_name <- function(db_name)
 {
-    stopifnot(isSingleNonWhiteString(germline_db_name))
-    if (grepl(".IG", germline_db_name, fixed=TRUE))
+    stopifnot(isSingleNonWhiteString(db_name))
+    if (grepl(".IG", db_name, fixed=TRUE))
         return("Ig")
-    if (grepl(".TR", germline_db_name, fixed=TRUE))
+    if (grepl(".TR", db_name, fixed=TRUE))
         return("TCR")
-    stop(wmsg("Don't know how to infer 'ig_seqtype' from germline ",
-              "db name \"", germline_db_name, "\". Please set ",
+    stop(wmsg("Don't know how to infer 'ig_seqtype' from ",
+              "germline db name \"", db_name, "\". Please set ",
               "the 'ig_seqtype' argument to \"Ig\" or \"TCR\"."))
 }
 
-.normarg_ig_seqtype <- function(ig_seqtype="auto", num_auto_germline_dbs)
+.normarg_ig_seqtype <- function(ig_seqtype="auto", no_auto_germline_dbs)
 {
     err_msg <- "'ig_seqtype' must be \"auto\", \"Ig\", or \"TCR\""
     if (!isSingleNonWhiteString(ig_seqtype))
@@ -449,11 +464,11 @@
             stop(wmsg(err_msg))
         return(names(t)[[m]])
     }
-    if (num_auto_germline_dbs == 0L)
+    if (no_auto_germline_dbs)
         stop(wmsg("'ig_seqtype' must be specified when 'germline_db_V', ",
                   "'germline_db_D', and 'germline_db_J' are supplied"))
-    germline_db_name <- use_germline_db()  # cannot be ""
-    .infer_ig_seqtype_from_db_name(germline_db_name)
+    db_name <- use_germline_db()  # cannot be ""
+    .infer_ig_seqtype_from_db_name(db_name)
 }
 
 
@@ -562,13 +577,12 @@ prepare_igblastn_cmdline_args <-
     stopifnot(isSingleNonWhiteString(query),
               isSingleNonWhiteString(outfmt))
 
-    ## It will only make sense to infer the organism from the cached
-    ## germline db returned by use_germline_db() if the user didn't
-    ## supply all 3 germline_db_X arguments, that is,
-    ## if 'num_auto_germline_dbs' != 0.
-    num_auto_germline_dbs <- identical(germline_db_V, "auto") +
-                             identical(germline_db_D, "auto") +
-                             identical(germline_db_J, "auto")
+    ## It will only make sense to get the name of the selected cached
+    ## germline db with use_germline_db() if the user didn't supply all 3
+    ## germline_db_X arguments, that is, if 'no_auto_germline_dbs' is FALSE.
+    no_auto_germline_dbs <- !(identical(germline_db_V, "auto") ||
+                              identical(germline_db_D, "auto") ||
+                              identical(germline_db_J, "auto"))
 
     germline_db_V <- .normarg_germline_db_X(germline_db_V, "V")
     germline_db_V_seqidlist <- .normarg_seqidlist(germline_db_V_seqidlist,
@@ -584,11 +598,12 @@ prepare_igblastn_cmdline_args <-
     custom_internal_data <- .normarg_custom_internal_data(custom_internal_data,
                                                           germline_db_V,
                                                           domain_system)
-    organism <- .normarg_organism(organism, num_auto_germline_dbs,
-                                  custom_internal_data)
+    organism <- .normarg_organism(organism, custom_internal_data,
+                                  no_auto_germline_dbs)
     auxiliary_data <- .normarg_auxiliary_data(auxiliary_data, organism,
-                                              germline_db_V, germline_db_J)
-    ig_seqtype <- .normarg_ig_seqtype(ig_seqtype, num_auto_germline_dbs)
+                                              germline_db_J,
+                                              no_auto_germline_dbs)
+    ig_seqtype <- .normarg_ig_seqtype(ig_seqtype, no_auto_germline_dbs)
 
     cmd_args <- list(query=query, outfmt=outfmt,
                      germline_db_V=germline_db_V,

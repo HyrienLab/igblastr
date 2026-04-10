@@ -138,12 +138,20 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     or the path to a file containing auxiliary data (.aux file),
     or \code{NULL}.
 
-    Note that, by default (i.e. when \code{auxiliary_data} is omitted or
-    set to \code{"auto"}), \code{igblastn()} will use the organism-specific
-    auxiliary data provided by NCBI and included in the IgBLAST installation
-    used by \pkg{igblastr}. More precisely, \code{igblastn()} will call
-    \code{get_auxdata_path()} internally to obtain the path to the
-    organism-specific auxiliary data file.
+    By default (i.e. when \code{auxiliary_data} and \code{germline_db_J}
+    are both omitted or set to \code{"auto"}), \code{igblastn()} will use:
+    \itemize{
+        \item the \emph{auxiliary data} included in the cached germline
+              db that is currently selected, if it has any;
+        \item the organism-specific IgBLAST \emph{auxiliary data} from NCBI
+              if the cached germline db that is currently selected does not
+              include its own \emph{auxiliary data}.
+    }
+    Use \code{\link{list_germline_dbs}(with.auxdata.only=TRUE)} to list
+    the cached germline dbs that include their own \emph{auxiliary data}.
+
+    See \code{?\link{use_germline_db}} for how to select the cached
+    germline db to use with \code{igblastn()}.
 
     IMPORTANT NOTES:
     \itemize{

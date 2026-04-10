@@ -1,6 +1,14 @@
 High-priority TODO list
 =======================
 
+o Bring back the built-in germline OGRDB for the mouse strains that William
+  Lees updated recently.
+
+o The augment_germline_db_*() functions are not doing the right thing
+  with the internal and auxiliary data. This needs to be addressed.
+  This might require deprecating and replacing them with something
+  completely different (e.g. something based on install_custom_germline_db()).
+
 o Fill missing documentation:
   - document *_ndm_data functions
   - add example to man/auxdata-IO.Rd

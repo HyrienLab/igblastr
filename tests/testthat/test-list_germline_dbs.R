@@ -1,7 +1,7 @@
 test_that("list_germline_dbs()", {
     df <- list_germline_dbs()
     expect_true(is.data.frame(df))
-    expected_colnames <- c("db_name", "V", "D", "J", "intdata")
+    expected_colnames <- c("db_name", "V", "D", "J", "intdata", "auxdata")
     expect_identical(colnames(df), expected_colnames)
 
     db_name <- "_OGRDB.human.IGH+IGK+IGL.202410"

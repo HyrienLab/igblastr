@@ -13,7 +13,9 @@
 
 \usage{
 ## List the cached germline dbs:
-list_germline_dbs(builtin.only=FALSE, with.intdata.only=FALSE,
+list_germline_dbs(builtin.only=FALSE,
+                  with.intdata.only=FALSE,
+                  with.auxdata.only=FALSE,
                   names.only=FALSE, long.listing=FALSE)
 
 ## Remove a germline db from igblastr's persistent cache:
@@ -38,6 +40,19 @@ rm_germline_db(db_name)
     \code{\link{igblastn}()} will use it (as \emph{custom internal data})
     instead of the \emph{internal data} shipped with IgBLAST.
     See documentation of the \code{custom_internal_data} argument in
+    \code{?\link{igblastn}} for more information.
+  }
+  \item{with.auxdata.only}{
+    Set \code{with.auxdata.only} to \code{TRUE} to return only the list
+    of germline dbs that include their own \emph{auxiliary data} (i.e.
+    annotations of the J alleles). Note that whether a germline
+    db includes its own \emph{auxiliary data} or not is reported in the
+    \code{auxdata} column.
+
+    If a cached germline db includes its own \emph{auxiliary data}, then
+    \code{\link{igblastn}()} will use it instead of the \emph{auxiliary data}
+    shipped with IgBLAST.
+    See documentation of the \code{auxiliary_data} argument in
     \code{?\link{igblastn}} for more information.
   }
   \item{names.only}{
@@ -166,12 +181,12 @@ list_germline_dbs(with.intdata.only=TRUE, long.listing=TRUE)
 
 if (IMGT_is_up()) {
   ## Install Mouse germline db from IMGT:
-  install_IMGT_germline_db("202518-3", "Mus_musculus", overwrite=TRUE)
+  install_IMGT_germline_db("202518-3", "Homo sapiens", overwrite=TRUE)
 
   list_germline_dbs()  # all germline dbs
 
   ## Select germline db to use with igblastn():
-  db_name <- "IMGT-202518-3.Mus_musculus.IGH+IGK+IGL"
+  db_name <- "IMGT-202518-3.Homo_sapiens.IGH+IGK+IGL"
   use_germline_db(db_name)  # select germline db to use
 
   use_germline_db()  # get current selection

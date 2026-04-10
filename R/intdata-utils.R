@@ -5,36 +5,37 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### make_germline_db_intdata_path()
 ### get_intdata_path()
 ###
 
-.get_germline_db_intdata_path <- function(db_name, file_suffix)
+.make_intdata_file_suffix <- function(for.aa, domain_system)
 {
-    all_db_names <- list_germline_dbs(names.only=TRUE)
-    if (!(db_name %in% all_db_names))
-        return(NA_character_)
-    intdata_dir <- file.path(get_germline_db_path(db_name), "internal_data")
-    if (!dir.exists(intdata_dir))
-        stop(wmsg("no internal data found in germline db ", db_name))
-    intdata_filename <- paste0("V", file_suffix)
-    intdata_path <- file.path(intdata_dir, intdata_filename)
-    if (!file.exists(intdata_path))
-        stop(wmsg("internal data file ", intdata_filename, " ",
-                  "not found in germline db ", db_name))
-    intdata_path
+    stopifnot(isTRUEorFALSE(for.aa), isSingleNonWhiteString(domain_system))
+    paste0(".", if (for.aa) "pdm" else "ndm", ".", domain_system)
 }
 
-.get_igblast_intdata_path <- function(which, organism, file_suffix)
+.get_igblast_intdata_path <- function(which, organism, for.aa, domain_system)
 {
+    organism <- normalize_igblast_organism(organism)
     intdata_dir <- file.path(path_to_igdata(which), "internal_data", organism)
     if (!dir.exists(intdata_dir))
         stop(wmsg("no internal data found for organism ", organism))
+    file_suffix <- .make_intdata_file_suffix(for.aa, domain_system)
     intdata_filename <- paste0(organism, file_suffix)
     intdata_path <- file.path(intdata_dir, intdata_filename)
     if (!file.exists(intdata_path))
         stop(wmsg("internal data file ", intdata_filename, " ",
                   "not found in ", intdata_dir))
     intdata_path
+}
+
+make_germline_db_intdata_path <- function(db_path, for.aa, domain_system)
+{
+    stopifnot(dir.exists(db_path))
+    file_suffix <- .make_intdata_file_suffix(for.aa, domain_system)
+    intdata_filename <- paste0("V", file_suffix)
+    file.path(db_path, "internal_data", intdata_filename)
 }
 
 get_intdata_path <- function(organism, for.aa=FALSE,
@@ -48,10 +49,19 @@ get_intdata_path <- function(organism, for.aa=FALSE,
     domain_system <- match.arg(domain_system)
     which <- match.arg(which)
 
-    file_suffix <- paste0(".", if (for.aa) "pdm" else "ndm", ".", domain_system)
-    intdata_path <- .get_germline_db_intdata_path(organism, file_suffix)
-    if (is.na(intdata_path))
-        intdata_path <- .get_igblast_intdata_path(which, organism, file_suffix)
+    if (!valid_germline_db_name(organism))
+        return(.get_igblast_intdata_path(which, organism,
+                                         for.aa, domain_system))
+
+    ## Treat 'organism' as a valid germline db name.
+    db_path <- get_germline_db_path(organism)
+    intdata_path <- make_germline_db_intdata_path(db_path,
+                                                  for.aa, domain_system)
+    if (!dir.exists(dirname(intdata_path)))
+        stop(wmsg("no internal data found in germline db ", organism))
+    if (!file.exists(intdata_path))
+        stop(wmsg("internal data file ", basename(intdata_path), " ",
+                  "not found in germline db ", organism))
     intdata_path
 }
 

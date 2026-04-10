@@ -21,10 +21,14 @@ test_that("load_auxdata()", {
 ### installation actually triggers a download from IMGT. All subsequent
 ### installations obtain the data from the IMGT local store (located
 ### in 'igblastr_cache(IMGT_STORE)') so are very fast and work offline.
-install_IMGT_germline_db("202531-1", "Homo sapiens", overwrite=TRUE)
-install_IMGT_germline_db("202531-1", "Mus musculus", overwrite=TRUE)
-install_IMGT_germline_db("202531-1", "Rattus norvegicus", overwrite=TRUE)
-install_IMGT_germline_db("202531-1", "Oryctolagus cuniculus", overwrite=TRUE)
+install_IMGT_germline_db("202531-1", "Homo sapiens",
+                         without.auxdata=TRUE, overwrite=TRUE)
+install_IMGT_germline_db("202531-1", "Mus musculus",
+                         without.auxdata=TRUE, overwrite=TRUE)
+install_IMGT_germline_db("202531-1", "Rattus norvegicus",
+                         without.auxdata=TRUE, overwrite=TRUE)
+install_IMGT_germline_db("202531-1", "Oryctolagus cuniculus",
+                         without.auxdata=TRUE, overwrite=TRUE)
 
 test_that("translate_J_alleles()", {
 

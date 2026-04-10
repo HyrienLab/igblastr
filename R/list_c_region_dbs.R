@@ -80,7 +80,11 @@ list_c_region_dbs <- function(builtin.only=FALSE,
 
 print.c_region_dbs_df <- function(x, ...)
 {
-    c_region_dbs_home <- get_c_region_dbs_home(TRUE)  # guaranteed to exist
+    ## list_c_region_dbs() already called 'get_c_region_dbs_home(TRUE)' so
+    ## it's reasonable to assume that 'c_region_dbs_home' already exists and
+    ## was initialized. So we don't need to call 'get_c_region_dbs_home(TRUE)'
+    ## again.
+    c_region_dbs_home <- get_c_region_dbs_home()
     print_dbs_df(x, c_region_dbs_home, what="C-region")
 }
 

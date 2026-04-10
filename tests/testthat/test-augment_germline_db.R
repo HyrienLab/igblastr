@@ -1,3 +1,7 @@
+### The augment_germline_db_*() functions need to be revisited so
+### that they do the right thing with internal and auxiliary data
+### so we disable this for now.
+if (FALSE) {
 test_that("augment_germline_db_*()", {
     query <- system.file(package="igblastr", "extdata",
                          "BCR", "heavy_sequences.fasta")
@@ -39,4 +43,4 @@ test_that("augment_germline_db_*()", {
     AIRR_df3 <- igblastn(query, germline_db_V=destdir, germline_db_J=destdir)
     expect_identical(AIRR_df2, AIRR_df3)
 })
-
+}

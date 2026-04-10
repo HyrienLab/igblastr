@@ -18,7 +18,6 @@
 
 .get_selected_germline_db <- function(verbose=FALSE)
 {
-    all_db_names <- list_germline_db_names()
     germline_dbs_home <- get_germline_dbs_home(TRUE)  # guaranteed to exist
     db_path <- get_db_in_use(germline_dbs_home, what="germline")
     if (db_path == "")

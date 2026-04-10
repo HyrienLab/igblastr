@@ -28,6 +28,8 @@
     install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
                         gapped=TRUE, with.intdata=TRUE,
                         if.exists="no-op", verbose=verbose)
+    db_path <- file.path(install_dir, db_name)
+    add_computed_auxdata_to_germline_db(db_path, verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_human_germline_dbs <-
@@ -73,6 +75,12 @@
     install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
                         gapped=TRUE, with.intdata=TRUE,
                         if.exists="no-op", verbose=verbose)
+    ## The computed data for mouse strains NOD_ShiLtJ and PWD_PhJ version
+    ## 202501 is incomplete (i.e. contains NAs) so there's no need to call
+    ## add_computed_auxdata_to_germline_db(). If we do so, then the auxdata
+    ## will be computed and discarded each time list_germline_dbs() is called!
+    #db_path <- file.path(install_dir, db_name)
+    #add_computed_auxdata_to_germline_db(path, verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_mouse_germline_dbs <-
@@ -117,6 +125,8 @@
     install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
                         gapped=TRUE, with.intdata=TRUE,
                         if.exists="no-op", verbose=verbose)
+    db_path <- file.path(install_dir, db_name)
+    add_computed_auxdata_to_germline_db(db_path, verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_rhesus_monkey_germline_dbs <-

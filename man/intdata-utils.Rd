@@ -190,8 +190,9 @@ end_colnames <- grep("_end$", colnames(rabbit_intdata), value=TRUE)
 stopifnot(identical(rabbit_intdata [ , end_colnames],
                     rabbit_intdata2[ , end_colnames] * 3L))
 
-## Get the internal data included in the _OGRDB.human.IGH+IGK+IGL.202410
-## germline db (this data is provided by AIRR-community/OGRDB):
+## Get the internal data included germline db
+## _OGRDB.human.IGH+IGK+IGL.202410 (this data
+## is provided by AIRR-community/OGRDB):
 db_name <- "_OGRDB.human.IGH+IGK+IGL.202410"
 human_intdata <- load_intdata(db_name)
 head(human_intdata)
