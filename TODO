@@ -1,6 +1,20 @@
 High-priority TODO list
 =======================
 
+o Looks like IMGT sometimes makes a release where all the FASTA files for
+  a given organism are empty. For example, in release 202530-1, all the
+  IG*.fasta and TR*.fasta files for Mus_musculus_C57BL6J are empty.
+  Problem is that
+
+     install_IMGT_germline_db("202530-1", "Mus_musculus_C57BL6J",
+                              without.intdata=TRUE, without.auxdata=TRUE)
+
+  seems to work but creates an empty germline db that is unusable.
+  It also breaks 'list_germline_dbs(long.listing=TRUE)'.
+  So instead we should fail early and loudly with a clear error message.
+  Seems that the early check should be in install_germline_db() or
+  create_germline_db().
+
 o Bring back the built-in germline OGRDB for the mouse strains that William
   Lees updated recently.
 

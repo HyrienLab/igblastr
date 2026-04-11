@@ -40,8 +40,6 @@ get_edit_imgt_file_Perl_script <- function()
 ###   IMGT-202518-3.Mus_musculus_C57BL6J.TRA+TRB+TRG+TRD
 ### The reason edit_imgt_file.pl fails to clean these headers is because
 ### they contain only 14 pipes when edit_imgt_file.pl expects exactly 15.
-### Note that starting with IMGT/V-QUEST release 202530-1, the FASTA files
-### for Mus_musculus_C57BL6J no longer have this problem.
 .check_edit_imgt_file_output <- function(outfasta, Perl_script)
 {
     allele_names <- names(fasta.seqlengths(outfasta))
@@ -159,6 +157,11 @@ redit_imgt_file <- function(infasta, outfasta)
 validate_redit_imgt_file <- function(dirpath=".", recursive=FALSE)
 {
     fasta_files <- list_fasta_files(dirpath, recursive=recursive)
+    ## We know that Perl script edit_imgt_file.pl doesn't work properly
+    ## on IMGT FASTA files for Mus_musculus_C57BL6J (see BUG above), so
+    ## we skip them.
+    fasta_files <- grep("/Mus_musculus_C57BL6J/", fasta_files,
+                        value=TRUE, invert=TRUE)
     failures <- 0L
     for (i in seq_along(fasta_files)) {
         fasta_file <- fasta_files[[i]]

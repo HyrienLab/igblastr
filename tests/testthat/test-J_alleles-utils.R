@@ -28,10 +28,11 @@ test_that("translate_J_alleles()", {
 
     db_name <- "IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"
     J_alleles <- load_germline_db(db_name, region_types="J")
-    ## 2 human J alleles in IMGT release 202614-2 have no entries
+    ## 4 human J alleles in IMGT release 202614-2 have no entries
     ## in 'auxdata'. Note that this could change in the future.
+    expected_unknown <- c("IGHJ5*03", "IGHJ5*04", "IGKJ4*03", "IGLJ2A*01")
     allele_is_known <- names(J_alleles) %in% auxdata$allele_name
-    expect_true(sum(!allele_is_known) <= 2L)
+    expect_identical(names(J_alleles)[!allele_is_known], expected_unknown)
     J_aa <- translate_J_alleles(J_alleles, auxdata)
     expect_identical(unname(is.na(J_aa)), !allele_is_known)
     expect_identical(J_aa[["IGHJ1*01"]], "AEYFQHWGQGTLVTVSS")
@@ -45,8 +46,10 @@ test_that("translate_J_alleles()", {
     J_alleles <- load_germline_db(db_name, region_types="J")
     ## 3 mouse J alleles in IMGT release 202614-2 have no entries
     ## in 'auxdata'. Note that this could change in the future.
+    expected_unknown <- c("IGLJ2P*01", "IGLJ4*01_Mus_spretus",
+                          "IGLJ5*01_Mus_spretus")
     allele_is_known <- names(J_alleles) %in% auxdata$allele_name
-    expect_true(sum(!allele_is_known) <= 3L)
+    expect_identical(names(J_alleles)[!allele_is_known], expected_unknown)
     ## Get rid of the "unknown" J alleles.
     known_J_alleles <- J_alleles[allele_is_known]
     J_aa <- translate_J_alleles(known_J_alleles, auxdata)
