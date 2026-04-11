@@ -154,8 +154,7 @@ rm_germline_db(db_name)
     \item \code{\link{install_custom_germline_db}} to install a germline db
           from user-supplied gene allele sequences.
 
-    \item \link{intdata_utils} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
 
     \item \code{\link{reset_germline_dbs}} to reset the cached germline dbs.
 

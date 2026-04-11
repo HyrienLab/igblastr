@@ -97,8 +97,9 @@ has_igblast()
     \item \link{IGBLAST_ROOT} to set the \emph{external} IgBLAST installation
           to be used by the \pkg{igblastr} package in a persistent manner.
 
-    \item \link{intdata_utils} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
+
+    \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 
     \item IgBLAST is described at
           \url{https://pubmed.ncbi.nlm.nih.gov/23671333/}.

@@ -92,7 +92,7 @@ remove_gaps(dna, gap_letter=".")
           objects in the \pkg{Biostrings} package.
 
     \item The \code{\link[Biostrings]{translate}} function in the
-          \pkg{Biostrings} package on which \code{translate_codons()}
+          \pkg{Biostrings} package upon which \code{translate_codons()}
           is based.
 
     \item \code{\link{list_germline_dbs}} to list all the \emph{cached

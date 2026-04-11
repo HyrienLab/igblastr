@@ -153,22 +153,14 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     See \code{?\link{use_germline_db}} for how to select the cached
     germline db to use with \code{igblastn()}.
 
-    IMPORTANT NOTES:
-    \itemize{
-        \item Supplying \emph{auxiliary data} that is not compatible with
-              the J gene sequences of the selected germline db can cause
-              \code{igblastn()} to return improper frame status or CDR3
-              information (other returned information will still be correct).
-              See \code{?\link{get_auxdata_path}} for more information.
-        \item When \code{auxiliary_data} is set to \code{NULL}, then no
-              \emph{auxiliary data} is used. In this case, \code{igblastn()}
-              can emit a significant number of the following warning:
-              \preformatted{    Warning: Auxilary data file could not be found}
-              and various columns of the returned AIRR-formatted
-              \link[tibble]{tibble} (e.g. columns \code{vj_in_frame},
-              \code{productive}, \code{cdr3}, \code{fwr4}, and others)
-              will be filled with \code{NA}s.
-      }
+    IMPORTANT NOTE: When \code{auxiliary_data} is set to \code{NULL},
+    then no \emph{auxiliary data} is used. In this case, \code{igblastn()}
+    can emit a significant number of the following warning:
+    \preformatted{    Warning: Auxilary data file could not be found}
+    and various columns of the returned AIRR-formatted
+    \link[tibble]{tibble} (e.g. columns \code{vj_in_frame},
+    \code{productive}, \code{cdr3}, \code{fwr4}, and others)
+    will be filled with \code{NA}s.
   }
   \item{domain_system}{
     Set to \code{"imgt"} or \code{"kabat"}.

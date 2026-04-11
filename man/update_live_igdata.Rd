@@ -87,8 +87,7 @@ reset_live_igdata(subdirs=c("all", "internal_data", "optional_file"))
 
 \seealso{
   \itemize{
-    \item \link{intdata_utils} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
 
     \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 

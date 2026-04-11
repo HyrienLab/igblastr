@@ -84,8 +84,7 @@ validate_ndm_rows(ndm_data, allow.repeated.rows=FALSE)
           FWR/CDR annotations (a.k.a. V gene delineations) from an
           AIRR-C JSON file.
 
-    \item \link{intdata_utils} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
 
     \item The \code{\link{igblastn}} function to run the \code{igblastn}
           \emph{standalone executable} included in IgBLAST from R. This

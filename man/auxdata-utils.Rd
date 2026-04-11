@@ -18,8 +18,13 @@
   germline J gene alleles for a given organism. It is provided by NCBI
   and is typically included in a standard IgBLAST installation.
 
+  The \emph{auxiliary data} informs about the CDR3/FWR4 boundary on the
+  J allele sequences. Although this information is not strictly needed
+  by IgBLAST, it needs it in order to compute some of the AIRR fields like
+  \code{vj_in_frame}, \code{productive}, \code{cdr3}, \code{fwr4}, etc...
+
   \code{get_auxdata_path()} and \code{load_auxdata()} can be used
-  to access the \emph{auxiliary data} included in IgBLAST or in a
+  to access the \emph{auxiliary data} included in IgBLAST or in
   one of the \emph{cached germline dbs} managed by \pkg{igblastr}.
 
   We also provide \code{compute_germline_db_auxdata()} to compute
@@ -78,6 +83,11 @@ compute_germline_db_auxdata(db_name)
   CDR3 end position for all known germline J allele sequences. See
   \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html} for
   additional details.
+
+  IMPORTANT NOTE: Using IgBLAST with \emph{auxiliary data} that is not
+  compatible with the germline J gene sequences in the germline db can
+  cause it to return improper frame status or CDR3 information (other
+  returned information will still be correct).
 }
 
 \value{
@@ -106,11 +116,15 @@ compute_germline_db_auxdata(db_name)
     \item \code{\link{compute_auxdata}} to annotate a set of germline J
           gene allele sequences.
 
-    \item \link{intdata_utils} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
 
     \item \code{\link{update_live_igdata}} for more information about "live"
           and "original" IgBLAST data.
+
+    \item \code{\link{list_igblast_organisms}} to list the organisms
+          supported by IgBLAST.
+
+    \item \code{\link{list_germline_dbs}} to list the cached germline dbs.
 
     \item \url{https://ncbi.github.io/igblast/cook/How-to-set-up.html}
           for important information about IgBLAST \emph{auxiliary data}.

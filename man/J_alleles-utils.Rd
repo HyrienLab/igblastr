@@ -7,14 +7,14 @@
 \alias{J_allele_has_stop_codon}
 \alias{translate_fwr4}
 
-\title{Low-level manipulation of J allele sequences}
+\title{Basic manipulation of J allele sequences}
 
 \description{
-  A small set of utilities to manipulate J allele sequences.
+  A small set of utilities for basic examination of J allele sequences.
 
   Note that all of them require access to the \emph{auxiliary data}
-  associated with the J alleles, which can be obtained in various ways.
-  See \code{auxdata} argument below for the details.
+  associated with the J alleles to examine. See \code{auxdata} argument
+  below for how to obtain this data.
 }
 
 \usage{
@@ -62,8 +62,9 @@ translate_fwr4(J_alleles, auxdata, max.codons=NA)
   \itemize{
     \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 
-    \item \link{intdata_utils} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
+
+    \item \link{V_alleles_utils} for basic manipulation of V allele sequences.
 
     \item \code{\link{update_live_igdata}} for more information about "live"
           and "original" IgBLAST data.
@@ -71,7 +72,7 @@ translate_fwr4(J_alleles, auxdata, max.codons=NA)
     \item \link[Biostrings]{DNAStringSet} objects in the \pkg{Biostrings}
           package.
 
-    \item The \code{\link{translate_codons}} function on which
+    \item The \code{\link{translate_codons}} function upon which
           \code{translate_J_alleles()} and \code{translate_fwr4()} are based.
 
     \item IgBLAST is described at
@@ -85,7 +86,7 @@ if (!has_igblast()) install_igblast()
 igblast_info()
 
 ## ---------------------------------------------------------------------
-## 1. A close look at IgBLAST auxiliary data for rabbit
+## 1. A close look at the J allele sequences for rabbit
 ## ---------------------------------------------------------------------
 
 ## IgBLAST only includes auxiliary data for the following organisms:

@@ -7,18 +7,25 @@
 \alias{get_intdata_path}
 \alias{load_intdata}
 \alias{V_genes_with_varying_fwrcdr_boundaries}
-\alias{translate_V_alleles}
-\alias{V_allele_has_stop_codon}
 
-\title{Access and manipulate IgBLAST internal data}
+\title{Access IgBLAST internal data}
 
 \description{
   IgBLAST \emph{internal data} is expected to annotate all the known
   germline V gene alleles for a given organism. It is provided by NCBI
   and is typically included in a standard IgBLAST installation.
 
-  The \pkg{igblastr} package provides a small set of utilities to access
-  and manipulate IgBLAST \emph{internal data}.
+  The \emph{internal data} informs about the FWR/CDR boundaries on
+  the V allele sequences, also known as the V gene delineations.
+  This information is needed and used internally by IgBLAST.
+
+  \code{get_intdata_path()} and \code{load_intdata()} can be used
+  to access the \emph{internal data} included in IgBLAST or in
+  one of the \emph{cached germline dbs} managed by \pkg{igblastr}.
+
+  \code{V_genes_with_varying_fwrcdr_boundaries()} can be used to identify
+  germline V genes for which the FWR/CDR boundaries are not the same across
+  all alleles.
 }
 
 \usage{
@@ -28,10 +35,8 @@ get_intdata_path(organism, for.aa=FALSE, domain_system=c("imgt", "kabat"),
 load_intdata(organism, for.aa=FALSE, domain_system=c("imgt", "kabat"),
              which=c("live", "original"))
 
-## Manipulate internal data:
+## Identify V genes with varying FWR/CDR boundaries across alleles:
 V_genes_with_varying_fwrcdr_boundaries(intdata, V_segment=NULL)
-translate_V_alleles(V_alleles, intdata, V_segment=NULL)
-V_allele_has_stop_codon(V_alleles, intdata)
 }
 
 \arguments{
@@ -72,10 +77,7 @@ V_allele_has_stop_codon(V_alleles, intdata)
     "live" and "original" IgBLAST data.
   }
   \item{intdata}{
-    A data.frame as returned by \code{load_intdata()} for
-    \code{V_genes_with_varying_fwrcdr_boundaries()}, or by
-    \code{load_intdata(..., for.aa=FALSE)} for \code{translate_V_alleles()}
-    and \code{V_allele_has_stop_codon()}.
+    A data.frame as returned by \code{load_intdata()}.
   }
   \item{V_segment}{
     The name of a V gene segment. This can be set to \code{"fwr1"},
@@ -86,14 +88,6 @@ V_allele_has_stop_codon(V_alleles, intdata)
     which any segment has varying boundaries across alleles. Otherwise, it
     will identify V genes for which the specified segment has varying
     boundaries.
-
-    By default \code{translate_V_alleles()} will translate the entire coding
-    frame in each allele. Otherwise, it will translate the specified segment
-    only.
-  }
-  \item{V_alleles}{
-    A \link[Biostrings]{DNAStringSet} object containing germline V
-    gene allele sequences.
   }
 }
 
@@ -116,18 +110,6 @@ V_allele_has_stop_codon(V_alleles, intdata)
   \code{V_genes_with_varying_fwrcdr_boundaries()} returns a character
   vector containing the names of the germline V genes for which the
   FWR/CDR boundaries are not the same across all alleles.
-
-  \code{translate_V_alleles()} returns a named character vector with 1
-  amino acid sequence per supplied allele. The vector contains an \code{NA}
-  for any allele that is not annotated in \code{intdata} or for which
-  the required information is \code{NA}. The names on it are
-  the names of the supplied alleles.
-
-  \code{V_allele_has_stop_codon()} returns a named logical vector with 1
-  value per supplied allele. The vector contains an \code{NA} for any
-  allele that is not annotated in \code{intdata} or for which
-  \code{intdata$coding_frame_start} has an \code{NA}. The names on it are
-  the names of the supplied alleles.
 }
 
 \seealso{
@@ -145,15 +127,6 @@ V_allele_has_stop_codon(V_alleles, intdata)
 
     \item \code{\link{list_germline_dbs}} to list the cached germline dbs.
 
-    \item \link[Biostrings]{DNAStringSet} objects in the \pkg{Biostrings}
-          package.
-
-    \item The \code{\link{translate_codons}} function on which
-          \code{translate_V_alleles()} is based.
-
-    \item \code{\link{allele2gene}} to go from germline gene allele names
-          to germline gene names.
-
     \item The \code{\link{igblastn}} function to run the \code{igblastn}
           \emph{standalone executable} included in IgBLAST from R. This
           is the main function in the \pkg{igblastr} package.
@@ -169,12 +142,14 @@ if (!has_igblast()) install_igblast()
 igblast_info()
 
 ## ---------------------------------------------------------------------
-## list_igblast_organisms() and get_intdata_path()
+## Access IgBLAST internal data for a given organism
 ## ---------------------------------------------------------------------
 
+## IgBLAST only includes internal data for the following organisms:
 list_igblast_organisms()
 
 get_intdata_path("rabbit")
+
 rabbit_intdata <- load_intdata("rabbit")
 head(rabbit_intdata)
 
@@ -187,10 +162,21 @@ end_colnames <- grep("_end$", colnames(rabbit_intdata), value=TRUE)
 stopifnot(identical(rabbit_intdata [ , end_colnames],
                     rabbit_intdata2[ , end_colnames] * 3L))
 
-## Get the internal data included germline db
-## _OGRDB.human.IGH+IGK+IGL.202410 (this data
-## is provided by AIRR-community/OGRDB):
+## ---------------------------------------------------------------------
+## Access the internal data included in a germline db
+## ---------------------------------------------------------------------
+
+## List germline dbs with internal data:
+list_germline_dbs(with.intdata.only=TRUE)
+
+## Access the internal data included in germline db
+## _OGRDB.human.IGH+IGK+IGL.202410 (this data was inferred from
+## the gaps in the germline V gene allele sequences provided by
+## AIRR-community/OGRDB):
 db_name <- "_OGRDB.human.IGH+IGK+IGL.202410"
+
+get_intdata_path(db_name)
+
 human_intdata <- load_intdata(db_name)
 head(human_intdata)
 
@@ -203,35 +189,19 @@ head(human_intdata)
 ## V_genes_with_varying_fwrcdr_boundaries() to identify them:
 human_intdata0 <- load_intdata("human")
 var_genes <- V_genes_with_varying_fwrcdr_boundaries(human_intdata0)
-var_genes
+var_genes  # 4 genes
+
+## Display rows associated with gene IGHV4-31:
 subset(human_intdata0, allele2gene(allele_name) == "IGHV4-31")
 
-## Human germline V genes for which the CDR1 boundaries are not the same
-## across all alleles:
+## Human germline V genes for which the CDR1 boundaries are not the
+## same across all alleles:
 var_genes <- V_genes_with_varying_fwrcdr_boundaries(human_intdata0,
                                                     V_segment="cdr1")
-var_genes
+var_genes  # 2 genes
+
+## Display rows associated with the genes in 'var_genes':
 subset(human_intdata0, allele2gene(allele_name) \%in\% var_genes)
-
-## ---------------------------------------------------------------------
-## translate_V_alleles() and V_allele_has_stop_codon()
-## ---------------------------------------------------------------------
-
-V_alleles <- load_germline_db(db_name, region_types="V")
-V_alleles  # DNAStringSet object
-
-V_aa <- translate_V_alleles(V_alleles, human_intdata)
-head(V_aa)
-
-fwr2 <- translate_V_alleles(V_alleles, human_intdata, V_segment="fwr2")
-head(fwr2)
-
-## Surprisingly, 13 V alleles in _OGRDB.human.IGH+IGK+IGL.202410 contain
-## the stop codon:
-has_stop_codon <- grepl("*", V_aa, fixed=TRUE)
-table(has_stop_codon)
-V_aa[has_stop_codon]
-V_alleles[has_stop_codon]
 }
 
 \keyword{utilities}

@@ -99,8 +99,7 @@ makeogrannote(ogrdb_json_file)
     \item \code{\link{compute_V_gene_delineations}} to annotate a set
           of germline V gene allele sequences.
 
-    \item \link{intdata_utils} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
 
     \item The OGRDB website: \url{https://ogrdb.airr-community.org/}.
   }

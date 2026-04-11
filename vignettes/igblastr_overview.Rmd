@@ -7,7 +7,7 @@ author:
   affiliation: Fred Hutch Cancer Center, Seattle, WA
 - name: Ollivier Hyrien
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 10 April 2026"
+date: "Compiled `r BiocStyle::doc_date()`; Modified 11 April 2026"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
@@ -36,7 +36,8 @@ of complementarity-determining regions (CDR1–CDR3) and framework
 regions (FWR1–FWR4); and both nucleotide and protein-level alignments.
 
 `r Biocpkg("igblastr")` is an R/Bioconductor package that provides functions
-to conveniently install and use a local IgBLAST installation from within R.
+to conveniently install and use a local IgBLAST installation from within
+R while offering additional BCR or TCR sequence annotation.
 The package is designed to make it as easy as possible to use IgBLAST in R
 by streamlining the installation of both IgBLAST and its associated germline
 databases. In particular, these installations can be performed with a single
@@ -60,8 +61,9 @@ the package provides:
 
 - Functions to compute, access, and manipulate IgBLAST _internal data_.
 
-- A set of built-in constant region (C-region) databases (a.k.a. constant
-  region databases) from IMGT/V-QUEST.
+- Functions to compute, access, and manipulate IgBLAST _auxiliary data_.
+
+- A set of built-in constant region (C-region) databases from IMGT/V-QUEST.
 
 - Utility functions to parse the results returned by `igblastn()`.
 
@@ -529,7 +531,7 @@ Some future developments include:
 
 # Session information
 
-Here is the output of `sessionInfo()` on the system on which this document
+Here is the output of `sessionInfo()` on the system where this document
 was compiled:
 ```{r}
 sessionInfo()

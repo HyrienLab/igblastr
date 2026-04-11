@@ -1,5 +1,5 @@
 ### =========================================================================
-### Low-level manipulation of J allele sequences
+### Basic manipulation of J allele sequences
 ### -------------------------------------------------------------------------
 ###
 
@@ -14,8 +14,8 @@
     auxdata_col <- auxdata[[colname]]
     if (is.null(auxdata_col))
         stop(wmsg("'auxdata' has no \"", colname, "\" column. Make sure ",
-                  "that it's a data.frame as returned by load_auxdata() ",
-                  "or compute_auxdata()."))
+                  "that it's a data.frame as returned by compute_auxdata(), ",
+                  "compute_germline_db_auxdata(), or load_auxdata()."))
     auxdata_col
 }
 

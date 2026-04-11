@@ -98,6 +98,10 @@ export(
     ## compute_auxata.R:
     compute_auxdata,
 
+    ## V_alleles-utils.R:
+    translate_V_alleles,
+    V_allele_has_stop_codon,
+
     ## J_alleles-utils.R:
     translate_J_alleles,
     J_allele_has_stop_codon,
@@ -119,8 +123,6 @@ export(
     get_intdata_path,
     load_intdata,
     V_genes_with_varying_fwrcdr_boundaries,
-    translate_V_alleles,
-    V_allele_has_stop_codon,
 
     ## auxdata-utils.R:
     get_auxdata_path, get_igblast_auxiliary_data,

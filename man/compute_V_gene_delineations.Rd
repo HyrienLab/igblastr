@@ -82,8 +82,7 @@ compute_V_gene_delineations(gapped_V_alleles, as.IRangesList=FALSE)
           for how the "IMGT unique numbering for V-DOMAIN and V-LIKE-DOMAIN"
           works.
 
-    \item \code{\link{load_intdata}} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \code{\link{load_intdata}} to access IgBLAST \emph{internal data}.
 
     \item \code{\link{compute_auxdata}} to annotate a set of germline J
           gene allele sequences.

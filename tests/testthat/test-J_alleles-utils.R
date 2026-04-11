@@ -13,7 +13,7 @@ install_IMGT_germline_db("202614-2", "Oryctolagus cuniculus",
 
 test_that("translate_J_alleles()", {
 
-    ## --- for human J alleles (from AIRR and IMGT) ---
+    ## --- for human J alleles (from OGRDB and IMGT) ---
 
     auxdata <- load_and_fix_human_auxdata()
 
@@ -59,7 +59,7 @@ test_that("translate_J_alleles()", {
 
 test_that("J_allele_has_stop_codon()", {
 
-    ## --- for human J alleles (from AIRR and IMGT) ---
+    ## --- for human J alleles (from OGRDB and IMGT) ---
 
     auxdata <- load_and_fix_human_auxdata()
 
@@ -90,7 +90,7 @@ test_that("J_allele_has_stop_codon()", {
 
 test_that("translate_fwr4()", {
 
-    ## --- for human J alleles (from AIRR and IMGT) ---
+    ## --- for human J alleles (from OGRDB and IMGT) ---
 
     auxdata <- load_and_fix_human_auxdata()
 

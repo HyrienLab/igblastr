@@ -54,8 +54,7 @@ compute_auxdata(J_alleles)
 
 \seealso{
   \itemize{
-    \item \code{\link{load_auxdata}} to access and manipulate IgBLAST
-          \emph{auxiliary data}.
+    \item \code{\link{load_auxdata}} to access IgBLAST \emph{auxiliary data}.
 
     \item \code{\link{compute_V_gene_delineations}} to annotate a set of
           germline V gene allele sequences.

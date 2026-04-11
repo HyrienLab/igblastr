@@ -162,8 +162,7 @@ install_custom_germline_db(db_name, fasta_dir, tcr.db=FALSE,
     \item \code{\link{use_germline_db}} to select the cached germline db
           to use with \code{igblastn()}.
 
-    \item \code{\link{load_intdata}} to access and manipulate IgBLAST
-          \emph{internal data}.
+    \item \code{\link{load_intdata}} to access IgBLAST \emph{internal data}.
 
     \item \code{\link{download_IMGT_germline_sequences}} to download
           germline sequences from IMGT.
