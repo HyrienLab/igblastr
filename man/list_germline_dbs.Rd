@@ -181,12 +181,12 @@ list_germline_dbs(with.intdata.only=TRUE, long.listing=TRUE)
 
 if (IMGT_is_up()) {
   ## Install Mouse germline db from IMGT:
-  install_IMGT_germline_db("202518-3", "Homo sapiens", overwrite=TRUE)
+  install_IMGT_germline_db("202614-2", "Homo sapiens", overwrite=TRUE)
 
   list_germline_dbs()  # all germline dbs
 
   ## Select germline db to use with igblastn():
-  db_name <- "IMGT-202518-3.Homo_sapiens.IGH+IGK+IGL"
+  db_name <- "IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"
   use_germline_db(db_name)  # select germline db to use
 
   use_germline_db()  # get current selection

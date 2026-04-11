@@ -1,31 +1,31 @@
 test_that("install_IMGT_germline_db()", {
-    db_name <- install_IMGT_germline_db("202531-1", "Homo sapiens",
+    db_name <- install_IMGT_germline_db("202614-2", "Homo sapiens",
                                         overwrite=TRUE)
-    expect_identical(db_name, "IMGT-202531-1.Homo_sapiens.IGH+IGK+IGL")
+    expect_identical(db_name, "IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL")
     intdata <- load_intdata(db_name)
     igblastr:::check_ndm_data_col2class(intdata)
     use_germline_db(db_name)
     rm_germline_db(db_name)
 
-    db_name <- install_IMGT_germline_db("202531-1", "Homo sapiens",
+    db_name <- install_IMGT_germline_db("202614-2", "Homo sapiens",
                                         tcr.db=TRUE, overwrite=TRUE)
-    expect_identical(db_name, "IMGT-202531-1.Homo_sapiens.TRA+TRB+TRG+TRD")
+    expect_identical(db_name, "IMGT-202614-2.Homo_sapiens.TRA+TRB+TRG+TRD")
     intdata <- load_intdata(db_name)
     igblastr:::check_ndm_data_col2class(intdata)
     use_germline_db(db_name)
     rm_germline_db(db_name)
 
-    db_name <- install_IMGT_germline_db("202531-1", "Homo sapiens",
+    db_name <- install_IMGT_germline_db("202614-2", "Homo sapiens",
                                         loci="IGH", overwrite=TRUE)
-    expect_identical(db_name, "IMGT-202531-1.Homo_sapiens.IGH")
+    expect_identical(db_name, "IMGT-202614-2.Homo_sapiens.IGH")
     intdata <- load_intdata(db_name)
     igblastr:::check_ndm_data_col2class(intdata)
     use_germline_db(db_name)
     rm_germline_db(db_name)
  
-    db_name <- install_IMGT_germline_db("202531-1", "Homo sapiens",
+    db_name <- install_IMGT_germline_db("202614-2", "Homo sapiens",
                                         loci=c("TRB", "TRA"), overwrite=TRUE)
-    expect_identical(db_name, "IMGT-202531-1.Homo_sapiens.TRA+TRB")
+    expect_identical(db_name, "IMGT-202614-2.Homo_sapiens.TRA+TRB")
     intdata <- load_intdata(db_name)
     igblastr:::check_ndm_data_col2class(intdata)
     use_germline_db(db_name)

@@ -121,8 +121,6 @@ export(
     V_genes_with_varying_fwrcdr_boundaries,
     translate_V_alleles,
     V_allele_has_stop_codon,
-    annotate_heavy_V_alleles,
-    annotate_light_V_alleles,
 
     ## auxdata-utils.R:
     get_auxdata_path, get_igblast_auxiliary_data,

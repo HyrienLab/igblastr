@@ -1,3 +1,17 @@
+### Install IMGT germline dbs used in tests below. Note that only the first
+### installation actually triggers a download from IMGT. All subsequent
+### installations obtain the data from the IMGT local store (located
+### in 'igblastr_cache(IMGT_STORE)') so are very fast and work offline.
+install_IMGT_germline_db("202614-2", "Homo_sapiens",
+                         without.intdata=TRUE, overwrite=TRUE)
+install_IMGT_germline_db("202614-2", "Mus_musculus",
+                         tcr.db=TRUE, overwrite=TRUE)
+install_IMGT_germline_db("202614-2", "Sus_scrofa",
+                         overwrite=TRUE)
+install_IMGT_germline_db("202614-2", "Bos_taurus",
+                         without.intdata=TRUE, without.auxdata=TRUE,
+                         overwrite=TRUE)
+
 test_that(".normarg_custom_internal_data()", {
     normarg_custom_internal_data <- igblastr:::.normarg_custom_internal_data
 
@@ -26,9 +40,8 @@ test_that(".normarg_custom_internal_data()", {
     )
     expect_true(is.null(custom_internal_data))
 
-    ## No internal data.
-    db_name <- install_IMGT_germline_db("202518-3", "Homo sapiens",
-                                        without.intdata=TRUE, overwrite=TRUE)
+    ## NO intdata!
+    db_name <- "IMGT-202614-2.Homo sapiens.IGH+IGK+IGL"
     db_path <- igblastr:::get_germline_db_path(db_name)
     germline_db_V <- file.path(db_path, "V")
 
@@ -274,10 +287,10 @@ test_that("prepare_igblastn_cmdline_args()", {
     expected_argnames <- append(expected_argnames, opt_argnames, organism_idx)
     expect_identical(names(cmd_args), expected_argnames)
 
-    ## --- selecting IMGT-202531-1.Mus_musculus.IGH+IGK+IGL ---
+    ## --- selecting IMGT-202614-2.Mus_musculus.TRA+TRB+TRG+TRD ---
+    ## NO auxdata!
 
-    db_name <- install_IMGT_germline_db("202531-1", "Mus musculus",
-                                        tcr.db=TRUE, overwrite=TRUE)
+    db_name <- "IMGT-202614-2.Mus_musculus.TRA+TRB+TRG+TRD"
     suppressMessages(use_germline_db(db_name))
 
     cmd_args <- prepare_igblastn_cmdline_args("path/to/query",
@@ -292,11 +305,11 @@ test_that("prepare_igblastn_cmdline_args()", {
     expect_identical(cmd_args$ig_seqtype, "TCR")
     expect_true(attr(cmd_args$out, "safe_to_remove"))
 
-    ## --- selecting IMGT-202518-3.Sus_scrofa.IGH+IGK+IGL ---
-    ## Note that pig is not an IgBLAST organism!
+    ## --- selecting IMGT-202614-2.Sus_scrofa.IGH+IGK+IGL ---
+    ## NOT an IgBLAST organism!
+    ## Includes intdata & auxdata!
 
-    db_name <- install_IMGT_germline_db("202518-3", "Sus_scrofa",
-                                        overwrite=TRUE)
+    db_name <- "IMGT-202614-2.Sus_scrofa.IGH+IGK+IGL"
     suppressMessages(use_germline_db(db_name))
     use_c_region_db("")
 
@@ -306,9 +319,11 @@ test_that("prepare_igblastn_cmdline_args()", {
     expected_argnames[[organism_idx]] <- "custom_internal_data"
     expect_identical(names(cmd_args), expected_argnames)
 
-    db_name <- install_IMGT_germline_db("202518-3", "Sus_scrofa",
-                                        without.intdata=TRUE,
-                                        without.auxdata=TRUE, overwrite=TRUE)
+    ## --- selecting IMGT-202614-2.Bos_taurus.IGH+IGK+IGL ---
+    ## NOT an IgBLAST organism!
+    ## NO intdata and NO auxdata!
+
+    db_name <- "IMGT-202614-2.Bos_taurus.IGH+IGK+IGL"
     suppressMessages(use_germline_db(db_name))
 
     errmsg <- "Don't know how to infer 'organism' from germline db name"

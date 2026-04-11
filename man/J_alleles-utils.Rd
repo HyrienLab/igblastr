@@ -96,7 +96,7 @@ rabbit_auxdata <- load_auxdata("rabbit")
 
 ## It turns out that IgBLAST auxiliary data for rabbit matches exactly
 ## the set of rabbit germline J alleles available at IMGT:
-db_name <- install_IMGT_germline_db("202531-1", "Oryctolagus cuniculus",
+db_name <- install_IMGT_germline_db("202614-2", "Oryctolagus cuniculus",
                                     without.auxdata=TRUE,
                                     overwrite=TRUE)
 J_alleles <- load_germline_db(db_name, region_types="J")
@@ -122,7 +122,7 @@ J_aa
 
 ## No sequence in 'J_aa' should contain the letter "*" which is used
 ## by translate_J_alleles() to represent a stop codon. However, one
-## J allele in IMGT-202531-1.Oryctolagus_cuniculus.IGH+IGK+IGL seems
+## J allele in IMGT-202614-2.Oryctolagus_cuniculus.IGH+IGK+IGL seems
 ## to disobey:
 has_stop_codon <- grepl("*", J_aa, fixed=TRUE)
 rabbit_auxdata[has_stop_codon, ]  # coding_frame_start = 0 for IGKJ1-2*04

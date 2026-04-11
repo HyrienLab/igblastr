@@ -137,15 +137,15 @@ IMGT_is_up()
 
 \examples{
 if (IMGT_is_up()) {
-  ## As of March 26, 2025, the latest IMGT/V-QUEST release is 202518-3:
+  ## As of April 10, 2026, the latest IMGT/V-QUEST release is 202614-2:
   list_IMGT_releases()
 
-  list_IMGT_organisms("202518-3")
+  list_IMGT_organisms("202614-2")
 
   ## Download Mouse BCR germline gene allele sequences from IMGT/V-QUEST
-  ## 202518-3 to a temporary directory:
+  ## 202614-2 to a temporary directory:
   dir.create(destdir <- tempfile("fasta_dir_"))
-  download_IMGT_germline_sequences("202518-3", organism="Mus musculus",
+  download_IMGT_germline_sequences("202614-2", organism="Mus musculus",
                                    destdir=destdir)
 
   ## List the downloaded files:
@@ -155,9 +155,9 @@ if (IMGT_is_up()) {
   unlink(destdir, recursive=TRUE)
 
   ## Download Mouse TCR germline gene allele sequences from IMGT/V-QUEST
-  ## 202518-3 to a temporary directory:
+  ## 202614-2 to a temporary directory:
   dir.create(destdir <- tempfile("fasta_dir_"))
-  download_IMGT_germline_sequences("202518-3", organism="Mus musculus",
+  download_IMGT_germline_sequences("202614-2", organism="Mus musculus",
                                    tcr.db=TRUE, destdir=destdir)
 
   ## List the downloaded files:
