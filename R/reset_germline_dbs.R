@@ -61,9 +61,9 @@
 .form_builtin_OGRDB_mouse_germline_db_name <- function(fasta_store)
 {
     stopifnot(isSingleNonWhiteString(fasta_store))
-    strain <- basename(fasta_store)
     loci_in1string <- paste(IG_LOCI, collapse="+")
-    version <- read_version_file(fasta_store)
+    version <- basename(fasta_store)
+    strain <- basename(dirname(fasta_store))
     sprintf("_OGRDB.mouse.%s.%s.%s", strain, loci_in1string, version)
 }
 
@@ -75,10 +75,12 @@
     install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
                         gapped=TRUE, with.intdata=TRUE,
                         if.exists="no-op", verbose=verbose)
-    ## The computed data for mouse strains NOD_ShiLtJ and PWD_PhJ version
-    ## 202501 is incomplete (i.e. contains NAs) so there's no need to call
-    ## add_computed_auxdata_to_germline_db(). If we do so, then the auxdata
-    ## will be computed and discarded each time list_germline_dbs() is called!
+    ## The computed data for the mouse strains that we currently support
+    ## is incomplete -- for all of them the CDR3 end cannot be found for
+    ## J alleles IGKJ0-5NUZ*00, IGKJ0-IIHF*00, IGLJ0-UWMQ*00 -- so there's
+    ## no need to call add_computed_auxdata_to_germline_db(). Note that if
+    ## we do so, then the auxdata will be computed and discarded each time
+    ## list_germline_dbs() gets called!
     #db_path <- file.path(install_dir, db_name)
     #add_computed_auxdata_to_germline_db(path, verbose=verbose)
 }
@@ -88,20 +90,15 @@
 {
     stopifnot(isSingleNonWhiteString(mouse_dir), dir.exists(mouse_dir),
               isTRUEorFALSE(verbose))
-    fasta_stores <- list.dirs(mouse_dir, recursive=FALSE)
-    ## Starting with igblastr 1.0.21/1.1.21, mouse strains CAST/EiJ, LEWES/EiJ,
-    ## and MSM/MsJ are excluded from the list of built-in OGRDB germline dbs
-    ## for mouse. The reason for this is that we found out that the internal
-    ## data included in OGRDB germline sets "CAST/EiJ IGH" version 1,
-    ## "CAST/EiJ IGLV" version 1, "LEWES/EiJ IGH" version 1, and
-    ## "MSM/MsJ IGLV" version 1 is inconsistent. See validate_mouse_intdata()
-    ## in extdata/germline_sets/OGRDB/mouse/download_mouse_germline_sequences.R
-    ## for more information.
-    exclude_list <- c("CAST_EiJ", "LEWES_EiJ", "MSM_MsJ")
-    fasta_stores <- fasta_stores[!(basename(fasta_stores) %in% exclude_list)]
-    for (fasta_store in fasta_stores)
+    strain_dirs <- list.dirs(mouse_dir, recursive=FALSE)
+    for (strain_dir in strain_dirs) {
+        ## We only install the latest version of each strain.
+        subdirs <- list.dirs(strain_dir, full.names=FALSE, recursive=FALSE)
+        versions <- setdiff(subdirs, "diffs")
+        fasta_store <- file.path(strain_dir, versions[[length(versions)]])
         .install_builtin_OGRDB_mouse_germline_db(install_dir, fasta_store,
                                                  verbose=verbose)
+    }
 }
 
 

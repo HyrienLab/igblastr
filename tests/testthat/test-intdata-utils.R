@@ -58,10 +58,10 @@ test_that("load_intdata()", {
     intdata <- load_intdata("_OGRDB.human.IGH+IGK+IGL.202410")
     expect_true(all(validate_ndm_rows(intdata)))
 
-    intdata <- load_intdata("_OGRDB.mouse.NOD_ShiLtJ.IGH+IGK+IGL.202501")
+    intdata <- load_intdata("_OGRDB.mouse.NOD_ShiLtJ.IGH+IGK+IGL.202205")
     expect_true(all(validate_ndm_rows(intdata)))
 
-    intdata <- load_intdata("_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501")
+    intdata <- load_intdata("_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410")
     expect_true(all(validate_ndm_rows(intdata)))
 
     intdata <- load_intdata("_OGRDB.rhesus_monkey.IGH+IGK+IGL.202602")

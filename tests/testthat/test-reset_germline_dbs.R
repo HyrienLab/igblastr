@@ -9,7 +9,7 @@ test_that(".install_all_builtin_germline_dbs()", {
                       IGL=c(   80L,    0L,    9L))
     expect_identical(current, expected)
 
-    current <- db_list[["_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501"]]
+    current <- db_list[["_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410"]]
     expected <- rbind(IGH=c(V=92L, D=10L,  J= 4L),
                       IGK=c(  89L,    0L,    11L),
                       IGL=c(   3L,    0L,     7L))

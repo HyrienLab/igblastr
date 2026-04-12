@@ -1,19 +1,19 @@
-\name{J_alleles-utils}
+\name{J_alleles-inspect}
 
-\alias{J_alleles-utils}
-\alias{J_alleles_utils}
+\alias{J_alleles-inspect}
+\alias{J_alleles_inspect}
 
 \alias{translate_J_alleles}
 \alias{J_allele_has_stop_codon}
 \alias{translate_fwr4}
 
-\title{Basic manipulation of J allele sequences}
+\title{Basic inspection of J allele sequences}
 
 \description{
-  A small set of utilities for basic examination of J allele sequences.
+  A small set of utilities for (very) basic inspection of J allele sequences.
 
   Note that all of them require access to the \emph{auxiliary data}
-  associated with the J alleles to examine. See \code{auxdata} argument
+  associated with the J alleles to inspect. See \code{auxdata} argument
   below for how to obtain this data.
 }
 
@@ -64,7 +64,7 @@ translate_fwr4(J_alleles, auxdata, max.codons=NA)
 
     \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
 
-    \item \link{V_alleles_utils} for basic manipulation of V allele sequences.
+    \item \link{V_alleles_inspect} for basic inspection of V allele sequences.
 
     \item \code{\link{update_live_igdata}} for more information about "live"
           and "original" IgBLAST data.

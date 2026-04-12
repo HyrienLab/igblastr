@@ -80,6 +80,8 @@
     check_germline_db_name(db_name)
     if (has_prefix(db_name, "_AIRR.")) {
         warn_if_old_AIRR_dbs_are_present()
+    } else if (db_name %in% RENAMED_BUILTIN_GERMLINE_DBS) {
+        warn_about_renamed_builtin_germline_dbs()
     } else {
         .notes_on_selecting_OGRDB_germline_db(db_name)
         .note_on_selecting_IMGT_germline_db(db_name)

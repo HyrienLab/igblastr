@@ -1,18 +1,18 @@
-\name{V_alleles-utils}
+\name{V_alleles-inspect}
 
-\alias{V_alleles-utils}
-\alias{V_alleles_utils}
+\alias{V_alleles-inspect}
+\alias{V_alleles_inspect}
 
 \alias{translate_V_alleles}
 \alias{V_allele_has_stop_codon}
 
-\title{Basic manipulation of V allele sequences}
+\title{Basic inspection of V allele sequences}
 
 \description{
-  A small set of utilities for basic examination of V allele sequences.
+  A small set of utilities for (very) basic inspection of V allele sequences.
 
   Note that all of them require access to the \emph{internal data}
-  associated with the V alleles to examine. See \code{intdata} argument
+  associated with the V alleles to inspect. See \code{intdata} argument
   below for how to obtain this data.
 }
 
@@ -59,7 +59,7 @@ V_allele_has_stop_codon(V_alleles, intdata)
 
     \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 
-    \item \link{J_alleles_utils} for basic manipulation of J allele sequences.
+    \item \link{J_alleles_inspect} for basic inspection of J allele sequences.
 
     \item \code{\link{update_live_igdata}} for more information about "live"
           and "original" IgBLAST data.
@@ -79,7 +79,7 @@ V_allele_has_stop_codon(V_alleles, intdata)
 }
 
 \examples{
-## We're going to examine the V allele sequences stored in
+## Let's inspect the V allele sequences stored in
 ## germline db _OGRDB.human.IGH+IGK+IGL.202410.
 
 ## Load the V allele sequences:

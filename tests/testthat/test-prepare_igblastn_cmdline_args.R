@@ -123,7 +123,7 @@ test_that(".normarg_auxiliary_data()", {
                                              no_auto_germline_dbs=FALSE)
     expect_identical(auxiliary_data, get_auxdata_path(db_name))
 
-    db_name <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501"
+    db_name <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410"
     use_germline_db(db_name)
     db_path <- igblastr:::get_germline_db_path(db_name)
     germline_db_J <- file.path(db_path, "J")

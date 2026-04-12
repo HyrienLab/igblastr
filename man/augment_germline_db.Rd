@@ -170,7 +170,7 @@ stopifnot(all.equal(AIRR_df[-idx, ], AIRR_df2[-idx, ]))
 
 ## Let's do (2):
 
-db_name1 <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501"
+db_name1 <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410"
 db_name2 <- "_OGRDB.human.IGH+IGK+IGL.202410"
 
 ## Extract human V germline alleles:

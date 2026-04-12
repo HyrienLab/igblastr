@@ -32,7 +32,7 @@ get_germline_dbs_home <- function(init.path=FALSE)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### Handle presence of old built-in AIRR dbs graciously
+### Handle stale built-in germline dbs
 ###
 
 .warn_about_new_set_of_builtin_dbs <- function()
@@ -70,12 +70,40 @@ get_germline_dbs_home <- function(init.path=FALSE)
             "\n\n  ", wmsg(msg7))
 }
 
+### Not exported!
 warn_if_old_AIRR_dbs_are_present <- function()
 {
     germline_dbs_home <- get_germline_dbs_home()
     old_AIRR_dbs <- list.files(germline_dbs_home, pattern="^_AIRR\\.")
     if (length(old_AIRR_dbs) != 0L)
         .warn_about_new_set_of_builtin_dbs()
+}
+
+### Not exported!
+### In igblastr 1.0.26 and 1.1.26, _OGRDB.mouse.NOD_ShiLtJ.IGH+IGK+IGL.202501
+### was replaced with _OGRDB.mouse.NOD_ShiLtJ.IGH+IGK+IGL.202205 and
+### _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501 was replaced with
+### _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410, so the original germline dbs
+### can go away.
+RENAMED_BUILTIN_GERMLINE_DBS <- c(
+    `202205`="_OGRDB.mouse.NOD_ShiLtJ.IGH+IGK+IGL.202501",
+    `202410`="_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501"
+)
+
+### Not exported!
+warn_about_renamed_builtin_germline_dbs <- function()
+{
+    msg1 <- c("Germline dbs ", RENAMED_BUILTIN_GERMLINE_DBS[[1L]], " and ",
+              RENAMED_BUILTIN_GERMLINE_DBS[[2L]], " were renamed ",
+              "_OGRDB.mouse.NOD_ShiLtJ.IGH+IGK+IGL.202205 and ",
+              "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410, respectively.")
+    msg2 <- c("The new names better reflect the release date of the ",
+              "OGRDB germline sets that they contain. Note that the two ",
+              "original germline dbs were kept for backward compatibility.")
+    msg3 <- c("To avoid this warning, use the new germline dbs instead ",
+              "(they're identical to the old ones). You can use ",
+              "rm_germline_db() to remove the original germline dbs.")
+    warning(wmsg(msg1), "\n  ", wmsg(msg2), "\n\n  ", wmsg(msg3))
 }
 
 
@@ -187,10 +215,18 @@ get_germline_db_path <- function(db_name)
 ### rm_germline_db()
 ###
 
+### Built-in germline dbs are not removable except for the stale ones.
+.germline_db_is_removable <- function(db_name)
+{
+    if (!has_prefix(db_name, "_") || has_prefix(db_name, "_AIRR."))
+        return(TRUE)
+    db_name %in% RENAMED_BUILTIN_GERMLINE_DBS
+}
+
 rm_germline_db <- function(db_name)
 {
     check_germline_db_name(db_name)
-    if (has_prefix(db_name, "_") && !has_prefix(db_name, "_AIRR."))
+    if (!.germline_db_is_removable(db_name))
         stop(wmsg("cannot remove a built-in germline db"))
 
     germline_dbs_home <- get_germline_dbs_home(TRUE)  # guaranteed to exist

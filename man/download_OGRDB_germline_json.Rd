@@ -143,8 +143,8 @@ IGLV_intdata <- makeogrannote(file.path(destdir, "IGLV.json"))
 intdata <- rbind(IGHV_intdata, IGKV_intdata, IGLV_intdata)
 
 ## As a sanity check, we compare 'intdata' with the "internal data"
-## included in germline db _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501:
-intdata0 <- load_intdata("_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501")
+## included in germline db _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410:
+intdata0 <- load_intdata("_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410")
 
 ## We use same_ndm_data(), a small undocumented helper function, to
 ## verify that 'intdata' and 'intdata0' contain the same data (possibly

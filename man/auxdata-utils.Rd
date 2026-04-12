@@ -186,9 +186,9 @@ rhesus_monkey_auxdata2 <- compute_germline_db_auxdata(db_name)
 stopifnot(identical(rhesus_monkey_auxdata2, rhesus_monkey_auxdata))
 
 ## Note that no auxiliary data was included in germline db
-## _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501 because it couldn't
+## _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410 because it couldn't
 ## be properly computed for all the J alleles in the db:
-db_name <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202501"
+db_name <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410"
 compute_germline_db_auxdata(db_name)  # returned data.frame contains NAs!
 }
 
