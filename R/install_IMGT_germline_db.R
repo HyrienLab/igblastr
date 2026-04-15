@@ -53,6 +53,23 @@
     sprintf("IMGT-%s.%s.%s", release, organism, paste(loci, collapse="+"))
 }
 
+### Why does IMGT human J allele IGLJ2A*01 have a codon start set to 1?
+### This is unexpected because:
+### - there's no FGXG motif in this coding frame (the allele sequence
+###   translates to CGIRRRDQADRP in this coding frame);
+### - IGLJ2A*01 sequence is exactly the same as IGLJ2*01 and IGLJ3*01
+###   sequences, which both have a codon start set to 2;
+### - IGLJ2*01 and IGLJ3*01 actually contain the FGXG motif in the coding
+###   frame that starts at position 2 (the 12 codons in the sequence
+###   translate to VVFGGGTKLTVL).
+### TODO: Ask the IMGT folks about this.
+### In the mean time, we exclude it. This shouldn't make any difference
+### from an IgBLAST operations point of view because it's sequence is
+### the same as IGLJ2*01 and IGLJ3*01 which we keep (note for that matter
+### that we could also exclude IGLJ3*01 and it shouldn't make any difference
+### either).
+.EXCLUDED_IMGT_HUMAN_J_ALLELES <- "IGLJ2A*01"
+
 install_IMGT_germline_db <- function(release, organism="Homo sapiens",
                                      tcr.db=FALSE, loci="auto",
                                      without.intdata=FALSE,
@@ -88,13 +105,21 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
     ## Compute 'db_name'.
     db_name <- .form_IMGT_germline_db_name(fasta_store, loci)
 
+    ## Do we need to exclude any J allele known to be problematic?
+    if (organism == "Homo_sapiens" && loci_prefix == "IG") {
+        excluded_J_alleles <- .EXCLUDED_IMGT_HUMAN_J_ALLELES
+    } else {
+        excluded_J_alleles <- NULL
+    }
+
     ## Create and install germline db.
     install_dir <- get_germline_dbs_home(TRUE)  # guaranteed to exist
     with.auxdata <- !(without.auxdata || loci_prefix == "TR")
     if.exists <- if (overwrite) "overwrite" else "error"
     install_germline_db(install_dir, db_name, fasta_store, loci,
                         gapped=TRUE, with.intdata=!without.intdata,
-                        with.auxdata=with.auxdata,
+                        excluded_J_alleles=excluded_J_alleles,
+                        with.auxdata=with.auxdata, imgt.fasta=TRUE,
                         if.exists=if.exists, verbose=verbose,
                         cheer.if.success=TRUE)
 }

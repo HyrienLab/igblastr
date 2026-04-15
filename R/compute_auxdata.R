@@ -92,9 +92,9 @@
 .VALID_J_GROUPS <- paste0("IG", c("H", "K", "L"), "J")
 
 ### Returns a data.frame with the same column names as the data.frame
-### returned by load_auxdata() (see file R/auxdata-utils.R), plus
-### the "fwr4_start_motif" column.
-### NOTE: We set coding_frame_start/cdr3_end/extra_bps/fwr4_start_motif
+### returned by load_auxdata() (see file R/auxdata-utils.R), minus
+### the "extra_bps" column and plus the "fwr4_start_motif" column.
+### NOTE: We set coding_frame_start/cdr3_end/fwr4_start_motif
 ### to NA for alleles for which the FWR4 start cannot be determined.
 .compute_auxdata_for_J_group <- function(J_alleles, J_group)
 {
@@ -114,30 +114,96 @@
         fwr4_starts <- .find_light_fwr4_starts(J_alleles)
     }
     coding_frame_starts <- fwr4_starts %% 3L
-    extra_bps <- (width(J_alleles) - coding_frame_starts) %% 3L
     data.frame(
         allele_name       =allele_names,
         coding_frame_start=coding_frame_starts,  # 0-based
         chain_type        =chain_type,
-        cdr3_end          =fwr4_starts - 1L,     # 0-based
-        extra_bps         =extra_bps
+        cdr3_end          =fwr4_starts - 1L      # 0-based
         ## Returning this column only made sense when we were using "FS"
         ## motif as a 2nd-chance motif on the light chain.
         #fwr4_start_motif  =names(fwr4_starts)
     )
 }
 
+.normarg_codon_starts <- function(codon_starts, allele_names)
+{
+    if (!is.numeric(codon_starts))
+        stop(wmsg("'codon_starts' must be NULL or an integer vector"))
+    if (is.null(names(codon_starts)))
+        stop(wmsg("'codon_starts' must carry the names of the J alleles"))
+    if (!identical(names(codon_starts), allele_names))
+        stop(wmsg("the names on 'J_alleles' and 'codon_starts' must ",
+                  "be identical"))
+    if (!is.integer(codon_starts))
+        codon_starts <- setNames(as.integer(codon_starts), names(codon_starts))
+    if (!(all(codon_starts %in% c(1:3, NA_integer_))))
+        stop(wmsg("the non-NA values in 'codon_starts' must ",
+                  "be >= 1 and <= 3"))
+    codon_starts
+}
+
+.refine_with_codon_starts <- function(auxdata, codon_starts)
+{
+    stopifnot(is.data.frame(auxdata), is.integer(codon_starts),
+              identical(auxdata[ , "allele_name"], names(codon_starts)))
+    coding_frame_start <- auxdata[ , "coding_frame_start"]
+    expected_coding_frame_start <- codon_starts - 1L
+    bad_idx <- which(coding_frame_start != expected_coding_frame_start)
+    if (length(bad_idx) != 0L) {
+        in1string <- paste(auxdata[bad_idx, "allele_name"], collapse=", ")
+        stop(wmsg("the supplied \"codon start\" is in disagreement with ",
+                  "the computed \"coding frame start\" for allele(s): ",
+                  in1string))
+    }
+    na_idx <- which(is.na(coding_frame_start))
+    if (length(na_idx) != 0L) {
+        coding_frame_start[na_idx] <- expected_coding_frame_start[na_idx]
+        auxdata$coding_frame_start <- coding_frame_start
+    }
+    auxdata
+}
+
+### Not exported!
+J_alleles_with_missing_coding_frame_start <- function(auxdata)
+{
+    stopifnot(is.data.frame(auxdata))
+    bad_idx <- which(is.na(auxdata[ , "coding_frame_start"]))
+    auxdata[bad_idx, "allele_name"]
+}
+
+### Warn user if "coding frame start" could not be determined for some alleles.
+.warn_if_missing_coding_frame_starts <- function(auxdata)
+{
+    bad_alleles <- J_alleles_with_missing_coding_frame_start(auxdata)
+    if (length(bad_alleles) != 0L) {
+        in1string <- paste(bad_alleles, collapse=", ")
+        warning(wmsg("the \"coding frame start\" could not be determined ",
+                     "for J allele(s): ", in1string),
+                "\n  ",
+                wmsg("--> coding_frame_start, cdr3_end, and extra_bps ",
+                     "were set to NA for these alleles"))
+    }
+}
+
 ### Returns a data.frame with 1 row per sequence in 'J_alleles'.
-compute_auxdata <- function(J_alleles)
+compute_auxdata <- function(J_alleles, codon_starts=NULL, no.warning=FALSE)
 {
     if (!is(J_alleles, "DNAStringSet"))
         stop(wmsg("'J_alleles' must be DNAStringSet object"))
     allele_names <- names(J_alleles)
     if (is.null(allele_names))
         stop(wmsg("'J_alleles' must have names"))
+    names(J_alleles) <- allele_names <- clean_imgt_fasta_headers(allele_names)
+
     allele_groups <- substr(allele_names, 1L, 4L)
     if (!all(allele_groups %in% .VALID_J_GROUPS))
         stop(wmsg("all allele names must start with 'IG[HKL]J'"))
+
+    if (!is.null(codon_starts))
+        codon_starts <- .normarg_codon_starts(codon_starts, allele_names)
+
+    if (!isTRUEorFALSE(no.warning))
+        stop(wmsg("'no.warning' must be TRUE or FALSE"))
 
     JH_alleles <- J_alleles[allele_groups == "IGHJ"]
     JK_alleles <- J_alleles[allele_groups == "IGKJ"]
@@ -146,20 +212,19 @@ compute_auxdata <- function(J_alleles)
     JK_df <- .compute_auxdata_for_J_group(JK_alleles, "IGKJ")
     JL_df <- .compute_auxdata_for_J_group(JL_alleles, "IGLJ")
     ans <- rbind(JH_df, JK_df, JL_df)
+    rownames(ans) <- NULL
 
     i <- match(allele_names, ans[ , "allele_name"])
     ans <- S4Vectors:::extract_data_frame_rows(ans, i)
-    rownames(ans) <- NULL
 
-    ## Warn user if CDR3 end not found for some alleles.
-    bad_idx <- which(is.na(ans[ , "cdr3_end"]))
-    if (length(bad_idx) != 0L) {
-        in1string <- paste(ans[bad_idx, "allele_name"], collapse=", ")
-        warning(wmsg("CDR3 end not found for allele(s): ", in1string),
-                "\n  ",
-                wmsg("--> coding_frame_start, cdr3_end, and extra_bps ",
-                     "were set to NA for these alleles"))
-    }
+    if (!is.null(codon_starts))
+        ans <- .refine_with_codon_starts(ans, codon_starts)
+
+    ## Add "extra_bps" column.
+    ans$extra_bps <- (width(J_alleles) - ans[ , "coding_frame_start"]) %% 3L
+
+    if (!no.warning)
+        .warn_if_missing_coding_frame_starts(ans)
 
     ans
 }

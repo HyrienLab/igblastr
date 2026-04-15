@@ -26,10 +26,13 @@
 {
     db_name <- .form_builtin_OGRDB_human_germline_db_name(fasta_store)
     install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
-                        gapped=TRUE, with.intdata=TRUE,
+                        gapped=TRUE, with.intdata=TRUE, with.auxdata=TRUE,
                         if.exists="no-op", verbose=verbose)
+    ## Temporary workaround for users who have a germline db that was
+    ## installed before the 'with.auxdata' argument got added to
+    ## install_germline_db().
     db_path <- file.path(install_dir, db_name)
-    add_computed_auxdata_to_germline_db(db_path, verbose=verbose)
+    add_computed_auxdata_if_missing(db_path, verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_human_germline_dbs <-
@@ -72,17 +75,14 @@
     function(install_dir, fasta_store, verbose=FALSE)
 {
     db_name <- .form_builtin_OGRDB_mouse_germline_db_name(fasta_store)
+    ## Note that the computed auxdata for the mouse strains that we currently
+    ## support has NAs in its "coding_frame_start" column. This is because for
+    ## all of them the CDR3 end cannot be found for J alleles IGKJ0-5NUZ*00,
+    ## IGKJ0-IIHF*00, IGLJ0-UWMQ*00. So unlike for human or rhesus monkey
+    ## we do NOT use 'with.auxdata=TRUE' here.
     install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
                         gapped=TRUE, with.intdata=TRUE,
                         if.exists="no-op", verbose=verbose)
-    ## The computed data for the mouse strains that we currently support
-    ## is incomplete -- for all of them the CDR3 end cannot be found for
-    ## J alleles IGKJ0-5NUZ*00, IGKJ0-IIHF*00, IGLJ0-UWMQ*00 -- so there's
-    ## no need to call add_computed_auxdata_to_germline_db(). Note that if
-    ## we do so, then the auxdata will be computed and discarded each time
-    ## list_germline_dbs() gets called!
-    #db_path <- file.path(install_dir, db_name)
-    #add_computed_auxdata_to_germline_db(path, verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_mouse_germline_dbs <-
@@ -120,10 +120,13 @@
 {
     db_name <- .form_builtin_OGRDB_rhesus_monkey_germline_db_name(fasta_store)
     install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
-                        gapped=TRUE, with.intdata=TRUE,
+                        gapped=TRUE, with.intdata=TRUE, with.auxdata=TRUE,
                         if.exists="no-op", verbose=verbose)
+    ## Temporary workaround for users who have a germline db that was
+    ## installed before the 'with.auxdata' argument got added to
+    ## install_germline_db().
     db_path <- file.path(install_dir, db_name)
-    add_computed_auxdata_to_germline_db(db_path, verbose=verbose)
+    add_computed_auxdata_if_missing(db_path, verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_rhesus_monkey_germline_dbs <-

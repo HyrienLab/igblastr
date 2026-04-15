@@ -7,7 +7,7 @@ author:
   affiliation: Fred Hutch Cancer Center, Seattle, WA
 - name: Ollivier Hyrien
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 11 April 2026"
+date: "Compiled `r BiocStyle::doc_date()`; Modified 15 April 2026"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
@@ -167,16 +167,14 @@ list_germline_dbs(builtin.only=TRUE)
 The last part of the database name indicates the date of the download in
 YYYYMM format.
 
-The `intdata` column indicates whether the database includes its own
-_internal data_ (i.e. the FWR/CDR boundaries on the V alleles) or not.
-Note that if a germline database includes its own _internal data_,
-then `igblastn()` will use it (as _custom internal data_) instead
-of the _internal data_ shipped with IgBLAST. See documentation of
-the `custom_internal_data` argument in `?igblastn` for more information.
+The `intdata` and `auxdata` columns indicate whether the database includes
+its own _internal data_ and _auxiliary data_, respectively. More on this
+in the next section.
 
 If our query sequences are from humans, or one of the mouse strains listed
 above, or rhesus monkey, then we can already select the appropriate database
 with `use_germline_db()` and skip the subsection below.
+
 
 ## Install additional germline databases
 
@@ -207,12 +205,34 @@ install_IMGT_germline_db("202614-2", organism="Homo sapiens", overwrite=TRUE)
 ```
 See `?install_IMGT_germline_db` for more information.
 
+### Internal data and auxiliary data
+
 Note that the newly installed germline database
 (`IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL`) includes
-its own _internal data_:
+its own _internal data_ and _auxiliary data_, as reported in
+the `intdata` and `auxdata` columns:
 ```{r}
 list_germline_dbs()
 ```
+
+The _internal data_ informs about the FWR/CDR boundaries on the V
+allele sequences, also known as the V gene delineations.
+See `?intdata` for more information.
+In the case of `IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL`,
+`install_IMGT_germline_db()` inferred the V gene delineations
+from the gaps in the sequences.
+
+The _auxiliary data_ informs about the coding frame and CDR3/FWR4
+boundary on the J allele sequences. See `?auxdata` for more information.
+In the case of `IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL`,
+`install_IMGT_germline_db()` obtained the coding frame from IMGT
+and computed the CDR3/FWR4 boundary.
+
+Finally note that if a germline database includes its own
+_internal data_ and _auxiliary data_, then `igblastn()` will
+use them instead of the _internal data_ and _auxiliary data_
+shipped with IgBLAST. See documentation of the `custom_internal_data`
+and `auxiliary_data` arguments in `?igblastn` for more information.
 
 ### Install germline database from user-supplied gene allele sequences
 

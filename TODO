@@ -1,13 +1,35 @@
 High-priority TODO list
 =======================
 
+o Replace 'without.intdata' and 'without.auxdata' arguments with
+  'with.intdata' and 'with.auxdata'. With default of TRUE for 'with.intdata'
+  and "auto" for 'with.auxdata' ("auto" meaning "include the computed auxdata
+  if it's complete").
+
+o Fill missing documentation:
+  - document 'with.auxdata' and 'imgt.fasta' arguments of
+    install_custom_germline_db();
+  - document 'without.auxdata' argument of install_IMGT_germline_db();
+  - add example to man/auxdata-IO.Rd;
+  - document the *_ndm_data functions (ndm_data-IO.Rd file).
+
+o Has OGRDB something similar to the "codon start" field found in the
+  IMGT FASTA headers for J alleles? Check the OGRDB JSON file for something
+  similar. If we can find this information somehow then we can improve the
+  situation with the computed auxdata that we include in the OGRDB germline
+  dbs. For human and rhesus monkey this would allow us to validate the
+  coding_frame_start that we compute. For mouse, this could allow us to
+  compute and include the auxdata in the germline db (with maybe some NAs
+  in the cdr3_end column but that's ok, what's not ok is to have NAs in the
+  coding_frame_start or extra_bps columns).
+
 o Looks like IMGT sometimes makes a release where all the FASTA files for
   a given organism are empty. For example, in release 202530-1, all the
   IG*.fasta and TR*.fasta files for Mus_musculus_C57BL6J are empty.
   Problem is that
 
-     install_IMGT_germline_db("202530-1", "Mus_musculus_C57BL6J",
-                              without.intdata=TRUE, without.auxdata=TRUE)
+    install_IMGT_germline_db("202530-1", "Mus_musculus_C57BL6J",
+                             without.intdata=TRUE, without.auxdata=TRUE)
 
   seems to work but creates an empty germline db that is unusable.
   It also breaks 'list_germline_dbs(long.listing=TRUE)'.
@@ -15,17 +37,36 @@ o Looks like IMGT sometimes makes a release where all the FASTA files for
   Seems that the early check should be in install_germline_db() or
   create_germline_db().
 
-o Bring back the built-in germline OGRDB for the mouse strains that William
-  Lees updated recently.
+o Question for the IMGT folks: IMGT human J allele IGLJ2A*01 has a codon
+  start set to 1, which is surprising for the various reasons explained
+  in the comment preceding .EXCLUDED_IMGT_HUMAN_J_ALLELES in file
+  R/install_IMGT_germline_db.R
+
+o Support the "engineered mouse" use case.
+
+o Why are some of the V alleles provided by IMGT "truncated" at the 3' end
+  before they reach the end of their FWR3?
+  This is the case for 34 human V alleles and 82 mouse V alleles.
+  To identify them e.g. for mouse:
+
+    db_name <- "IMGT-202614-2.Mus_musculus.IGH+IGK+IGL"
+    V_alleles <- load_germline_db(db_name, region_types="V")
+    intdata <- load_intdata(db_name)
+    stopifnot(identical(names(V_alleles), intdata[ , "allele_name"]))
+    seq_lens <- width(V_alleles)  # same as lengths(V_alleles)
+    table(seq_lens < intdata$fwr3_end)  # 82 are truncated (out of 865)
+    head(subset(intdata, seq_lens < fwr3_end))
+
+  A more straightforward way to identify them is to look at the gapped
+  sequences. See how we compute 'has_incomplete_fwr3'
+  in '?parse_imgt_fasta_headers' for the details.
+
+o Maybe revisit example 2. in '?compute_V_gene_delineations'.
 
 o The augment_germline_db_*() functions are not doing the right thing
   with the internal and auxiliary data. This needs to be addressed.
   This might require deprecating and replacing them with something
   completely different (e.g. something based on install_custom_germline_db()).
-
-o Fill missing documentation:
-  - document *_ndm_data functions
-  - add example to man/auxdata-IO.Rd
 
 o install_custom_germline_db.Rd() must enforce loci-specification (e.g.
   IGH+IGL) in the name of the custom db. Not having the loci embedded
@@ -64,6 +105,10 @@ o Mismatch/indel summarization:
 
   - Should we also add columns for the V, D, J, C regions?
 
+
+Lower-priority TODO list
+=======================
+
 o igbrowser() improvements:
   - Display pairwise alignment between BCR query sequence and germline
     V/D/J/C sequences.
@@ -82,9 +127,6 @@ o Maybe implement the following advice given by IgBLAST when using one
 Things to do at BioC 3.22 release time
 ======================================
 
-o Update README.md:
-  - Update "Install and load igblastr" section.
-
 o Advertize igblastr:
   - Announce on various bioc-community Slack channels.
   - Announce on the FH-Data Slack (fhdata.slack.com) on channels
@@ -94,8 +136,8 @@ o Advertize igblastr:
   - Bioinformatics accepts short articles introducing new software.
 
 
-Low-priority TODO list
-======================
+Lowest-priority TODO list
+=========================
 
 o Older versions of IgBLAST (e.g. version 1.19.0) don't necessarily include
   the same data as the latest version (version 1.22.0). However, we
@@ -168,11 +210,6 @@ o Add 'clonotype_out' arg to igblastn(). Add examples in man page and
 o It was mentioned that some people use mixeR to analyse TCR sequences.
   How does this compare to using igblastn(..., ig_seqtype="TCR")?
 
-o Add functionality to install/use the updated internal and/or auxiliary
-  files that are sometimes made available at:
-    https://ftp.ncbi.nih.gov/blast/executables/igblast/release/patch/
-  See https://ncbi.github.io/igblast/cook/How-to-set-up.html for the details.
-
 o Add bibliography to vignette. See AuthoringRmdVignettes.Rmd vignette in
   BiocStyle for how to do this.
 
@@ -182,12 +219,6 @@ o Add Seqinfo to Imports (but wait until BioC 3.23 for that). Note
 o Clarify provenance of 1279067_1_Paired_sequences.fasta.gz and its licence.
   Give appropriate credit. See https://opig.stats.ox.ac.uk/webapps/oas/
 
-o More investigation to assess the consequences of using the static auxiliary
-  data included in IgBLAST.
-
-o Figure out a way to automatically stamp AIRR germline dbs with a
-  version number that allows to go back in time when needed.
-
 o One should be able to pass the name of an IMGT germline db to
   install_IMGT_germline_db(), or a vector of names.
 
@@ -195,9 +226,9 @@ o Improve read_igblastn_fmt7_output.Rd man page (e.g. document customized
   format 7 and list_outfmt7_specifiers()) as well as associated unit tests (in
   tests/testthat/test-outfmt7-utils.R).
 
-o Make 'num_threads' an explicit argument with default to 4. The doc should
-  show how to specify a higher but still reasonable custom value based on
-  detectCores().
+o Maybe make 'num_threads' an explicit argument with default to 4?
+  The doc should show how to specify a higher but still reasonable
+  custom value based on detectCores().
 
 o Parse $footer part of output format 7.
 
@@ -223,5 +254,5 @@ o Why are some loci/groups missing for some mouse strains at OGRDB?
   See https://ogrdb.airr-community.org/germline_sets/Mus%20musculus
 
 o Implement install_OGRDB_germline_db(). Will download the germline sequences
-  from https://ogrdb.airr-community.org/ (link provided by Kellie).
+  from https://ogrdb.airr-community.org/
 

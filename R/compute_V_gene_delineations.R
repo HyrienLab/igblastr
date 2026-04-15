@@ -1,5 +1,5 @@
 ### =========================================================================
-### Compute IgBLAST internal data
+### compute_V_gene_delineations()
 ### -------------------------------------------------------------------------
 ###
 
@@ -20,57 +20,10 @@ warn_if_allele_sequences_have_no_gaps <- function(ngaps)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### clean_imgt_fasta_header_lines()
-###
-
-### Not exported!
-### Performs the same FASTA header cleanup as the edit_imgt_file.pl script
-### included in IgBLAST. Note that the latter does some funky business with
-### IG allele names for Mus spretus, so we mimick it here.
-### Returns the germline gene allele names.
-clean_imgt_fasta_header_lines  <- function(headers, what="some allele names")
-{
-    stopifnot(is.character(headers))
-    if (anyNA(headers))
-        stop(wmsg(what, " are NAs"))
-    if (any(is_white_str(headers)))
-        stop(wmsg(what, " are empty"))
-
-    header_parts <- CharacterList(strsplit(headers, "|", fixed=TRUE))
-
-    ## Extract 2nd field. Note that this extraction method could also get
-    ## the 1st field if a header has no pipe or if it has only one pipe
-    ## with nothing after it.
-    allele_names <- tails(heads(header_parts, n=2L), n=1L)
-    stopifnot(all(lengths(allele_names) == 1L))
-    allele_names <- trimws2(as.character(allele_names))
-    if (!all(nchar(allele_names) >= 2L))
-        stop(wmsg(what, " are less than 2-character long"))
-
-    ## Implement funky business with Mus spretus: append _Mus_spretus suffix
-    ## to IG allele names if species reported in 3rd field is Mus spretus.
-    funky_idx <- which(substr(allele_names, 1L, 2L) == "IG" &
-                       lengths(header_parts) >= 3L)
-    if (length(funky_idx) != 0L) {
-        ## Extract 3rd field.
-        species <- tails(heads(header_parts[funky_idx], n=3L), n=1L)
-        stopifnot(all(lengths(species) == 1L))
-        idx <- grep("Mus\\s+spretus", as.character(species))
-        if (length(idx) != 0L) {
-            funky_idx <- funky_idx[idx]
-            allele_names[funky_idx] <-
-                paste0(allele_names[funky_idx], "_Mus_spretus")
-        }
-    }
-
-    allele_names
-}
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### compute_V_gene_delineations()
 ###
 
+### Not exported!
 EXTENDED_V_GENE_DELINEATION_COLNAMES <- c(
     "allele_name",
     V_GENE_DELINEATION_COLNAMES,
@@ -248,7 +201,7 @@ compute_V_gene_delineations <- function(gapped_V_alleles, as.IRangesList=FALSE)
                   "sequences of the germline V gene alleles"))
     }
 
-    names(gapped_V_alleles) <- clean_imgt_fasta_header_lines(allele_names, what)
+    names(gapped_V_alleles) <- clean_imgt_fasta_headers(allele_names, what)
 
     ## IMGT FWR/CDR fixed intervals in nucleotide space.
     imgt_bins <- PartitioningByWidth(.IMGT_FWRCDR_MAX_LENGTHS * 3L)

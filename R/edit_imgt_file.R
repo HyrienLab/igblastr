@@ -107,7 +107,7 @@ edit_imgt_file <- function(infasta, outfasta, errfile=NULL, Perl_script=NULL,
 {
     stopifnot(is(dna, "BStringSet"))
     what <- paste0("some allele names in ", in_what)
-    names(dna) <- clean_imgt_fasta_header_lines(names(dna), what)
+    names(dna) <- clean_imgt_fasta_headers(names(dna), what)
     remove_gaps(dna)
 }
 

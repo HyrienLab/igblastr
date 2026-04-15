@@ -18,10 +18,11 @@
   germline J gene alleles for a given organism. It is provided by NCBI
   and is typically included in a standard IgBLAST installation.
 
-  The \emph{auxiliary data} informs about the CDR3/FWR4 boundary on the
-  J allele sequences. Although this information is not strictly needed
-  by IgBLAST, it needs it in order to compute some of the AIRR fields like
-  \code{vj_in_frame}, \code{productive}, \code{cdr3}, \code{fwr4}, etc...
+  The \emph{auxiliary data} informs about the coding frame and CDR3/FWR4
+  boundary on the J allele sequences. Although this information is not
+  strictly needed by IgBLAST, the latter needs it in order to compute
+  some of the AIRR fields like \code{vj_in_frame}, \code{productive},
+  \code{cdr3}, \code{fwr4}, etc...
 
   \code{get_auxdata_path()} and \code{load_auxdata()} can be used
   to access the \emph{auxiliary data} included in IgBLAST or in
@@ -38,7 +39,7 @@ get_auxdata_path(organism, which=c("live", "original"))
 load_auxdata(organism, which=c("live", "original"))
 
 ## Compute auxiliary data associated with the J alleles in germline db:
-compute_germline_db_auxdata(db_name)
+compute_germline_db_auxdata(db_name, ...)
 }
 
 \arguments{
@@ -70,6 +71,11 @@ compute_germline_db_auxdata(db_name)
     A single string specifying the name of a cached germline db.
     Use \code{\link{list_germline_dbs}()} to list all the cached
     germline dbs.
+  }
+  \item{...}{
+    Extra arguments to be passed to the internal call to
+    \code{compute_auxdata()}. See \code{?\link{compute_auxdata}} for
+    what arguments are supported.
   }
 }
 
@@ -104,11 +110,8 @@ compute_germline_db_auxdata(db_name)
   \code{compute_germline_db_auxdata()} returns the computed
   \emph{auxiliary data} in a data.frame with 1 row per J allele in
   the germline db and the same columns as the data.frame returned
-  by \code{read_auxdata()}. See \code{?\link{read_auxdata}} for more
-  information. Note that \code{compute_germline_db_auxdata()} uses
-  \code{\link{compute_auxdata}()} internally to actually compute
-  the \emph{auxiliary data}. See \code{?\link{compute_auxdata}} for
-  how the \emph{auxiliary data} is computed.
+  by \code{compute_auxdata()} or \code{read_auxdata()}.
+  See \code{?\link{compute_auxdata}} for more information.
 }
 
 \seealso{
@@ -189,7 +192,7 @@ stopifnot(identical(rhesus_monkey_auxdata2, rhesus_monkey_auxdata))
 ## _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410 because it couldn't
 ## be properly computed for all the J alleles in the db:
 db_name <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410"
-compute_germline_db_auxdata(db_name)  # returned data.frame contains NAs!
+compute_germline_db_auxdata(db_name)  # warning!
 }
 
 \keyword{utilities}

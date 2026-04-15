@@ -36,8 +36,8 @@
     db_name <- basename(db_path)
     organism <- infer_organism_shortname_from_db_name(db_name)
     msg1 <- c("The auxiliary data didn't get added to ",
-              "germline db ", db_name, " because the CDR3 end could ",
-              "not be found for some of the J alleles in the db.")
+              "germline db ", db_name, " because the \"coding frame start\" ",
+              "could not be determined for some of the J alleles in the db.")
     if (is.na(organism)) {
         msg2 <- "no auxiliary data"
     } else {
@@ -54,7 +54,8 @@
 ### Not exported!
 install_germline_db <- function(install_dir, db_name, fasta_dir, loci,
                                 gapped=FALSE, with.intdata=FALSE,
-                                with.auxdata=FALSE,
+                                excluded_J_alleles=NULL,
+                                with.auxdata=FALSE, imgt.fasta=FALSE,
                                 disambiguate.allele.names=FALSE,
                                 if.exists=c("error", "overwrite", "no-op"),
                                 verbose=FALSE, cheer.if.success=FALSE)
@@ -71,6 +72,8 @@ install_germline_db <- function(install_dir, db_name, fasta_dir, loci,
     checkarg_with.intdata(with.intdata, gapped)
     if (!isTRUEorFALSE(with.auxdata))
         stop(wmsg("'with.auxdata' must be TRUE or FALSE"))
+    if (!isTRUEorFALSE(imgt.fasta))
+        stop(wmsg("'imgt.fasta' must be TRUE or FALSE"))
     if (!isTRUEorFALSE(disambiguate.allele.names))
         stop(wmsg("'disambiguate.allele.names' must be TRUE or FALSE"))
     if.exists <- match.arg(if.exists)
@@ -93,7 +96,8 @@ install_germline_db <- function(install_dir, db_name, fasta_dir, loci,
 
     create_germline_db(db_path, fasta_dir, loci,
                        gapped=gapped, with.intdata=with.intdata,
-                       with.auxdata=with.auxdata,
+                       excluded_J_alleles=excluded_J_alleles,
+                       with.auxdata=with.auxdata, imgt.fasta=imgt.fasta,
                        disambiguate.allele.names=disambiguate.allele.names,
                        overwrite=TRUE, verbose=verbose)
 
@@ -103,7 +107,7 @@ install_germline_db <- function(install_dir, db_name, fasta_dir, loci,
     if (cheer.if.success)
         .install_germline_db_succeeded(db_name)
 
-    if (with.auxdata && !verbose)
+    if (with.auxdata)
         .warn_if_auxdata_not_added_to_germline_db(db_path)
 
     invisible(db_name)
@@ -118,6 +122,7 @@ install_germline_db <- function(install_dir, db_name, fasta_dir, loci,
 install_custom_germline_db <- function(db_name, fasta_dir,
                                        tcr.db=FALSE, loci="auto",
                                        gapped=FALSE, with.intdata=FALSE,
+                                       with.auxdata=FALSE, imgt.fasta=FALSE,
                                        disambiguate.allele.names=FALSE,
                                        overwrite=FALSE, verbose=FALSE)
 {
@@ -139,7 +144,8 @@ install_custom_germline_db <- function(db_name, fasta_dir,
     if.exists <- if (overwrite) "overwrite" else "error"
     install_germline_db(germline_dbs_home, db_name, fasta_dir, loci,
                         gapped=gapped, with.intdata=with.intdata,
-                        disambiguate.allele.names=FALSE,
+                        with.auxdata=with.auxdata, imgt.fasta=imgt.fasta,
+                        disambiguate.allele.names=disambiguate.allele.names,
                         if.exists=if.exists, verbose=verbose)
 }
 

@@ -31,7 +31,7 @@ allele2gene(allele_names)
   corresponding germline gene names are returned in a vector of
   the same length as the input vector.
   The names on the input vector are propagated, and so are the
-  \code{NA}'s in it.
+  \code{NA}s in it.
 }
 
 \value{

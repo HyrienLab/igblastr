@@ -28,9 +28,9 @@ test_that("translate_J_alleles()", {
 
     db_name <- "IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"
     J_alleles <- load_germline_db(db_name, region_types="J")
-    ## 4 human J alleles in IMGT release 202614-2 have no entries
+    ## 3 human J alleles in IMGT release 202614-2 have no entries
     ## in 'auxdata'. Note that this could change in the future.
-    expected_unknown <- c("IGHJ5*03", "IGHJ5*04", "IGKJ4*03", "IGLJ2A*01")
+    expected_unknown <- c("IGHJ5*03", "IGHJ5*04", "IGKJ4*03")
     allele_is_known <- names(J_alleles) %in% auxdata$allele_name
     expect_identical(names(J_alleles)[!allele_is_known], expected_unknown)
     J_aa <- translate_J_alleles(J_alleles, auxdata)

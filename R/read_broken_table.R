@@ -36,7 +36,7 @@ matrix2df <- function(m, col2class)
 ### Conceptually right-pads the list elements with empty strings ("")
 ### to make the list "constant-width" before unlisting it.
 ### Returns a character vector of length 'length(x) * width'.
-.right_pad_with_empty_strings_and_unlist <- function(x, width=NA)
+right_pad_with_empty_strings_and_unlist <- function(x, width=NA)
 {
     stopifnot(is.list(x), isSingleNumberOrNA(width))
     x_len <- length(x)
@@ -66,7 +66,7 @@ matrix2df <- function(m, col2class)
     lines <- readLines(filepath)
     lines <- lines[nzchar(lines) & !has_prefix(lines, "#")]
     data <- strsplit(lines, split="[ \t]+")
-    data <- .right_pad_with_empty_strings_and_unlist(data)
+    data <- right_pad_with_empty_strings_and_unlist(data)
     matrix(data, nrow=length(lines), byrow=TRUE)
 }
 

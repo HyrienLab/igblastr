@@ -140,54 +140,51 @@ list_loci_in_germline_fasta_dir <-
 ###
 
 ### Create the three "region dbs": one V-, one D-, and one J-region db.
-.create_VDJ_region_dbs <- function(destdir, fasta_dir, loci,
+.do_create_germline_db <- function(destdir, fasta_dir, loci,
                                    gapped=FALSE, with.intdata=FALSE,
-                                   with.auxdata=FALSE,
+                                   excluded_J_alleles=NULL,
+                                   with.auxdata=FALSE, imgt.fasta=FALSE,
                                    disambiguate.allele.names=FALSE,
                                    verbose=FALSE)
 {
-    stopifnot(isSingleNonWhiteString(destdir), dir.exists(destdir),
-              isSingleNonWhiteString(fasta_dir), dir.exists(fasta_dir),
-              isTRUEorFALSE(gapped),
-              isTRUEorFALSE(with.intdata),
-              isTRUEorFALSE(with.auxdata),
-              isTRUEorFALSE(disambiguate.allele.names),
-              isTRUEorFALSE(verbose))
     V_fasta_files <- .collect_fasta_files(fasta_dir, "V", loci)
-    create_region_db(V_fasta_files, destdir, region_type="V",
-                     gapped=gapped, with.intdata=with.intdata,
-                     disambiguate.allele.names=disambiguate.allele.names,
-                     verbose=verbose)
+    create_V_region_db(V_fasta_files, destdir,
+                       gapped=gapped, with.intdata=with.intdata,
+                       disambiguate.allele.names=disambiguate.allele.names,
+                       verbose=verbose)
     D_fasta_files <- .collect_fasta_files(fasta_dir, "D", loci)
-    create_region_db(D_fasta_files, destdir, region_type="D",
-                     disambiguate.allele.names=disambiguate.allele.names,
-                     verbose=verbose)
+    create_region_db(  D_fasta_files, destdir, region_type="D",
+                       disambiguate.allele.names=disambiguate.allele.names,
+                       verbose=verbose)
     J_fasta_files <- .collect_fasta_files(fasta_dir, "J", loci)
-    create_region_db(J_fasta_files, destdir, region_type="J",
-                     disambiguate.allele.names=disambiguate.allele.names,
-                     verbose=verbose)
-    if (with.auxdata)
-        add_computed_auxdata_to_germline_db(destdir, verbose=verbose)
+    create_J_region_db(J_fasta_files, destdir,
+                       excluded_J_alleles=excluded_J_alleles,
+                       with.auxdata=with.auxdata, imgt.fasta=imgt.fasta,
+                       disambiguate.allele.names=disambiguate.allele.names,
+                       verbose=verbose)
 }
 
-### A "germline db" is made of three "region dbs": one V-, one D-, and one
-### J-region db. Calls create_region_db() to create each "region db".
+### A "germline db" is made of three "region dbs": one V-, one D-, and
+### one J-region db. Uses create_region_db() and releated to create
+### each "region db".
 ### Note that 'destdir' will typically be the path to a subdir of the
 ### GERMLINE_DBS cache compartment (see R/cache-utils.R for details about
 ### igblastr's cache organization). This subdir or any of its parent
 ### directories don't need to exist yet.
-### See create_region_db() in R/create_region_db.R for the roles of
-### the 'gapped, 'with.intdata', and 'disambiguate.allele.names' arguments.
+### See create_V_region_db() and create_J_region_db() in R/create_region_db.R
+### for the roles of the 'gapped, 'with.intdata',
+### and 'disambiguate.allele.names' arguments.
 create_germline_db <- function(destdir, fasta_dir, loci,
                                gapped=FALSE, with.intdata=FALSE,
-                               with.auxdata=FALSE,
+                               excluded_J_alleles=NULL,
+                               with.auxdata=FALSE, imgt.fasta=FALSE,
                                disambiguate.allele.names=FALSE,
                                overwrite=FALSE, verbose=FALSE)
 {
     stopifnot(isSingleNonWhiteString(destdir),
               isSingleNonWhiteString(fasta_dir), dir.exists(fasta_dir),
               isTRUEorFALSE(gapped),
-              isTRUEorFALSE(with.auxdata),
+              isTRUEorFALSE(with.auxdata), isTRUEorFALSE(imgt.fasta),
               isTRUEorFALSE(disambiguate.allele.names),
               isTRUEorFALSE(overwrite),
               isTRUEorFALSE(verbose))
@@ -205,9 +202,10 @@ create_germline_db <- function(destdir, fasta_dir, loci,
     tmp_destdir <- tempfile("germline_db_")
     dir.create(tmp_destdir)
     on.exit(nuke_file(tmp_destdir))
-    .create_VDJ_region_dbs(tmp_destdir, fasta_dir, loci,
+    .do_create_germline_db(tmp_destdir, fasta_dir, loci,
                            gapped=gapped, with.intdata=with.intdata,
-                           with.auxdata=with.auxdata,
+                           excluded_J_alleles=excluded_J_alleles,
+                           with.auxdata=with.auxdata, imgt.fasta=imgt.fasta,
                            disambiguate.allele.names=disambiguate.allele.names,
                            verbose=verbose)
     rename_file(tmp_destdir, destdir, replace=TRUE)

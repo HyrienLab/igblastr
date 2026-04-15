@@ -17,13 +17,33 @@
 }
 
 \usage{
-compute_auxdata(J_alleles)
+compute_auxdata(J_alleles, codon_starts=NULL, no.warning=FALSE)
 }
 
 \arguments{
   \item{J_alleles}{
     A \link[Biostrings]{DNAStringSet} object containing germline J
     gene allele sequences.
+  }
+  \item{codon_starts}{
+    When supplied, must be a named integer vector \emph{parallel} to
+    \code{J_alleles}, that is, it must have the same length and names
+    as \code{J_alleles}. For each allele in \code{J_alleles},
+    \code{codon_starts} should indicate the start position (1-based) of
+    the first codon in the allele. This should be a number >= 1 and <= 3.
+    \code{NA}s are allowed when the coding frame is not known.
+
+    Note that the "coding frame start" is 0-based so can simply be inferred
+    from the "codon start" by subtracting 1.
+
+    \code{compute_auxdata()} will use the supplied "codon starts" to
+    either validate the "coding frame starts" that it could determine,
+    or to set the "coding frame starts" that it could not determine.
+  }
+  \item{no.warning}{
+    Set to \code{TRUE} to suppress the warning that \code{compute_auxdata()}
+    otherwise issues when the \code{coding_frame_start} column of the
+    returned data.frame contains \code{NA}s.
   }
 }
 
@@ -39,7 +59,7 @@ compute_auxdata(J_alleles)
   the supplied allele sequences to determine the start of their FWR4
   region. From there it can easily infer the \code{cdr3_end},
   \code{coding_frame_start}, and \code{extra_bps} columns.
-  
+
   Note that the function will emit a warning if the start of the FWR4
   region (and therefore the CDR3 end) could not be found for some alleles,
   or if a stop codon was found in some alleles.

@@ -15,6 +15,7 @@
 \usage{
 install_custom_germline_db(db_name, fasta_dir, tcr.db=FALSE,
                            loci="auto", gapped=FALSE, with.intdata=FALSE,
+                           with.auxdata=FALSE, imgt.fasta=FALSE,
                            disambiguate.allele.names=FALSE,
                            overwrite=FALSE, verbose=FALSE)
 }
@@ -103,6 +104,12 @@ install_custom_germline_db(db_name, fasta_dir, tcr.db=FALSE,
 
     Also see \code{?\link{intdata_utils}} for more information about IgBLAST
     \emph{internal data}.
+  }
+  \item{with.auxdata}{
+    COMING SOON...
+  }
+  \item{imgt.fasta}{
+    COMING SOON...
   }
   \item{disambiguate.allele.names}{
     Note that \emph{repeated} alleles (i.e. alleles with identical

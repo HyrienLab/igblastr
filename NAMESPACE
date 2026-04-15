@@ -81,6 +81,9 @@ export(
     ## allele2gene.R:
     allele2gene,
 
+    ## parse_imgt_fasta_headers.R:
+    parse_imgt_fasta_headers,
+
     ## ndm_data-IO.R:
     validate_ndm_rows,
     read_ndm_data,

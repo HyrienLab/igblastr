@@ -12,13 +12,13 @@
     warning(wmsg(msg))
 }
 
-### Starting with igblastr 1.0.12/1.1.12, create_region_db() drops repeated
-### alleles ("repeated" here means alleles with identical names **and**
-### identical ungapped sequences). See .drop_repeated_alleles() in
+### Starting with igblastr 1.0.12/1.1.12, create_region_db() and related
+### drop repeated alleles ("repeated" here means alleles with identical
+### names **and** identical sequences). See .drop_repeated_alleles() in
 ### R/create_region_db.R for more info.
 ### As a consequence, built-in C-region db _IMGT.mouse.IGH.202509 is now
-### expected to contain 55 alleles instead of 56. We use this as the criteria
-### to decide whether the C-region dbs need to be reset or not.
+### expected to contain 55 alleles instead of 56. We use this as an
+### indication that the C-region dbs need to be reset.
 .warn_if_c_region_dbs_need_reset <- function(c_region_dbs_home)
 {
     stopifnot(isSingleNonWhiteString(c_region_dbs_home),
