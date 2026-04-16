@@ -165,7 +165,8 @@ export(
 
     ## download_OGRDB_germline_json.R:
     download_OGRDB_germline_json,
-    makeogrannote,
+    extract_intdata_from_ogrdb_json,
+    extract_auxdata_from_ogrdb_json,
 
     ## install_OGRDB_germline_db.R:
     #install_OGRDB_germline_db,

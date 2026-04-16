@@ -11,26 +11,53 @@ HUMAN_GERMLINE_SETS <- list(
 
 download_human_germline_sequences <- function(overwrite=FALSE)
 {
-    expected_files <- paste0(igblastr:::IG_GROUPS, ".fasta")
+    expected_fasta_files <- paste0(igblastr:::IG_GROUPS, ".fasta")
     for (i in seq_along(HUMAN_GERMLINE_SETS)) {
         version <- names(HUMAN_GERMLINE_SETS)[[i]]
         germline_sets <- HUMAN_GERMLINE_SETS[[i]]
         for (flavor in c("ref", "src")) {
+            source_set <- flavor == "src"
             destdir <- file.path(version, flavor)
             message("Creating FASTA files in ", destdir, " ... ",
                     appendLF=FALSE)
-            source_set <- flavor == "src"
             filenames <- download_OGRDB_germline_sequences("Homo sapiens",
                                         germline_sets, source_set=source_set,
                                         destdir=destdir, overwrite=overwrite)
-            stopifnot(length(filenames) == length(expected_files),
-                      setequal(filenames, expected_files))
+            stopifnot(length(filenames) == length(expected_fasta_files),
+                      setequal(filenames, expected_fasta_files))
             message("ok")
         }
     }
 }
 
+make_human_auxdata <- function(version, germline_sets)
+{
+    dir.create(jsondir <- tempfile())
+    for (flavor in c("ref", "src")) {
+        source_set <- flavor == "src"
+        destdir <- file.path(version, flavor)
+        message("Creating IG[HKL]J_gl.aux files in ", destdir, " ... ",
+                appendLF=FALSE)
+        filenames <- download_OGRDB_germline_json("Homo sapiens",
+                                    germline_sets, source_set=source_set,
+                                    destdir=jsondir, overwrite=TRUE)
+        stopifnot(identical(names(filenames), names(germline_sets)))
+        for (filename in filenames) {
+            json_path <- file.path(jsondir, filename)
+            auxdata <- extract_auxdata_from_ogrdb_json(json_path)
+            locus <- substr(filename, 1L, 3L)
+            destfile <- file.path(destdir, paste0(locus, "J_gl.aux"))
+            write_auxdata(auxdata, destfile)
+        }
+        message("ok")
+    }
+}
+
 download_human_germline_sequences()
+
+### Extract auxdata from the OGRDB json files but only for version 202410.
+### Older versions break extract_auxdata_from_ogrdb_json()!
+make_human_auxdata(names(HUMAN_GERMLINE_SETS)[[3]], HUMAN_GERMLINE_SETS[[3]])
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

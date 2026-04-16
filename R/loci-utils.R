@@ -51,6 +51,20 @@ TR_GROUPS <- .make_groups(.TR_LOCI_2_REGION_TYPES)  # 10 TR groups
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### make_chain_type()
+###
+
+### Vectorized w.r.t. 'locus'.
+make_chain_type <- function(region_type, locus)
+{
+    stopifnot(isSingleNonWhiteString(region_type),
+              region_type %in% VDJ_REGION_TYPES,
+              is.character(locus), all(nchar(locus, keepNA=FALSE) == 3L))
+    paste0(region_type, substr(locus, 3L, 3L), recycle0=TRUE)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### checkarg_loci()
 ###
 

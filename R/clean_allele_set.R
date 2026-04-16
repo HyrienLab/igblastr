@@ -252,7 +252,7 @@ checkarg_with.intdata <- function(with.intdata, gapped)
     stopifnot(identical(intdata[ , "allele_name"], allele_names))
 
     ## Add "chain_type" column.
-    intdata$chain_type <- paste0("V", substr(locus, 3L, 3L))
+    intdata$chain_type <- make_chain_type("V", locus)
 
     mcols(allele_set) <- cbind(allele_set_mcols, intdata)
     allele_set
@@ -321,7 +321,7 @@ checkarg_with.intdata <- function(with.intdata, gapped)
 
     ## Sanity checks.
     stopifnot(identical(auxdata[ , "allele_name"], allele_names))
-    expected_chain_type <- paste0("J", substr(locus, 3L, 3L))
+    expected_chain_type <- make_chain_type("J", locus)
     stopifnot(identical(auxdata$chain_type, expected_chain_type))
 
     mcols(allele_set) <- cbind(allele_set_mcols, auxdata)

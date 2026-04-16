@@ -1,7 +1,8 @@
 \name{download_OGRDB_germline_json}
 
 \alias{download_OGRDB_germline_json}
-\alias{makeogrannote}
+\alias{extract_intdata_from_ogrdb_json}
+\alias{extract_auxdata_from_ogrdb_json}
 
 \title{Download AIRR-C JSON files from OGRDB}
 
@@ -10,10 +11,14 @@
   AIRR-C JSON files assciated with the specified germline sets from
   OGRDB.
 
-  The \code{makeogrannote()} function extracts the germline V gene
-  allele FWR/CDR annotations (a.k.a. V gene delineations) from
-  an AIRR-C JSON file. Note that it's a simple reimplementation in R
-  of the Python script \code{makeogrannote.py} included in IgBLAST.
+  The \code{extract_intdata_from_ogrdb_json()} function extracts the
+  V gene delineations for the V alleles in an AIRR-C JSON file.
+  Note that it's a simple reimplementation in R of the Python script
+  \code{extract_intdata_from_ogrdb_json.py} included in IgBLAST.
+
+  The \code{extract_auxdata_from_ogrdb_json()} function extracts the
+  coding frame and CDR3 end information for the J alleles in an
+  AIRR-C JSON file.
 
   If you use OGRDB in your research, please cite:
   \preformatted{  The current landscape of adaptive immune receptor genomic and
@@ -28,7 +33,8 @@ download_OGRDB_germline_json(organism, germline_sets,
                              destdir=".", overwrite=FALSE,
                              recache=FALSE, ...)
 
-makeogrannote(ogrdb_json_file)
+extract_intdata_from_ogrdb_json(json_path)
+extract_auxdata_from_ogrdb_json(json_path)
 }
 
 \arguments{
@@ -72,8 +78,8 @@ makeogrannote(ogrdb_json_file)
     See \code{?\link[utils]{download.file}} in the \pkg{utils} package for
     more information.
   }
-  \item{ogrdb_json_file}{
-    The path to an AIRR-C JSON file as one downloaded from OGRDB with
+  \item{json_path}{
+    The path to an AIRR-C JSON file as one obtained with
     \code{download_OGRDB_germline_json()}.
   }
 }
@@ -83,9 +89,13 @@ makeogrannote(ogrdb_json_file)
   files that it produced in an invisible character vector that carries
   the names of the corresponding germline sets.
 
-  \code{makeogrannote()} returns the V gene delineations in a data.frame
-  similar to the data.frame returned by \code{load_intdata()}.
+  \code{extract_intdata_from_ogrdb_json()} returns the V gene delineations
+  in a data.frame similar to the data.frame returned by \code{load_intdata()}.
   See \code{?\link{load_intdata}} for the details.
+
+  \code{extract_auxdata_from_ogrdb_json()} returns the coding frame and
+  CDR3 end information in a data.frame similar to the data.frame returned
+  by \code{load_auxdata()}. See \code{?\link{load_auxdata}} for the details.
 }
 
 \seealso{
@@ -114,9 +124,8 @@ makeogrannote(ogrdb_json_file)
 
 ## Download AIRR-C JSON files for all BCR loci/regions for mouse strain
 ## PWD/PhJ to a temporary directory:
-germline_sets <- c(`PWD/PhJ IGH`=2,
-                   `PWD/PhJ IGKV`=1, `IGKJ (all strains)`=1,
-                   `PWD/PhJ IGLV`=1, `IGLJ (all strains)`=1)
+germline_sets <- c(`PWD/PhJ IGH`=2, `PWD/PhJ IGKV`=1, `PWD/PhJ IGLV`=1,
+                   `IGKJ (all strains)`=1, `IGLJ (all strains)`=1)
 
 dir.create(destdir <- tempfile("json_dir_"))
 download_OGRDB_germline_json("Mus musculus", germline_sets,
@@ -132,12 +141,15 @@ list.files(destdir)  # 5 AIRR-C JSON files (one per germline set)
 ## AIRR-C JSON files that correspond to germline sets with V alleles,
 ## that is, from files IGH.json, IGKV.json, and IGLV.json:
 
-IGHV_intdata <- makeogrannote(file.path(destdir, "IGH.json"))
+json_path <- file.path(destdir, "IGH.json")
+IGHV_intdata <- extract_intdata_from_ogrdb_json(json_path)
 head(IGHV_intdata)
 
-IGKV_intdata <- makeogrannote(file.path(destdir, "IGKV.json"))
+json_path <- file.path(destdir, "IGKV.json")
+IGKV_intdata <- extract_intdata_from_ogrdb_json(json_path)
 
-IGLV_intdata <- makeogrannote(file.path(destdir, "IGLV.json"))
+json_path <- file.path(destdir, "IGLV.json")
+IGLV_intdata <- extract_intdata_from_ogrdb_json(json_path)
 
 ## Combine the 3 data.frames:
 intdata <- rbind(IGHV_intdata, IGKV_intdata, IGLV_intdata)

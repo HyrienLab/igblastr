@@ -10,7 +10,7 @@ RHESUS_MONKEY_GERMLINE_SETS <- list(
 
 download_rhesus_monkey_germline_sequences <- function(overwrite=FALSE)
 {
-    expected_files <- paste0(igblastr:::IG_GROUPS, ".fasta")
+    expected_fasta_files <- paste0(igblastr:::IG_GROUPS, ".fasta")
     for (i in seq_along(RHESUS_MONKEY_GERMLINE_SETS)) {
         destdir <- names(RHESUS_MONKEY_GERMLINE_SETS)[[i]]
         germline_sets <- RHESUS_MONKEY_GERMLINE_SETS[[i]]
@@ -19,13 +19,39 @@ download_rhesus_monkey_germline_sequences <- function(overwrite=FALSE)
         filenames <- download_OGRDB_germline_sequences("Macaca mulatta",
                                     germline_sets,
                                     destdir=destdir, overwrite=overwrite)
-        stopifnot(length(filenames) == length(expected_files),
-                  setequal(filenames, expected_files))
+        stopifnot(length(filenames) == length(expected_fasta_files),
+                  setequal(filenames, expected_fasta_files))
         message("ok")
     }
 }
 
+make_rhesus_monkey_auxdata <- function(version, germline_sets)
+{
+    dir.create(jsondir <- tempfile())
+    message("Creating IG[HKL]J_gl.aux files in ", version, " ... ",
+            appendLF=FALSE)
+    filenames <- download_OGRDB_germline_json("Macaca mulatta",
+                                germline_sets,
+                                destdir=jsondir, overwrite=TRUE)
+    stopifnot(identical(names(filenames), names(germline_sets)))
+    for (filename in filenames) {
+        json_path <- file.path(jsondir, filename)
+        auxdata <- extract_auxdata_from_ogrdb_json(json_path)
+        locus <- substr(filename, 1L, 3L)
+        destfile <- file.path(version, paste0(locus, "J_gl.aux"))
+        write_auxdata(auxdata, destfile)
+    }
+    message("ok")
+}
+
 download_rhesus_monkey_germline_sequences()
+
+### Extract auxdata from the OGRDB json files.
+for (i in seq_along(RHESUS_MONKEY_GERMLINE_SETS)) {
+    version <- names(RHESUS_MONKEY_GERMLINE_SETS)[[i]]
+    germline_sets <- RHESUS_MONKEY_GERMLINE_SETS[[i]]
+    make_rhesus_monkey_auxdata(version, germline_sets)
+}
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

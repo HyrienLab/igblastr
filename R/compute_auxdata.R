@@ -106,7 +106,7 @@
     } else {
         allele_groups <- substr(allele_names, 1L, 4L)
         stopifnot(all(allele_groups == J_group))
-        chain_type <- paste0("J", substr(J_group, 3L, 3L))
+        chain_type <- make_chain_type("J", substr(J_group, 1L, 3L))
     }
     if (J_group == "IGHJ") {
         fwr4_starts <- .find_heavy_fwr4_starts(J_alleles)

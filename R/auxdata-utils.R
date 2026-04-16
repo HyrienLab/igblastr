@@ -95,32 +95,3 @@ compute_germline_db_auxdata <- function(db_name, ...)
     .do_compute_germline_db_auxdata(db_path, ...)
 }
 
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### add_computed_auxdata_if_missing()
-###
-
-### Not exported!
-### If the auxdata in germline db at 'db_path' is missing then
-### add_computed_auxdata_if_missing() computes and adds it.
-### Returns FALSE if the germline db already includes auxdata, and TRUE if
-### if doesn't and the auxdata could be computed and added sucessfully.
-### Raises an error if the auxdata was missing but the computed auxdata
-### could not be added because its "coding_frame_start" column contains NAs.
-add_computed_auxdata_if_missing <- function(db_path, verbose=FALSE)
-{
-    stopifnot(isTRUEorFALSE(verbose))
-    auxdata_path <- make_germline_db_auxdata_path(db_path)
-    if (file.exists(auxdata_path))
-        return(FALSE)
-    if (verbose)
-        message(wmsg("Computing the auxdata"), " ... ", appendLF=FALSE)
-    auxdata <- .do_compute_germline_db_auxdata(db_path)
-    ok <- add_computed_auxdata_to_db(auxdata, db_path, verbose=verbose)
-    if (!ok)
-        stop(wmsg("failed to add the computed auxdata to ", basename(db_path)))
-    if (verbose)
-        message("ok.")
-    TRUE
-}
-

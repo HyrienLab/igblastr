@@ -1,28 +1,6 @@
 High-priority TODO list
 =======================
 
-o Replace 'without.intdata' and 'without.auxdata' arguments with
-  'with.intdata' and 'with.auxdata'. With default of TRUE for 'with.intdata'
-  and "auto" for 'with.auxdata' ("auto" meaning "include the computed auxdata
-  if it's complete").
-
-o Fill missing documentation:
-  - document 'with.auxdata' and 'imgt.fasta' arguments of
-    install_custom_germline_db();
-  - document 'without.auxdata' argument of install_IMGT_germline_db();
-  - add example to man/auxdata-IO.Rd;
-  - document the *_ndm_data functions (ndm_data-IO.Rd file).
-
-o Has OGRDB something similar to the "codon start" field found in the
-  IMGT FASTA headers for J alleles? Check the OGRDB JSON file for something
-  similar. If we can find this information somehow then we can improve the
-  situation with the computed auxdata that we include in the OGRDB germline
-  dbs. For human and rhesus monkey this would allow us to validate the
-  coding_frame_start that we compute. For mouse, this could allow us to
-  compute and include the auxdata in the germline db (with maybe some NAs
-  in the cdr3_end column but that's ok, what's not ok is to have NAs in the
-  coding_frame_start or extra_bps columns).
-
 o Looks like IMGT sometimes makes a release where all the FASTA files for
   a given organism are empty. For example, in release 202530-1, all the
   IG*.fasta and TR*.fasta files for Mus_musculus_C57BL6J are empty.
@@ -37,12 +15,35 @@ o Looks like IMGT sometimes makes a release where all the FASTA files for
   Seems that the early check should be in install_germline_db() or
   create_germline_db().
 
+o Take a look at:
+    install_IMGT_germline_db("202614-2", "Ovis_aries")
+    # Error in data.frame(allele_name = allele_names, ...  :
+    #   row names contain missing values
+
+o Maybe replace 'without.intdata' and 'without.auxdata' arguments with
+  'with.intdata' and 'with.auxdata'. With default of TRUE for 'with.intdata'
+  and "auto" for 'with.auxdata' ("auto" meaning "include the computed auxdata
+  if it's complete").
+
+o Fill missing documentation:
+  - add extract_auxdata_from_ogrdb_json() example in
+    man/download_OGRDB_germline_json.Rd;
+  - document 'with.auxdata' and 'imgt.fasta' arguments of
+    install_custom_germline_db();
+  - document 'without.auxdata' argument of install_IMGT_germline_db();
+  - add example to man/auxdata-IO.Rd;
+  - document the *_ndm_data functions (ndm_data-IO.Rd file).
+
+o Support the "engineered mouse" use case.
+
 o Question for the IMGT folks: IMGT human J allele IGLJ2A*01 has a codon
   start set to 1, which is surprising for the various reasons explained
   in the comment preceding .EXCLUDED_IMGT_HUMAN_J_ALLELES in file
   R/install_IMGT_germline_db.R
 
-o Support the "engineered mouse" use case.
+o Question for William Lees: It's not clear whether the j_cdr3_end reported
+  reported in OGRDB json files is 0-based or 1-based or something else.
+  See IMPORTANT NOTE in R/download_OGRDB_germline_json.R for the details.
 
 o Why are some of the V alleles provided by IMGT "truncated" at the 3' end
   before they reach the end of their FWR3?

@@ -14,9 +14,10 @@ MOUSE_STRAIN_GERMLINE_SETS <- list(
     PWD_PhJ   =list(`202410`=c(IGH=2, IGKV=1, IGLV=1))
 )
 
+ALL_STRAINS_GERMLINE_SETS <- c(`IGKJ (all strains)`=1, `IGLJ (all strains)`=1)
+
 download_mouse_germline_sequences <- function(overwrite=FALSE)
 {
-    shared_germline_sets <- c(`IGKJ (all strains)`=1, `IGLJ (all strains)`=1)
     expected_files <- paste0(igblastr:::IG_GROUPS, ".fasta")
     for (i in seq_along(MOUSE_STRAIN_GERMLINE_SETS)) {
         strain_dir <- names(MOUSE_STRAIN_GERMLINE_SETS)[[i]]
@@ -28,7 +29,7 @@ download_mouse_germline_sequences <- function(overwrite=FALSE)
                     "version ", version, " ... ", appendLF=FALSE)
             germline_sets <- strain_germline_sets[[j]]
             names(germline_sets) <- paste(strain, names(germline_sets))
-            germline_sets <- c(germline_sets, shared_germline_sets)
+            germline_sets <- c(germline_sets, ALL_STRAINS_GERMLINE_SETS)
             destdir <- file.path(strain_dir, version)
             filenames <- download_OGRDB_germline_sequences("Mus musculus",
                                         germline_sets,
@@ -40,7 +41,41 @@ download_mouse_germline_sequences <- function(overwrite=FALSE)
     }
 }
 
+make_mouse_auxdata <- function(strain_dir, version, germline_sets)
+{
+    strain <- chartr("_", "/", strain_dir)
+    dir.create(jsondir <- tempfile())
+    message("Creating IG[HKL]J_gl.aux files for ", strain, " ",
+            "version ", version, " ... ", appendLF=FALSE)
+    germline_sets <- c(IGH=germline_sets[["IGH"]])
+    names(germline_sets) <- paste(strain, names(germline_sets))
+    germline_sets <- c(germline_sets, ALL_STRAINS_GERMLINE_SETS)
+    filenames <- download_OGRDB_germline_json("Mus musculus",
+                                germline_sets,
+                                destdir=jsondir, overwrite=TRUE)
+    stopifnot(identical(names(filenames), names(germline_sets)))
+    for (filename in filenames) {
+        json_path <- file.path(jsondir, filename)
+        auxdata <- extract_auxdata_from_ogrdb_json(json_path)
+        locus <- substr(filename, 1L, 3L)
+        destfile <- file.path(strain_dir, version, paste0(locus, "J_gl.aux"))
+        write_auxdata(auxdata, destfile)
+    }
+    message("ok")
+}
+
 download_mouse_germline_sequences()
+
+### Extract auxdata from the OGRDB json files.
+for (i in seq_along(MOUSE_STRAIN_GERMLINE_SETS)) {
+    strain_dir <- names(MOUSE_STRAIN_GERMLINE_SETS)[[i]]
+    strain_germline_sets <- MOUSE_STRAIN_GERMLINE_SETS[[i]]
+    for (j in seq_along(strain_germline_sets)) {
+        version <- names(strain_germline_sets)[[j]]
+        germline_sets <- strain_germline_sets[[j]]
+        make_mouse_auxdata(strain_dir, version, germline_sets)
+    }
+}
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

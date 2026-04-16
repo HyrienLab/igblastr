@@ -308,7 +308,6 @@ add_computed_auxdata_to_db <- function(auxdata, destdir, verbose=FALSE)
     auxdata_dir <- dirname(auxdata_path)
     stopifnot(!dir.exists(auxdata_dir))
     dir.create(auxdata_dir)
-
     write_auxdata(auxdata, auxdata_path)
 
     if (verbose)

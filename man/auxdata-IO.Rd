@@ -57,6 +57,10 @@ write_auxdata(auxdata, file="")
     \item \code{\link{compute_auxdata}} to annotate a set of
           germline J gene allele sequences.
 
+    \item \code{\link{extract_auxdata_from_ogrdb_json}} to extract the
+          coding frame and CDR3 end information for the J alleles in an
+          AIRR-C JSON file.
+
     \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 
     \item The \code{\link{igblastn}} function to run the \code{igblastn}

@@ -80,9 +80,8 @@ validate_ndm_rows(ndm_data, allow.repeated.rows=FALSE)
     \item \code{\link{compute_V_gene_delineations}} to annotate a set of
           germline V gene allele sequences.
 
-    \item \code{\link{makeogrannote}} to extract the germline V gene allele
-          FWR/CDR annotations (a.k.a. V gene delineations) from an
-          AIRR-C JSON file.
+    \item \code{\link{extract_intdata_from_ogrdb_json}} to extract the
+          V gene delineations for the V alleles in an AIRR-C JSON file.
 
     \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
 

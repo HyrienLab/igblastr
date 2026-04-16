@@ -3,6 +3,54 @@
 ### -------------------------------------------------------------------------
 
 
+.add_ogrdb_auxdata_if_missing <- function(db_path, fasta_store, verbose=FALSE)
+{
+    stopifnot(isTRUEorFALSE(verbose))
+    auxdata_path <- make_germline_db_auxdata_path(db_path)
+    if (file.exists(auxdata_path))
+        return()
+
+    if (verbose)
+        message(wmsg("Adding OGRDB auxdata to ", basename(db_path)), " ... ",
+                appendLF=FALSE)
+    auxdata_list <- lapply(IG_LOCI,
+        function(locus) {
+            read_auxdata(file.path(fasta_store, paste0(locus, "J_gl.aux")))
+        })
+    auxdata <- do.call(rbind, auxdata_list)
+
+    ## Check and reorder.
+    check_auxdata_col2class(auxdata)
+    allele_names <- auxdata[ , "allele_name"]
+    stopifnot(!anyDuplicated(allele_names))
+    db_fasta_file <- get_db_fasta_file(db_path, "J")
+    db_J_allele_names <- names(fasta.seqlengths(db_fasta_file))
+    stopifnot(nrow(auxdata) == length(db_J_allele_names),
+              setequal(allele_names, db_J_allele_names))
+    m <- match(db_J_allele_names, allele_names)
+    auxdata <- S4Vectors:::extract_data_frame_rows(auxdata, m)
+
+    auxdata_dir <- dirname(auxdata_path)
+    stopifnot(!dir.exists(auxdata_dir))
+    dir.create(auxdata_dir)
+    write_auxdata(auxdata, auxdata_path)
+
+    if (verbose)
+        message("ok.")
+}
+
+### Install db only if missing.
+.install_builtin_OGRDB_germline_db <-
+    function(install_dir, db_name, fasta_store, verbose=FALSE)
+{
+    install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
+                        gapped=TRUE, with.intdata=TRUE,
+                        if.exists="no-op", verbose=verbose)
+    db_path <- file.path(install_dir, db_name)
+    .add_ogrdb_auxdata_if_missing(db_path, fasta_store, verbose=verbose)
+}
+
+
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### .install_missing_builtin_OGRDB_human_germline_dbs()
 ###
@@ -25,14 +73,8 @@
     function(install_dir, fasta_store, verbose=FALSE)
 {
     db_name <- .form_builtin_OGRDB_human_germline_db_name(fasta_store)
-    install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
-                        gapped=TRUE, with.intdata=TRUE, with.auxdata=TRUE,
-                        if.exists="no-op", verbose=verbose)
-    ## Temporary workaround for users who have a germline db that was
-    ## installed before the 'with.auxdata' argument got added to
-    ## install_germline_db().
-    db_path <- file.path(install_dir, db_name)
-    add_computed_auxdata_if_missing(db_path, verbose=verbose)
+    .install_builtin_OGRDB_germline_db(install_dir, db_name, fasta_store,
+                                       verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_human_germline_dbs <-
@@ -75,14 +117,8 @@
     function(install_dir, fasta_store, verbose=FALSE)
 {
     db_name <- .form_builtin_OGRDB_mouse_germline_db_name(fasta_store)
-    ## Note that the computed auxdata for the mouse strains that we currently
-    ## support has NAs in its "coding_frame_start" column. This is because for
-    ## all of them the CDR3 end cannot be found for J alleles IGKJ0-5NUZ*00,
-    ## IGKJ0-IIHF*00, IGLJ0-UWMQ*00. So unlike for human or rhesus monkey
-    ## we do NOT use 'with.auxdata=TRUE' here.
-    install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
-                        gapped=TRUE, with.intdata=TRUE,
-                        if.exists="no-op", verbose=verbose)
+    .install_builtin_OGRDB_germline_db(install_dir, db_name, fasta_store,
+                                       verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_mouse_germline_dbs <-
@@ -119,14 +155,8 @@
     function(install_dir, fasta_store, verbose=FALSE)
 {
     db_name <- .form_builtin_OGRDB_rhesus_monkey_germline_db_name(fasta_store)
-    install_germline_db(install_dir, db_name, fasta_store, IG_LOCI,
-                        gapped=TRUE, with.intdata=TRUE, with.auxdata=TRUE,
-                        if.exists="no-op", verbose=verbose)
-    ## Temporary workaround for users who have a germline db that was
-    ## installed before the 'with.auxdata' argument got added to
-    ## install_germline_db().
-    db_path <- file.path(install_dir, db_name)
-    add_computed_auxdata_if_missing(db_path, verbose=verbose)
+    .install_builtin_OGRDB_germline_db(install_dir, db_name, fasta_store,
+                                       verbose=verbose)
 }
 
 .install_missing_builtin_OGRDB_rhesus_monkey_germline_dbs <-

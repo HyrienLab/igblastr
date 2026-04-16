@@ -134,8 +134,8 @@ download_OGRDB_germline_json("Homo sapiens", germline_set,
 
 list.files(tmpdir)  # 1 JSON file
 
-ogrdb_json_file <- file.path(tmpdir, "IGKappa_VJ.json")
-IGKV_gene_delinea2 <- makeogrannote(ogrdb_json_file)
+json_path <- file.path(tmpdir, "IGKappa_VJ.json")
+IGKV_gene_delinea2 <- extract_intdata_from_ogrdb_json(json_path)
 head(IGKV_gene_delinea2)
 
 ## Keep only the shared columns:
@@ -187,8 +187,8 @@ IGLV_gene_delinea[ , c("fwr3_end", "seq_len")]
 download_OGRDB_germline_json("Mus musculus", germline_set,
                              destdir=tmpdir)
 list.files(tmpdir)
-ogrdb_json_file <- file.path(tmpdir, "IGLV.json")
-IGLV_gene_delinea2 <- makeogrannote(ogrdb_json_file)
+json_path <- file.path(tmpdir, "IGLV.json")
+IGLV_gene_delinea2 <- extract_intdata_from_ogrdb_json(json_path)
 IGLV_gene_delinea2
 
 ## As you can see, when a V allele sequence ends before the end of
