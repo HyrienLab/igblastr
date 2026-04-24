@@ -88,7 +88,7 @@ export(
     validate_ndm_rows,
     read_ndm_data,
     write_ndm_data,
-    same_ndm_data,
+    same_alleles_annot,
 
     ## compute_V_gene_delineations.R:
     compute_V_gene_delineations,

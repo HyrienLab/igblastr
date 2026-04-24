@@ -78,7 +78,7 @@
         .nuke_existing_region_db(destdir, region_type)
     }
     original_fasta_dir <- get_db_original_fasta_dir(destdir, region_type)
-    stopifnot(dir.create(original_fasta_dir))
+    stopifnot(!file.exists(original_fasta_dir), dir.create(original_fasta_dir))
     copy_files_to_dir(fasta_files, original_fasta_dir)
     original_fasta_files <- list_fasta_files(original_fasta_dir)
     if (verbose) {
@@ -102,7 +102,7 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### .load_original_alleles_with_loci()
+### .load_allele_set()
 ###
 
 ### The names of the supplied files must be of the form <locus>V.fasta
@@ -112,7 +112,6 @@
 ### string, so we don't bother to check.
 .infer_loci_from_filenames <- function(fasta_files, region_type)
 {
-    .checkarg_fasta_files(fasta_files)
     filenames <- basename(fasta_files)
     suffix <- substr(filenames, 4L, nchar(filenames))
     expected_suffix <- paste0(region_type, ".fasta")
@@ -125,17 +124,28 @@
     substr(filenames, 1L, 3L)
 }
 
-.load_original_alleles_with_loci <- function(fasta_files, region_type)
+### 'region_type' will only be used if 'with.loci' is TRUE.
+.load_allele_set <- function(fasta_files, with.loci=FALSE, region_type=NA)
 {
-    loci <- .infer_loci_from_filenames(fasta_files, region_type)
-    dna <- lapply(seq_along(fasta_files),
-        function(i) {
-            dna <- readDNAStringSet(fasta_files[[i]])
-            mcols(dna)$locus <- loci[[i]]
-            dna
-        }
-    )
-    do.call(c, dna)
+    .checkarg_fasta_files(fasta_files)
+    if (with.loci) {
+        loci <- .infer_loci_from_filenames(fasta_files, region_type)
+        allele_sets <- lapply(seq_along(fasta_files),
+            function(i) {
+                allele_set <- readDNAStringSet(fasta_files[[i]])
+                mcols(allele_set)$locus <- loci[[i]]
+                allele_set
+            }
+        )
+        allele_set <- do.call(c, allele_sets)
+    } else {
+        allele_set <- readDNAStringSet(fasta_files)
+    }
+    if (length(allele_set) == 0L) {
+        in1string <- paste(basename(fasta_files), collapse=", ")
+        stop(wmsg("no alleles found in FASTA files: ", in1string))
+    }
+    allele_set
 }
 
 
@@ -179,7 +189,7 @@ create_region_db <- function(fasta_files, destdir,
                                             verbose=verbose)
 
     ## (1) Load and combine.
-    allele_set <- readDNAStringSet(original_fasta_files)
+    allele_set <- .load_allele_set(original_fasta_files)
 
     ## (2) Clean.
     allele_set <- clean_allele_set(allele_set,
@@ -238,16 +248,11 @@ create_V_region_db <- function(fasta_files, destdir,
                                             verbose=verbose)
 
     ## (1) Load and combine.
-    if (with.intdata) {
-        ## We use .load_original_alleles_with_loci() to get the locus info
-        ## (returned as a metadata column on 'allele_set').
-        ## clean_V_allele_set() requires and uses this metadata column
-        ## when 'with.intdata' is TRUE.
-        allele_set <-
-            .load_original_alleles_with_loci(original_fasta_files, "V")
-    } else {
-        allele_set <- readDNAStringSet(original_fasta_files)
-    }
+    ## Note that if 'with.intdata=TRUE', we also load the locus info and
+    ## return it as a metadata column on 'allele_set'. clean_V_allele_set()
+    ## will require and use this metadata column when 'with.intdata' is TRUE.
+    allele_set <- .load_allele_set(original_fasta_files,
+                                   with.loci=with.intdata, region_type="V")
 
     ## (2) Clean.
     allele_set <- clean_V_allele_set(allele_set,
@@ -337,16 +342,11 @@ create_J_region_db <- function(fasta_files, destdir,
                                             verbose=verbose)
 
     ## (1) Load and combine.
-    if (with.auxdata) {
-        ## We use .load_original_alleles_with_loci() to get the locus info
-        ## (returned as a metadata column on 'allele_set').
-        ## clean_J_allele_set() requires and uses this metadata column
-        ## when 'with.auxdata' is TRUE.
-        allele_set <-
-            .load_original_alleles_with_loci(original_fasta_files, "J")
-    } else {
-        allele_set <- readDNAStringSet(original_fasta_files)
-    }
+    ## Note that if 'with.auxdata=TRUE', we also load the locus info and
+    ## return it as a metadata column on 'allele_set'. clean_V_allele_set()
+    ## will require and use this metadata column when 'with.auxdata' is TRUE.
+    allele_set <- .load_allele_set(original_fasta_files,
+                                   with.loci=with.auxdata, region_type="J")
 
     ## (2) Clean.
     allele_set <- clean_J_allele_set(allele_set,

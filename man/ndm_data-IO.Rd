@@ -6,7 +6,7 @@
 \alias{read_ndm_data}
 \alias{write_ndm_data}
 \alias{validate_ndm_rows}
-\alias{same_ndm_data}
+\alias{same_alleles_annot}
 
 \title{Read/write "ndm" files}
 
@@ -81,7 +81,8 @@ validate_ndm_rows(ndm_data, allow.repeated.rows=FALSE)
           germline V gene allele sequences.
 
     \item \code{\link{extract_intdata_from_ogrdb_json}} to extract the
-          V gene delineations for the V alleles in an AIRR-C JSON file.
+          V gene delineations for the V alleles annotated in an
+          AIRR-C JSON file.
 
     \item \link{intdata_utils} to access IgBLAST \emph{internal data}.
 

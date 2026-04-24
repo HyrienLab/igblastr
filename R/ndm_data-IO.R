@@ -129,21 +129,16 @@ write_ndm_data <- function(ndm_data, file="", check.data=FALSE)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### same_ndm_data()
+### same_alleles_annot()
 ###
 
+### Each of 'annot1' and 'annot2' must be a data.frame with an "allele_name"
+### column. Typically used to compare two "intdata" or two "auxdata"
+### data.frames.
 ### Returns TRUE if the 2 data.frames contain the same data (possibly
 ### with their rows in different order).
-same_ndm_data <- function(ndm_data1, ndm_data2)
+same_alleles_annot <- function(annot1, annot2)
 {
-    if (!identical(dim(ndm_data1), dim(ndm_data2)))
-        return(FALSE)
-    allele_names1 <- ndm_data1[ , "allele_name"]
-    allele_names2 <- ndm_data2[ , "allele_name"]
-    if (!setequal(allele_names1, allele_names2))
-        return(FALSE)
-    m <- match(allele_names1, allele_names2)
-    ndm_data2 <- S4Vectors:::extract_data_frame_rows(ndm_data2, m)
-    identical(ndm_data1, ndm_data2)
+    have_same_rows(annot1, annot2, "allele_name")
 }
 

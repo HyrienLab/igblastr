@@ -144,11 +144,11 @@ shared_colnames <- intersect(colnames(IGKV_gene_delinea),
 IGKV_gene_delinea  <- IGKV_gene_delinea[ , shared_colnames]
 IGKV_gene_delinea2 <- IGKV_gene_delinea2[ , shared_colnames]
 
-## We use same_ndm_data(), a small undocumented helper function, to
-## verify that 'IGKV_gene_delinea' and 'IGKV_gene_delinea2' contain
+## Let's use same_alleles_annot(), a small undocumented helper function,
+## to verify that 'IGKV_gene_delinea' and 'IGKV_gene_delinea2' contain
 ## the same delineation data (possibly with their rows in different
 ## order):
-stopifnot(same_ndm_data(IGKV_gene_delinea, IGKV_gene_delinea2))
+stopifnot(same_alleles_annot(IGKV_gene_delinea, IGKV_gene_delinea2))
 
 ## Remove temporary directory:
 unlink(tmpdir, recursive=TRUE)

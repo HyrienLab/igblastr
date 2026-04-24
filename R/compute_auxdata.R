@@ -113,12 +113,12 @@
     } else {
         fwr4_starts <- .find_light_fwr4_starts(J_alleles)
     }
-    coding_frame_starts <- fwr4_starts %% 3L
+    coding_frame_starts <- unname(fwr4_starts) %% 3L
     data.frame(
         allele_name       =allele_names,
-        coding_frame_start=coding_frame_starts,  # 0-based
+        coding_frame_start=coding_frame_starts,      # 0-based
         chain_type        =chain_type,
-        cdr3_end          =fwr4_starts - 1L      # 0-based
+        cdr3_end          =unname(fwr4_starts) - 1L  # 0-based
         ## Returning this column only made sense when we were using "FS"
         ## motif as a 2nd-chance motif on the light chain.
         #fwr4_start_motif  =names(fwr4_starts)

@@ -196,11 +196,39 @@ read_version_file <- function(dirpath)
 rows_with_same_key_are_identical <- function(df, key)
 {
     stopifnot(is.data.frame(df), isSingleNonWhiteString(key))
+    rownames(df) <- NULL
     keys <- df[ , key]
     m <- match(keys, keys)
-    df2 <- df[m, ]
-    rownames(df2) <- NULL
+    df2 <- S4Vectors:::extract_data_frame_rows(df, m)
     identical(df, df2)
+}
+
+### The binary version of the above.
+have_same_rows <- function(df1, df2, key)
+{
+    stopifnot(is.data.frame(df1), is.data.frame(df2),
+              isSingleNonWhiteString(key))
+    if (!identical(dim(df1), dim(df2)))
+        return(FALSE)
+    if (!identical(colnames(df1), colnames(df2)))
+        return(FALSE)
+    keys1 <- df1[ , key]
+    keys2 <- df2[ , key]
+    if (!setequal(keys1, keys2))
+        return(FALSE)
+    ## Some risk of false negative in the very atypical case where 'df1'
+    ## and 'df2' both have rows with repeated keys but different content
+    ## (i.e. rows_with_same_key_are_identical() returns FALSE on both),
+    ## and the ordering of the rows below does not align them properly.
+    ## For example:
+    ##   df1 <- data.frame(ID=c(1,1), a=11:12)
+    ##   df2 <- data.frame(ID=c(1,1), a=12:11)
+    ##   have_same_rows(df1, df2, "ID")  # FALSE
+    ## This will never happen if either 'df1' or 'df2' has no rows with
+    ## repeated keys though.
+    df1 <- S4Vectors:::extract_data_frame_rows(df1, order(keys1))
+    df2 <- S4Vectors:::extract_data_frame_rows(df2, order(keys2))
+    identical(df1, df2)
 }
 
 

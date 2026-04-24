@@ -58,8 +58,8 @@ write_auxdata(auxdata, file="")
           germline J gene allele sequences.
 
     \item \code{\link{extract_auxdata_from_ogrdb_json}} to extract the
-          coding frame and CDR3 end information for the J alleles in an
-          AIRR-C JSON file.
+          coding frame and CDR3 end information for the J alleles annotated
+          in an AIRR-C JSON file.
 
     \item \link{auxdata_utils} to access IgBLAST \emph{auxiliary data}.
 
