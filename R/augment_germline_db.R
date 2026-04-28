@@ -119,6 +119,11 @@
                                novel_alleles, destdir=".", overwrite=FALSE,
                                verbose=FALSE)
 {
+    msg <- c("Some shortcomings were identified in the design of the ",
+             "augment_germline_db_[VDJ]() functions so they are now ",
+             "deprecated. Please do not use them. They will be replaced ",
+             "with a better alternative in future versions of the package.")
+    .Deprecated(msg=wmsg(msg))
     check_germline_db_name(db_name)
     db_path <- get_germline_db_path(db_name)
     region_type <- match.arg(region_type)

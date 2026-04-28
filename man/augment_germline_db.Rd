@@ -8,6 +8,11 @@
 \title{Add novel gene alleles to a germline db}
 
 \description{
+  WARNING: Some shortcomings were identified in the design of the
+  \code{augment_germline_db_[VDJ]()} functions so they are now deprecated.
+  Please do not use them. They will be replaced with a better alternative
+  in future versions of the package.
+
   Three functions to add novel V, D, or J gene alleles to a germline db.
 
   Note that these functions can also be used to combine germline databases
@@ -78,6 +83,7 @@ augment_germline_db_J(db_name, novel_alleles,
 }
 
 \examples{
+\dontrun{
 if (!has_igblast()) install_igblast()
 
 query <- system.file(package="igblastr", "extdata",
@@ -185,6 +191,7 @@ human_V12_alleles <- human_V_alleles[idx]
 engmouseVdb_path <- file.path(tempdir(), "engmouseVdb")
 augment_germline_db_V(db_name1, human_V12_alleles,
                       destdir=engmouseVdb_path)
+}
 
 ## Then, assuming that 'query' contains BCR sequences from the
 ## engineered mice:

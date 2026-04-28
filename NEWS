@@ -1,0 +1,83 @@
+VERSION 1.2.0
+-------------
+
+NEW FEATURES
+
+    o Add built-in germline db _OGRDB.rhesus_monkey.IGH+IGK+IGL.202602.
+
+    o All the built-in germline dbs now include their own internal and
+      auxiliary data. This is reported in the 2 new columns ('intdata'
+      and 'auxdata') displayed by list_germline_dbs().
+
+    o Add arguments 'with.intdata.only' and 'with.auxdata.only' to
+      list_germline_dbs().
+
+    o The germline dbs installed with install_IMGT_germline_db() now also
+      include their own internal and auxiliary data.
+
+    o Add functions reset_germline_dbs() and reset_c_region_dbs(). See
+      corresponding man pages for the details.
+
+    o Add arguments 'loci', 'without.intdata', 'without.auxdata',
+      and 'verbose' to install_IMGT_germline_db().
+
+    o Add function install_IMGT_c_region_db().
+
+    o Add function install_custom_germline_db().
+
+    o Add functions download_IMGT_germline_sequences(),
+      parse_imgt_fasta_headers(), download_OGRDB_germline_sequences(),
+      download_OGRDB_germline_json(), extract_intdata_from_ogrdb_json(),
+      and extract_auxdata_from_ogrdb_json().
+
+    o Add utilities to update IgBLAST auxiliary and internal data.
+      See '?update_live_igdata' for more information.
+
+    o Add utility functions get_intdata_path() and load_intdata().
+
+    o Add function compute_V_gene_delineations() to annotate a set of
+      germline V gene allele sequences.
+
+    o Add functions compute_auxdata() and compute_germline_db_auxdata()
+      to annotate a set of germline J gene allele sequences.
+
+    o Add IO functions read_ndm_data(), write_ndm_data(), read_auxdata(),
+      and write_auxdata().
+
+    o Add low-level utility functions allele2gene(), translate_codons(),
+      extract_codons(), remove_gaps(), translate_V_alleles(),
+      V_allele_has_stop_codon(), translate_J_alleles(),
+      J_allele_has_stop_codon(), translate_fwr4(),
+      and V_genes_with_varying_fwrcdr_boundaries().
+
+    o Add low-level utility functions read_igblastn_AIRR_output() and
+      read_igblastn_fmt7_output().
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Two important changes to igblastn(), the main function in the package:
+      1. If the selected germline db includes its own internal data then
+         igblastn() will use it by default instead of the internal data
+         shipped with IgBLAST. See documentation of the 'custom_internal_data'
+         argument in '?igblastn' for more information.
+      2. If the selected germline db includes its own auxiliary data then
+         igblastn() will use it by default instead of the auxiliary data
+         shipped with IgBLAST. See documentation of the 'auxiliary_data'
+         argument in '?igblastn' for more information.
+
+    o The "_AIRR." prefix in the name of the built-in germline dbs has been
+      replaced with "_OGRDB.".
+
+    o The 'force' argument present in several functions (e.g. install_igblast(),
+      install_IMGT_germline_db(), etc..) was renamed 'overwrite'.
+
+    o Rename functions get_igblast_auxiliary_data() and
+      load_igblast_auxiliary_data() to get_auxdata_path() and load_auxdata(),
+      respectively. The old names can still be used but are deprecated.
+
+
+VERSION 1.0.0
+-------------
+
+    o First version of the package that is ready for general use.
+

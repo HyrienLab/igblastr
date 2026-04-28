@@ -308,9 +308,6 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     \item \code{\link{list_igblast_organisms}} to list the organisms
           supported by IgBLAST.
 
-    \item \code{\link{augment_germline_db}} to add novel gene alleles to
-          a germline db.
-
     \item \link{igblastr_usage_report} to turn "Usage Reporting" on or off.
 
     \item \link[Biostrings]{DNAStringSet} objects implemented in the

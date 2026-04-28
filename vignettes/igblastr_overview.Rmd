@@ -7,7 +7,7 @@ author:
   affiliation: Fred Hutch Cancer Center, Seattle, WA
 - name: Ollivier Hyrien
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 15 April 2026"
+date: "Compiled `r BiocStyle::doc_date()`; Modified 27 April 2026"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
@@ -475,26 +475,6 @@ Note that in this case, the path to the file containing the gene alleles
 identifiers must be wrapped in a call to `file()`.
 
 See `?igblastn` for more information.
-
-## Add novel gene alleles to the search
-
-The `r Biocpkg("igblastr")` package also provides facilities to add
-novel gene alleles to the search. This is done in two steps:
-
-1. Use one of the `augment_germline_db_[VDG]()` functions to create a new
-   augmented V, D, or J germline database.
-
-2. Tell `igblastn()` to use the augmented V, D, or J germline database
-   by pointing the `germline_db_V`, `germline_db_D`, or `germline_db_J`
-   argument to it.
-
-Note that this functionality can also be used to combine germline
-databases from two different organisms. See `?augment_germline_db` for
-more information and some examples.
-
-Finally note that augmenting and restricting can be combined e.g. by
-pointing `germline_db_V` to an augmented V germline database _and_ by
-supplying the `germline_db_V_seqidlist` argument.
 
 
 # A TCR analysis example
