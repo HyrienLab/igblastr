@@ -7,7 +7,7 @@ author:
   affiliation: Fred Hutch Cancer Center, Seattle, WA
 - name: Ollivier Hyrien
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 9 August 2026"
+date: "Compiled `r BiocStyle::doc_date()`; Modified 8 September 2026"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
@@ -221,16 +221,16 @@ First, we list the most recent IMGT/V-QUEST releases:
 head(list_IMGT_releases())
 ```
 
-The organisms included in release 202614-2 are:
+The organisms included in release 202631-1 are:
 ```{r}
-list_IMGT_organisms("202614-2")
+list_IMGT_organisms("202631-1")
 ```
 
 Next, we create and install an IgBLAST-compatible _germline database_ from
 the human germline V, D, and J gene sequences available in IMGT/V-QUEST
-release 202614-2:
+release 202631-1:
 ```{r, message=FALSE}
-install_IMGT_germline_db("202614-2", organism="Homo sapiens")
+install_IMGT_germline_db("202631-1", organism="Homo sapiens")
 ```
 See `?install_IMGT_germline_db` for more information.
 
@@ -249,7 +249,7 @@ Finally, we select the newly installed database as the _germline database_
 to use with `igblastn()`. For example, assuming that the sequences to
 analyze are human antibody sequences:
 ```{r}
-use_germline_db("IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL")
+use_germline_db("IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL")
 ```
 See `?use_germline_db` for more information.
 
@@ -268,7 +268,7 @@ See `?list_germline_dbs` for more information.
 
 
 Note that the newly installed _germline database_
-(`IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL`) includes
+(`IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL`) includes
 its own _internal data_ and _auxiliary data_, as reported in
 the `intdata` and `auxdata` columns.
 
@@ -314,9 +314,9 @@ and in sync with the germline V and J alleles in the database.
 
 This data can also be accessed with `load_intdata()` and `load_auxdata()`:
 ```{r}
-head(load_intdata("IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"))
+head(load_intdata("IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL"))
 
-head(load_auxdata("IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"))
+head(load_auxdata("IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL"))
 ```
 See `?load_intdata` and `?load_auxdata` for more information.
 
@@ -326,7 +326,7 @@ For the preinstalled OGRDB _germline databases_ (the `_OGRDB.*` databases),
 the _internal data_ and _auxiliary data_ is provided by AIRR/OGRDB.
 
 For a _germline database_ created with `install_IMGT_germline_db()` like
-`IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL`:
+`IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL`:
 
 - _internal data_: The V gene delineations are inferred from the gaps in
   the nucleotide sequences of the V alleles provided by IMGT/V-QUEST.
@@ -651,10 +651,10 @@ _germline databases_ from human and mouse. Note that allele names are not
 unique across species, so we add suffixes to the human and mouse allele names
 to avoid name clashes (e.g., `IGHV2-5*01_Hs` vs. `IGHV2-5*01_Mm`):
 ```{r}
-db_name1 <- "IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"
-db_name2 <- install_IMGT_germline_db("202614-2", "Mus_musculus")
+db_name1 <- "IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL"
+db_name2 <- install_IMGT_germline_db("202631-1", "Mus_musculus")
 
-db_name <- "comb.IMGT-202614-2.human+mouse.IGH+IGK+IGL"
+db_name <- "comb.IMGT-202631-1.human+mouse.IGH+IGK+IGL"
 combine_germline_dbs(db_name, db_name1, db_name2,
                      suffix1="_Hs", suffix2="_Mm")
 ```
@@ -753,7 +753,7 @@ a human TCR _germline database_. We can use `install_IMGT_germline_db()` with
 the `tcr.db` argument set to `TRUE` for that. This will install a _germline
 database_ made of the human TCR germline sequences provided by IMGT/V-QUEST:
 ```{r, warning=FALSE, message=FALSE}
-db_name <- install_IMGT_germline_db("202614-2", organism="Homo sapiens",
+db_name <- install_IMGT_germline_db("202631-1", organism="Homo sapiens",
                                     tcr.db=TRUE)
 ```
 
@@ -765,7 +765,7 @@ list_germline_dbs()
 Note that:
 
 - The name of this new _germline database_
-  (`IMGT-202614-2.Homo_sapiens.TRA+TRB+TRG+TRD`) reflects the fact that
+  (`IMGT-202631-1.Homo_sapiens.TRA+TRB+TRG+TRD`) reflects the fact that
   it contains germline gene alleles from the four T-cell receptor loci:
   TRA (alpha chain), TRB (beta chain), TRG (gamma chain), and TRD (delta chain).
 

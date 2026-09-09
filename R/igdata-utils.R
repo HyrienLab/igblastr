@@ -1,5 +1,5 @@
 ### =========================================================================
-### Low-level helpers to read/write IgBLAST annotation files
+### Various low-level utilities for handling IgBLAST annotation files
 ### -------------------------------------------------------------------------
 ###
 ### Nothing in this file is exported.
@@ -30,41 +30,10 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### right_pad_and_unlist()
 ### matrix2df()
 ###
-### Two very low-level helpers used by read_igdata() below in this file and
-### other functions in other files.
+### Used in this file below and in other files.
 ###
-
-### 'x' must be a list of character vectors of variable length.
-### Conceptually right-pads the list elements with the specified padding
-### string to make the list "constant-width" before unlisting it.
-### Returns a character vector of length 'length(x) * width'.
-right_pad_and_unlist <- function(x, padding_string, width=NA)
-{
-    stopifnot(is.list(x), isSingleStringOrNA(padding_string),
-              isSingleNumberOrNA(width))
-    x_len <- length(x)
-    if (x_len == 0L)
-        return(character(0))
-    x_lens <- lengths(x)
-    max_x_lens <- max(x_lens)
-    if (is.na(width)) {
-        width <- max_x_lens
-    } else {
-        width <- as.integer(width)
-        stopifnot(width >= max_x_lens)
-    }
-    y_lens <- width - x_lens
-    x_seqalong <- seq_along(x)
-    f <- rep.int(x_seqalong, y_lens)
-    attributes(f) <- list(levels=as.character(x_seqalong), class="factor")
-    y <- split(rep.int(padding_string, length(f)), f)
-    collate_subscript <- rep(x_seqalong, each=2L)
-    collate_subscript[2L * x_seqalong] <- x_seqalong + x_len
-    unlist(c(x, y)[collate_subscript], recursive=FALSE, use.names=FALSE)
-}
 
 matrix2df <- function(m, col2class)
 {
@@ -242,5 +211,66 @@ check_and_reorder_igdata_rows <- function(df, db_allele_names)
               setequal(allele_names, db_allele_names))
     m <- match(db_allele_names, allele_names)
     S4Vectors:::extract_data_frame_rows(df, m)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### get_igdata_col()
+### query_igdata()
+###
+
+get_igdata_col <- function(df, colname,
+                           what="intdata", as_returned_by="load_intdata()")
+{
+    must_be <- c("a data.frame as returned by ", as_returned_by)
+    if (!is.data.frame(df))
+        stop(wmsg("'", what, "' must be ", must_be))
+    if (!isSingleNonWhiteString(colname))
+        stop(wmsg("'colname' must be a single (non-empty) string"))
+    col <- df[[colname]]
+    if (is.null(col))
+        stop(wmsg("'", what, "' has no \"", colname, "\" column. ",
+                  "Make sure that it's ", must_be, "."))
+    col
+}
+
+### Extracts the specified column from data.frame 'df', and subset/reorder
+### it to keep only the column values that correspond to the allele names
+### in 'allele_names'. Returns them in a named vector that is parallel
+### to 'allele_names' and has the allele names on it.
+### The returned vector will have NAs for alleles that are not annotated
+### in 'df' or for which 'df[[colname]]' reports an NA.
+query_igdata <- function(df, allele_names, colname, no.NAs=FALSE,
+                         what="intdata", as_returned_by="load_intdata()")
+{
+    stopifnot(is.character(allele_names),
+              isSingleNonWhiteString(colname),
+              isTRUEorFALSE(no.NAs))
+    allele_names <- clean_imgt_fasta_headers(allele_names)
+    col <- get_igdata_col(df, "allele_name",
+                          what=what, as_returned_by=as_returned_by)
+    m <- match(allele_names, col)
+    if (no.NAs) {
+        bad_idx <- which(is.na(m))
+        if (length(bad_idx) != 0L) {
+            in1string <- paste(allele_names[bad_idx], collapse=", ")
+            msg <- c("the following alleles don't have ",
+                     "an entry in '", what, "': ", in1string)
+            stop(wmsg(msg))
+        }
+    }
+    col <- get_igdata_col(df, colname,
+                          what=what, as_returned_by=as_returned_by)
+    ans <- col[m]
+    if (no.NAs) {
+        bad_idx <- which(is.na(ans))
+        if (length(bad_idx) != 0L) {
+            in1string <- paste(allele_names[bad_idx], collapse=", ")
+            msg <- c("the \"", colname, "\" column in '", what, "' is ",
+                     "set to NA for the following alleles: ", in1string)
+            stop(wmsg(msg))
+        }
+    }
+    setNames(ans, allele_names)
 }
 

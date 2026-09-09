@@ -5,6 +5,42 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### right_pad_and_unlist()
+###
+### Used in this file below and in other files.
+###
+
+### 'x' must be a list of character vectors of variable length.
+### Conceptually right-pads the list elements with the specified padding
+### string to make the list "constant-width" before unlisting it.
+### Returns a character vector of length 'length(x) * width'.
+right_pad_and_unlist <- function(x, padding_string, width=NA)
+{
+    stopifnot(is.list(x), isSingleStringOrNA(padding_string),
+              isSingleNumberOrNA(width))
+    x_len <- length(x)
+    if (x_len == 0L)
+        return(character(0))
+    x_lens <- lengths(x)
+    max_x_lens <- max(x_lens)
+    if (is.na(width)) {
+        width <- max_x_lens
+    } else {
+        width <- as.integer(width)
+        stopifnot(width >= max_x_lens)
+    }
+    y_lens <- width - x_lens
+    x_seqalong <- seq_along(x)
+    f <- rep.int(x_seqalong, y_lens)
+    attributes(f) <- list(levels=as.character(x_seqalong), class="factor")
+    y <- split(rep.int(padding_string, length(f)), f)
+    collate_subscript <- rep(x_seqalong, each=2L)
+    collate_subscript[2L * x_seqalong] <- x_seqalong + x_len
+    unlist(c(x, y)[collate_subscript], recursive=FALSE, use.names=FALSE)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### parse_imgt_fasta_headers()
 ###
 

@@ -2,13 +2,13 @@
 ### installation actually triggers a download from IMGT. All subsequent
 ### installations obtain the data from the IMGT local store (located
 ### in 'igblastr_cache(IMGT_STORE)') so are very fast and work offline.
-install_IMGT_germline_db("202614-2", "Homo sapiens",
+install_IMGT_germline_db("202631-1", "Homo sapiens",
                          auto.auxdata=FALSE, overwrite=TRUE)
-install_IMGT_germline_db("202614-2", "Mus musculus",
+install_IMGT_germline_db("202631-1", "Mus musculus",
                          auto.auxdata=FALSE, overwrite=TRUE)
-install_IMGT_germline_db("202614-2", "Rattus norvegicus",
+install_IMGT_germline_db("202631-1", "Rattus norvegicus",
                          auto.auxdata=FALSE, overwrite=TRUE)
-install_IMGT_germline_db("202614-2", "Oryctolagus cuniculus",
+install_IMGT_germline_db("202631-1", "Oryctolagus cuniculus",
                          auto.auxdata=FALSE, overwrite=TRUE)
 
 test_that("translate_J_alleles()", {
@@ -26,9 +26,9 @@ test_that("translate_J_alleles()", {
     expect_identical(J_aa[["IGHJ1*01"]], "AEYFQHWGQGTLVTVSS")
     expect_true(all(grepl("[WF]G.G", J_aa)))
 
-    db_name <- "IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL"
     J_alleles <- load_germline_sequences(db_name, region_types="J")
-    ## 3 human J alleles in IMGT release 202614-2 have no entries
+    ## 3 human J alleles in IMGT release 202631-1 have no entries
     ## in 'auxdata'. Note that this could change in the future.
     expected_unknown <- c("IGHJ5*03", "IGHJ5*04", "IGKJ4*03")
     allele_is_known <- names(J_alleles) %in% auxdata$allele_name
@@ -42,9 +42,9 @@ test_that("translate_J_alleles()", {
 
     auxdata <- load_auxdata("mouse", which="original")
 
-    db_name <- "IMGT-202614-2.Mus_musculus.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Mus_musculus.IGH+IGK+IGL"
     J_alleles <- load_germline_sequences(db_name, region_types="J")
-    ## 3 mouse J alleles in IMGT release 202614-2 have no entries
+    ## 3 mouse J alleles in IMGT release 202631-1 have no entries
     ## in 'auxdata'. Note that this could change in the future.
     expected_unknown <- c("IGLJ2P*01", "IGLJ4*01_Mus_spretus",
                           "IGLJ5*01_Mus_spretus")
@@ -70,7 +70,7 @@ test_that("J_allele_has_stop_codon()", {
     expect_identical(names(has_stop_codon), names(J_alleles))
     expect_false(any(has_stop_codon))
 
-    db_name <- "IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL"
     J_alleles <- load_germline_sequences(db_name, region_types="J")
     allele_is_known <- names(J_alleles) %in% auxdata$allele_name
     has_stop_codon <- J_allele_has_stop_codon(J_alleles, auxdata)
@@ -81,7 +81,7 @@ test_that("J_allele_has_stop_codon()", {
 
     auxdata <- load_auxdata("rabbit", which="original")
 
-    db_name <- "IMGT-202614-2.Oryctolagus_cuniculus.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Oryctolagus_cuniculus.IGH+IGK+IGL"
     J_alleles <- load_germline_sequences(db_name, region_types="J")
     has_stop_codon <- J_allele_has_stop_codon(J_alleles, auxdata)
     expect_false(anyNA(has_stop_codon))
@@ -107,7 +107,7 @@ test_that("translate_fwr4()", {
     expect_true(all(nchar(fwr4_head) == 4L))
     expect_true(all(grepl("^[WF]G.G$", fwr4_head)))
 
-    db_name <- "IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL"
     J_alleles <- load_germline_sequences(db_name, region_types="J")
     allele_is_known <- names(J_alleles) %in% auxdata$allele_name
     fwr4_head <- translate_fwr4(J_alleles, auxdata, max.codons=4L)
@@ -118,9 +118,9 @@ test_that("translate_fwr4()", {
 
     auxdata <- load_auxdata("mouse", which="original")
 
-    db_name <- "IMGT-202614-2.Mus_musculus.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Mus_musculus.IGH+IGK+IGL"
     J_alleles <- load_germline_sequences(db_name, region_types="J")
-    ## 3 mouse J alleles in IMGT release 202614-2 have no entries
+    ## 3 mouse J alleles in IMGT release 202631-1 have no entries
     ## in 'auxdata'. Note that this could change in the future.
     allele_is_known <- names(J_alleles) %in% auxdata$allele_name
     expect_true(sum(!allele_is_known) <= 3L)
@@ -128,7 +128,7 @@ test_that("translate_fwr4()", {
     known_J_alleles <- J_alleles[allele_is_known]
     fwr4_head <- translate_fwr4(known_J_alleles, auxdata, max.codons=4L)
     expect_false(anyNA(fwr4_head))
-    ## 3 "known" mouse J alleles in IMGT release 202614-2 don't have
+    ## 3 "known" mouse J alleles in IMGT release 202631-1 don't have
     ## the expected motif at the beginning of their FWR4 region.
     ## Is this expected? Could this change in the future?
     surprise <- fwr4_head[!grepl("^[WF]G.G$", fwr4_head)]
@@ -139,7 +139,7 @@ test_that("translate_fwr4()", {
 
     auxdata <- load_auxdata("rat", which="original")
 
-    db_name <- "IMGT-202614-2.Rattus_norvegicus.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Rattus_norvegicus.IGH+IGK+IGL"
     J_alleles <- load_germline_sequences(db_name, region_types="J")
     fwr4_head <- translate_fwr4(J_alleles, auxdata, max.codons=4L)
     ## translate_fwr4() uses 'auxdata$cdr3_end' to get the position of
@@ -149,7 +149,7 @@ test_that("translate_fwr4()", {
     expect_identical(names(fwr4_head)[!ok], "IGKJ3*01")
     ## Get rid of IGKJ3*01.
     fwr4_head <- fwr4_head[ok]
-    ## 2 "known" rat J alleles in IMGT release 202614-2 don't have
+    ## 2 "known" rat J alleles in IMGT release 202631-1 don't have
     ## the expected motif at the beginning of their FWR4 region.
     ## Is this expected? Could this change in the future?
     surprise <- fwr4_head[!grepl("^[WF]G.G$", fwr4_head)]

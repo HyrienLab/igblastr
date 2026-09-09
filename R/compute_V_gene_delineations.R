@@ -4,6 +4,101 @@
 ###
 
 
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### FWR/CDR fixed end positions w.r.t. the V gapped sequences
+###
+
+### The IMGT unique numbering provides a standardized delimitation of
+### the FWR and CDR regions. This standard relies on the maximum observed
+### FWR/CDR widths reported by IMGT. Gaps are inserted in the germline V gene
+### protein sequences so that the widths of the gapped FWR/CDR regions are
+### effectively the maximum observed widths.
+### See https://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html
+IMGT_FWRCDR_WIDTHS <- c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L)
+
+### There are some exceptions to this rule though.
+
+### Not exported!
+### In the IMGT gapped sequences for rhesus monkey, the end of the FWR1 regions
+### is at position 27 (in amino acid space) instead of standard position 26. As
+### a result, the CDR1/FWR2/CDR2/FWR3 are shifted downstream by 1 position.
+RHESUS_MONKEY_FWRCDR_WIDTHS <- list(
+    IGH=c(fwr1=27L, cdr1=13L, fwr2=17L, cdr2=10L, fwr3=39L),
+    IGK=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L),
+    IGL=c(fwr1=27L, cdr1=12L, fwr2=19L, cdr2=10L, fwr3=39L)
+)
+
+### Not exported!
+### In the IMGT gapped sequences for rainbow trout, the end of the FWR1 regions
+### is at position 29 (in amino acid space) instead of standard position 26. As
+### a result, the CDR1/FWR2/CDR2/FWR3 are shifted downstream by 3 positions.
+RAINBOW_TROUT_FWRCDR_WIDTHS <- IMGT_FWRCDR_WIDTHS
+RAINBOW_TROUT_FWRCDR_WIDTHS[[1L]] <- RAINBOW_TROUT_FWRCDR_WIDTHS[[1L]] + 3L
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### normarg_gapped_V_alleles()
+### normarg_fwrcdr_widths()
+### warn_if_allele_sequences_have_no_gaps()
+###
+
+### Not exported!
+### Input must be the path to a FASTA file or a named DNAStringSet object.
+### If the former, returns a BStringSet object. Otherwise, returns the
+### input DNAStringSet object. In both cases, the names on the returned
+### object are passed thru clean_imgt_fasta_headers().
+normarg_gapped_V_alleles <- function(gapped_V_alleles)
+{
+    if (isSingleString(gapped_V_alleles)) {
+        what <- paste0("some allele names in ", gapped_V_alleles)
+        ## Some IMGT FASTA files (e.g. for Aotus_nancymaae and
+        ## Nonhuman_primates) have nucleotide sequences that contain
+        ## the letter 'x'. Not sure what that's supposed to represent.
+        ## Note that a well established consensus is to use 'n' or 'N' to
+        ## represent an unknown nucleotide (wildcard). Anyways, this breaks
+        ## readDNAStringSet() so we use readBStringSet() instead.
+        gapped_V_alleles <- readBStringSet(gapped_V_alleles)
+        allele_names <- names(gapped_V_alleles)
+    } else if (is(gapped_V_alleles, "DNAStringSet")) {
+        allele_names <- names(gapped_V_alleles)
+        if (is.null(allele_names))
+            stop(wmsg("DNAStringSet object 'gapped_V_alleles' ",
+                      "must have names on it"))
+        what <- "some of the names on 'gapped_V_alleles'"
+    } else {
+        stop(wmsg("'gapped_V_alleles' must be a DNAStringSet object ",
+                  "containing germline V gene allele gapped sequences, ",
+                  "or the path to a FASTA file containing such sequences"))
+    }
+    names(gapped_V_alleles) <- clean_imgt_fasta_headers(allele_names, what)
+    gapped_V_alleles
+}
+
+### Not exported!
+normarg_fwrcdr_widths <- function(fwrcdr_widths)
+{
+    if (!is.numeric(fwrcdr_widths))
+        stop(wmsg("'fwrcdr_widths' must be an integer vector"))
+    expected_len <- length(IMGT_FWRCDR_WIDTHS)
+    if (length(fwrcdr_widths) != expected_len)
+        stop(wmsg("'fwrcdr_widths' must have ", expected_len, " elements"))
+    nms <- names(fwrcdr_widths)
+    if (is.null(nms))
+        stop(wmsg("'fwrcdr_widths' must have names"))
+    expected_nms <- names(IMGT_FWRCDR_WIDTHS)
+    if (!identical(nms, expected_nms)) {
+        in1string <- paste(expected_nms, collapse=", ")
+        stop(wmsg("the names on 'fwrcdr_widths' must be: ", in1string))
+    }
+    if (!is.integer(fwrcdr_widths))
+        fwrcdr_widths <- setNames(as.integer(fwrcdr_widths), expected_nms)
+    if (anyNA(fwrcdr_widths))
+        stop(wmsg("'fwrcdr_widths' cannot contain NAs"))
+    if (!all(fwrcdr_widths >= 1L))
+        stop(wmsg("all values in 'fwrcdr_widths' must be >= 1"))
+    fwrcdr_widths
+}
+
 ### Not exported!
 warn_if_allele_sequences_have_no_gaps <- function(ngaps)
 {
@@ -17,31 +112,6 @@ warn_if_allele_sequences_have_no_gaps <- function(ngaps)
     warning(wmsg(length(bad_idx), "/", length(ngaps), " V allele sequences ",
                  "have no gaps (e.g. allele ", first_bad_allele, ")"))
 }
-
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### FWR/CDR fixed end positions w.r.t. the V gapped sequences
-###
-
-### The IMGT unique numbering provides a standardized delimitation of
-### the FWR and CDR regions. This standard is based on fixed FWR/CDR lengths
-### with respect to the germline V gene **gapped** protein sequences.
-### See https://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html
-IMGT_FWRCDR_ENDS <- c(fwr1=26L, cdr1=38L, fwr2=55L, cdr2=65L, fwr3=104L)
-
-### There are some exceptions to this rule though.
-
-### Not exported!
-### In the IMGT gapped sequences for rhesus monkey, the end of the FWR1 regions
-### is at position 27 (in amino acid space) instead of standard position 26. As
-### a result, the CDR1/FWR2/CDR2/FWR3 are shifted downstream by 1 position.
-RHESUS_MONKEY_FWRCDR_ENDS <- IMGT_FWRCDR_ENDS + 1L
-
-### Not exported!
-### In the IMGT gapped sequences for rainbow trout, the end of the FWR1 regions
-### is at position 29 (in amino acid space) instead of standard position 26. As
-### a result, the CDR1/FWR2/CDR2/FWR3 are shifted downstream by 3 positions.
-RAINBOW_TROUT_FWRCDR_ENDS <- IMGT_FWRCDR_ENDS + 3L
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -72,32 +142,6 @@ stopifnot(
         c("seq_len", "starting_gap", "all_gaps_in_frame", "all_gaps_contained")
     )
 )
-
-.normarg_fwrcdr_ends <- function(fwrcdr_ends)
-{
-    if (!is.numeric(fwrcdr_ends))
-        stop(wmsg("'fwrcdr_ends' must be an integer vector"))
-    expected_len <- length(IMGT_FWRCDR_ENDS)
-    if (length(fwrcdr_ends) != expected_len)
-        stop(wmsg("'fwrcdr_ends' must have ", expected_len, " elements"))
-    nms <- names(fwrcdr_ends)
-    if (is.null(nms))
-        stop(wmsg("'fwrcdr_ends' must have names"))
-    expected_nms <- names(IMGT_FWRCDR_ENDS)
-    if (!identical(nms, expected_nms)) {
-        in1string <- paste(expected_nms, collapse=", ")
-        stop(wmsg("the names on 'fwrcdr_ends' must be: ", in1string))
-    }
-    if (!is.integer(fwrcdr_ends))
-        fwrcdr_ends <- setNames(as.integer(fwrcdr_ends), expected_nms)
-    if (anyNA(fwrcdr_ends))
-        stop(wmsg("'fwrcdr_ends' cannot contain NAs"))
-    if (!all(fwrcdr_ends >= 1L))
-        stop(wmsg("all values in 'fwrcdr_ends' must be >= 1"))
-    if (is.unsorted(fwrcdr_ends, strictly=TRUE))
-        stop(wmsg("'fwrcdr_ends' must be strictly sorted"))
-    fwrcdr_ends
-}
 
 ### Do the supplied ranges align with the underlying coding frame?
 ### Returns a logical vector parallel to 'dna_ranges'.
@@ -142,9 +186,9 @@ stopifnot(
 ###   underlying coding frame or not;
 ### - all_gaps_contained: TRUE if the gap blocks don't cross the FWR/CDR
 ###   boundaries.
-.compute_fwrcdr_real_lengths <- function(gap_pos, imgt_bins)
+.compute_fwrcdr_real_widths <- function(gap_pos, imgt_bins)
 {
-    stopifnot(is(gap_pos, "IRanges"), is(imgt_bins, "PartitioningByEnd"))
+    stopifnot(is(gap_pos, "IRanges"), is(imgt_bins, "PartitioningByWidth"))
     gap_pos <- as(gap_pos, "StitchedIPos")
 
     ## Fastest way to check that the gap positions are strictly sorted.
@@ -183,10 +227,10 @@ stopifnot(
     stopifnot(is(IRL, "CompressedIRangesList"))
     IRL_len <- length(IRL)
     all_ranges <- unlist(IRL, use.names=FALSE)
-    expected_names <- rep.int(names(IMGT_FWRCDR_ENDS), IRL_len)
+    expected_names <- rep.int(names(IMGT_FWRCDR_WIDTHS), IRL_len)
     stopifnot(identical(expected_names, names(all_ranges)))
 
-    idx0 <- seq_len(IRL_len) * length(IMGT_FWRCDR_ENDS)
+    idx0 <- seq_len(IRL_len) * length(IMGT_FWRCDR_WIDTHS)
     df <- data.frame(
         allele_name=names(IRL),
         fwr1_start =start(all_ranges)[idx0 - 4L],
@@ -211,39 +255,16 @@ stopifnot(
 ### issue a warning if that's not the case).
 ### Returns a data.frame with 1 row per sequence in 'gapped_V_alleles'.
 compute_V_gene_delineations <- function(gapped_V_alleles,
-                                        fwrcdr_ends=IMGT_FWRCDR_ENDS,
+                                        fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
                                         as.IRangesList=FALSE)
 {
-    fwrcdr_ends <- .normarg_fwrcdr_ends(fwrcdr_ends)
+    gapped_V_alleles <- normarg_gapped_V_alleles(gapped_V_alleles)
+    fwrcdr_widths <- normarg_fwrcdr_widths(fwrcdr_widths)
     if (!isTRUEorFALSE(as.IRangesList))
         stop(wmsg("'as.IRangesList' must be TRUE or FALSE"))
-    if (isSingleString(gapped_V_alleles)) {
-        what <- paste0("some allele names in ", gapped_V_alleles)
-        ## Some IMGT FASTA files (e.g. for Aotus_nancymaae and
-        ## Nonhuman_primates) have nucleotide sequences that contain
-        ## the letter 'x'. Not sure what that's supposed to represent.
-        ## Note that a well established consensus is to use 'n' or 'N' to
-        ## represent an unknown nucleotide (wildcard). Anyways, this breaks
-        ## readDNAStringSet() so we use readBStringSet() instead.
-        gapped_V_alleles <- readBStringSet(gapped_V_alleles)
-        allele_names <- names(gapped_V_alleles)
-    } else if (is(gapped_V_alleles, "DNAStringSet") ||
-               is(gapped_V_alleles, "BStringSet"))
-    {
-        allele_names <- names(gapped_V_alleles)
-        if (is.null(allele_names))
-            stop(wmsg("'gapped_V_alleles' must have names"))
-        what <- "some of the names on 'gapped_V_alleles'"
-    } else {
-        stop(wmsg("'gapped_V_alleles' must be a DNAStringSet or BStringSet ",
-                  "object, or the path to a FASTA file containing the gapped ",
-                  "sequences of the germline V gene alleles"))
-    }
-
-    names(gapped_V_alleles) <- clean_imgt_fasta_headers(allele_names, what)
 
     ## IMGT FWR/CDR fixed intervals in nucleotide space.
-    imgt_bins <- PartitioningByEnd(fwrcdr_ends * 3L)
+    imgt_bins <- PartitioningByWidth(fwrcdr_widths * 3L)
     midx <- vmatchPattern(GAP_LETTER, gapped_V_alleles)
 
     ## Note that lengths() should propagate the names by default but it
@@ -256,15 +277,15 @@ compute_V_gene_delineations <- function(gapped_V_alleles,
     warn_if_allele_sequences_have_no_gaps(ngaps)
     seq_len <- width(gapped_V_alleles) - ngaps  # lengths of ungapped sequences
 
-    all_real_lens <- lapply(midx, .compute_fwrcdr_real_lengths, imgt_bins)
-    tmp <- lapply(all_real_lens, PartitioningByWidth)
+    all_real_widths <- lapply(midx, .compute_fwrcdr_real_widths, imgt_bins)
+    tmp <- lapply(all_real_widths, PartitioningByWidth)
     IRL <- as(tmp, "CompressedIRangesList")
     starting_gap <-
-        vapply(all_real_lens, attr, integer(1), "starting_gap")
+        vapply(all_real_widths, attr, integer(1), "starting_gap")
     all_gaps_in_frame <-
-        vapply(all_real_lens, attr, logical(1), "all_gaps_in_frame")
+        vapply(all_real_widths, attr, logical(1), "all_gaps_in_frame")
     all_gaps_contained <-
-        vapply(all_real_lens, attr, logical(1), "all_gaps_contained")
+        vapply(all_real_widths, attr, logical(1), "all_gaps_contained")
     coding_frame_start <- 2L - (starting_gap + 2L) %% 3L
     mcols(IRL) <- DataFrame(seq_len=seq_len,
                             coding_frame_start=coding_frame_start,

@@ -249,7 +249,7 @@ solve_cdr3_ends_using_fwr4_dna_PWM(auxdata, J_alleles,
 
 \seealso{
   \itemize{
-    \item \code{\link{print_J_alleles}} to display a set of J alleles
+    \item \code{\link{print_J_alleles}} to display a set of J allele
           sequences where the sequences are justified w.r.t. their
           CDR3/FWR4 junction.
 
@@ -330,7 +330,7 @@ stopifnot(identical(computed_auxdata, human_auxdata))
 ## We start by downloading the IMGT FASTA files for mouse to a
 ## temporary directory:
 dir.create(mouse_destdir <- tempfile("fasta_dir_"))
-download_IMGT_germline_sequences("202614-2",
+download_IMGT_germline_sequences("202631-1",
                                  organism="Mus_musculus",
                                  destdir=mouse_destdir)
 ## List the downloaded files:
@@ -425,7 +425,7 @@ print_J_alleles(J_alleles, auxdata4a, translate=TRUE,
 ## retrieve directly from IMGT/V-QUEST.
 
 dir.create(ferret_destdir <- tempfile("fasta_dir_"))
-download_IMGT_germline_sequences("202614-2",
+download_IMGT_germline_sequences("202631-1",
                                  organism="Mustela_putorius_furo",
                                  destdir=ferret_destdir)
 ## List the downloaded files:

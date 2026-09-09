@@ -1,6 +1,27 @@
 High-priority TODO list
 =======================
 
+o Handling of user-supplied 'V_alleles' and 'intdata' in
+  count_conserved_V_codons() is inconsistent with handling of
+  user-supplied 'J_alleles' and 'intdata' in print_J_alleles().
+  Fix that.
+
+o The 1st argument ('J_alleles') of all exported functions in
+  R/J_alleles-inspect.R should accept the name of an existing germline db
+  like print_J_alleles() does.
+  Uniformize documentation of 'J_alleles' argument in man/J_alleles-inspect.Rd
+  and in man/print_J_alleles.Rd.
+
+o The 1st argument ('V_alleles') of print_gapped_V_alleles() and all exported
+  functions in R/V_alleles-inspect.R should accept the name of an existing
+  germline db like count_conserved_V_codons() does.
+  Uniformize documentation of 'V_alleles' argument in man/V_alleles-inspect.Rd
+  and man/print_gapped_V_alleles.Rd (should also align with documentation
+  of 'J_alleles' argument in man/J_alleles-inspect.Rd and in
+  man/print_J_alleles.Rd).
+
+o Complete print_gapped_V_alleles() man page.
+
 o install_OGRDB_germline_db():
   - complete man page
   - improve examples

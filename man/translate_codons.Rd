@@ -120,7 +120,7 @@ translate_codons(dna2, with.init.codon=TRUE)
 ## ---------------------------------------------------------------------
 if (IMGT_is_up()) {
   dir.create(destdir <- tempfile("fasta_dir_"))
-  download_IMGT_germline_sequences("202614-2", organism="Homo sapiens",
+  download_IMGT_germline_sequences("202631-1", organism="Homo sapiens",
                                    destdir=destdir)
   gapped_V_alleles <- readDNAStringSet(file.path(destdir, "IGKV.fasta"))
 

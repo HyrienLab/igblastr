@@ -147,7 +147,7 @@ warn_if_negative_cdr3_end <- function(auxdata, what)
 compute_auxdata <- function(J_alleles, codon_starts=NULL, no.warnings=FALSE)
 {
     if (!is(J_alleles, "DNAStringSet"))
-        stop(wmsg("'J_alleles' must be DNAStringSet object"))
+        stop(wmsg("'J_alleles' must be a DNAStringSet object"))
     fasta_headers <- names(J_alleles)
     if (is.null(fasta_headers))
         stop(wmsg("'J_alleles' must have names"))

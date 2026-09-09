@@ -17,7 +17,7 @@
 install_custom_germline_db(db_name, fasta_dir, tcr.db=FALSE, loci="auto",
                            imgt.fasta.headers=FALSE,
                            gapped=FALSE, intdata=NULL,
-                           fwrcdr_ends=IMGT_FWRCDR_ENDS,
+                           fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
                            auxdata=NULL, ref_auxdata=NULL,
                            disambiguate.allele.names=FALSE,
                            overwrite=FALSE, verbose=FALSE)
@@ -123,9 +123,9 @@ install_custom_germline_db(db_name, fasta_dir, tcr.db=FALSE, loci="auto",
     Also see \code{?\link{load_intdata}} for more information about IgBLAST
     \emph{internal data}.
   }
-  \item{fwrcdr_ends}{
-    A named integer vector containing the FWR/CDR fixed end positions
-    w.r.t. the translated V gapped sequences.
+  \item{fwrcdr_widths}{
+    A named integer vector containing the maximum observed FWR/CDR widths.
+    See \code{?\link{compute_V_gene_delineations}} for more information.
     Passed to internal call to \code{\link{compute_V_gene_delineations}()}
     if \code{intdata} is set to \code{"auto"}. Ignored otherwise.
   }
@@ -395,7 +395,7 @@ stopifnot(identical(intdataC, load_intdata(db_name0)))
 ##   1. Use download_IMGT_germline_sequences() to download IMGT FASTA
 ##      files containing the gapped sequences for mouse.
 ##   2. Use these FASTA files to create and install a new germline db.
-##   3. Install IMGT-202614-2.Mus_musculus.IGH+IGK+IGL and compare it
+##   3. Install IMGT-202631-1.Mus_musculus.IGH+IGK+IGL and compare it
 ##      with the germline db obtained in 2.
 ##   4. Leverage the IgBLAST-provided "auxiliary data" to complete
 ##      the "auxiliary data" computed by install_IMGT_germline_db().
@@ -406,7 +406,7 @@ if (IMGT_is_up()) {
 
   list_IMGT_releases()
   dir.create(exD_fasta_dir <- tempfile())
-  download_IMGT_germline_sequences("202614-2", organism="Mus musculus",
+  download_IMGT_germline_sequences("202631-1", organism="Mus musculus",
                                    destdir=exD_fasta_dir)
 
   list.files(exD_fasta_dir)  # 7 FASTA files
@@ -425,10 +425,10 @@ if (IMGT_is_up()) {
                        # presence of "internal data" and "auxiliary data"
                        # in the new db
 
-  ## --- 3. Install IMGT-202614-2.Mus_musculus.IGH+IGK+IGL and ---
+  ## --- 3. Install IMGT-202631-1.Mus_musculus.IGH+IGK+IGL and ---
   ## ---       compare it with cus.exD.mouse.IGH+IGK+IGL       ---
 
-  db_name <- install_IMGT_germline_db("202614-2", "Mus musculus",
+  db_name <- install_IMGT_germline_db("202631-1", "Mus musculus",
                                       overwrite=TRUE)
 
   ## Let's check that the two dbs contain the same sequences:
@@ -470,7 +470,7 @@ if (IMGT_is_up()) {
                              overwrite=TRUE)
 
   ## Now cus.exD.mouse.IGH+IGK+IGL and
-  ## IMGT-202614-2.Mus_musculus.IGH+IGK+IGL contain the
+  ## IMGT-202631-1.Mus_musculus.IGH+IGK+IGL contain the
   ## same "auxiliary data":
   auxdataD <- load_auxdata(exD_db_name)
   stopifnot(identical(auxdataD, load_auxdata(db_name)))

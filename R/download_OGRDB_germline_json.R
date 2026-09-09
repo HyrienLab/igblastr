@@ -244,7 +244,7 @@ extract_intdata_from_ogrdb_json <- function(json_path, extra_fields=NULL)
 ### Returns the intdata in a data.frame.
 .compute_intdata_from_OGRDB_gapped_V_sequences <-
     function(organism, germline_set, source_set=FALSE, recache=FALSE, ...,
-             fwrcdr_ends=IMGT_FWRCDR_ENDS)
+             fwrcdr_widths=IMGT_FWRCDR_WIDTHS)
 {
     tmp_dir <- tempfile()
     dir.create(tmp_dir)
@@ -263,7 +263,7 @@ extract_intdata_from_ogrdb_json <- function(json_path, extra_fields=NULL)
     stopifnot(length(V_fasta_file) == 1L)
 
     intdata <- compute_V_gene_delineations(V_fasta_file,
-                                           fwrcdr_ends=fwrcdr_ends)
+                                           fwrcdr_widths=fwrcdr_widths)
     locus <- extract_loci_from_OGRDB_set_names(organism, names(germline_set))
     intdata$chain_type <- make_chain_type("V", locus)
     intdata[ , names(NDM_DATA_COL2CLASS)]
@@ -290,7 +290,7 @@ extract_intdata_from_ogrdb_json <- function(json_path, extra_fields=NULL)
 ### FALSE if they don't.
 validate_OGRDB_intdata <- function(organism, germline_set, source_set=FALSE,
                                    recache=FALSE, ...,
-                                   fwrcdr_ends=IMGT_FWRCDR_ENDS)
+                                   fwrcdr_widths=fwrcdr_widths)
 {
     organism <- normalize_OGRDB_organism(organism)
     germline_set <- normalize_OGRDB_germline_sets(germline_set)
@@ -305,7 +305,7 @@ validate_OGRDB_intdata <- function(organism, germline_set, source_set=FALSE,
                                     organism, germline_set,
                                     source_set=source_set,
                                     recache=recache, ...,
-                                    fwrcdr_ends=fwrcdr_ends)
+                                    fwrcdr_widths=fwrcdr_widths)
 
 
     ## Method 2: Extract intdata from OGRDB json file.

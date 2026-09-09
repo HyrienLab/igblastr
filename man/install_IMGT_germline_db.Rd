@@ -103,7 +103,7 @@ install_IMGT_c_region_db(organism, loci,
   \preformatted{    IMGT-<release>.<organism>.<loci>}
   where:
   \enumerate{
-    \item <release> is the IMGT/V-QUEST release e.g. 202614-2 or 202449-1.
+    \item <release> is the IMGT/V-QUEST release e.g. 202631-1 or 202449-1.
           Use \code{list_IMGT_releases()} to get the list of releases
           currently available at IMGT/V-QUEST.
     \item <organism> is the latin name (a.k.a. binomial name) of the
@@ -179,25 +179,25 @@ if (IMGT_is_up()) {
   ## BASIC EXAMPLES
   ## -------------------------------------------------------------------
 
-  ## As of April 10, 2026, the latest IMGT/V-QUEST release is 202614-2:
+  ## In Aug 2026, the latest IMGT/V-QUEST release was 202631-1:
   list_IMGT_releases()
 
-  list_IMGT_organisms("202614-2")
+  list_IMGT_organisms("202631-1")
 
   ## Download human BCR germline gene allele sequences from IMGT/V-QUEST
-  ## release 202614-2, and store them in a cached germline database:
-  install_IMGT_germline_db("202614-2", organism="Homo sapiens",
+  ## release 202631-1, and store them in a cached germline database:
+  install_IMGT_germline_db("202631-1", organism="Homo sapiens",
                            overwrite=TRUE)
 
   ## List the cached germline databases:
   list_germline_dbs()
 
   ## Select newly installed germline db to use with igblastn():
-  use_germline_db("IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL")
+  use_germline_db("IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL")
 
   ## Download human TCR germline gene allele sequences from IMGT/V-QUEST
-  ## release 202614-2, and store them in a cached germline database:
-  install_IMGT_germline_db("202614-2", organism="Homo sapiens",
+  ## release 202631-1, and store them in a cached germline database:
+  install_IMGT_germline_db("202631-1", organism="Homo sapiens",
                            tcr.db=TRUE, overwrite=TRUE)
   list_germline_dbs()
 
@@ -206,7 +206,7 @@ if (IMGT_is_up()) {
   ## -------------------------------------------------------------------
 
   ## Install an IMGT database for a subset of TCR loci:
-  install_IMGT_germline_db("202614-2", organism="Homo sapiens",
+  install_IMGT_germline_db("202631-1", organism="Homo sapiens",
                            loci="TRA+TRB", overwrite=TRUE)
   list_germline_dbs()
 
@@ -224,7 +224,7 @@ if (IMGT_is_up()) {
   ## install_IMGT_germline_db() emits a warning if the igblastr-generated
   ## "internal data" has disagreements with the "internal data" provided
   ## by IgBLAST. For example:
-  suppressMessages(install_IMGT_germline_db("202614-2", "Homo sapiens",
+  suppressMessages(install_IMGT_germline_db("202631-1", "Homo sapiens",
                                             tcr.db=TRUE, overwrite=TRUE))
 }
 }

@@ -56,9 +56,11 @@ V_allele_has_stop_codon(V_alleles, intdata)
 
 \seealso{
   \itemize{
-    \item \code{\link{load_intdata}} to access IgBLAST \emph{internal data}.
+    \item \code{\link{print_gapped_V_alleles}} to display a set of gapped
+          V allele sequences where the sequences are colored and split by
+          FWR/CDR regions.
 
-    \item \code{\link{load_auxdata}} to access IgBLAST \emph{auxiliary data}.
+    \item \code{\link{load_intdata}} to access IgBLAST \emph{internal data}.
 
     \item \link{J_alleles_inspect} for basic inspection of J allele sequences.
 

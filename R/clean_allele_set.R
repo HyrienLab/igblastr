@@ -244,7 +244,7 @@ check_locus <- function(locus, what)
 ### - carries the names and metadata columns of input object 'allele_set';
 ### - also carries the annotations obtained with compute_V_gene_delineations()
 ###   in additional metadata columns.
-.annotate_V_alleles <- function(allele_set, fwrcdr_ends=IMGT_FWRCDR_ENDS,
+.annotate_V_alleles <- function(allele_set, fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
                                 verbose=FALSE)
 {
     if (verbose) {
@@ -264,7 +264,8 @@ check_locus <- function(locus, what)
     check_locus(locus, "the \"locus\" metadata column on 'allele_set'")
 
     ## Annotate the V alleles based on their gaps.
-    intdata <- compute_V_gene_delineations(allele_set, fwrcdr_ends=fwrcdr_ends)
+    intdata <- compute_V_gene_delineations(allele_set,
+                                           fwrcdr_widths=fwrcdr_widths)
     stopifnot(identical(intdata[ , "allele_name"], allele_names))
 
     ## Add "chain_type" column.
@@ -318,29 +319,9 @@ check_locus <- function(locus, what)
 ### Propagate the names.
 .extract_codon_starts <- function(headers)
 {
-    parsed_headers <- parse_imgt_fasta_headers(headers)
+    parsed_headers <- parse_imgt_fasta_headers(headers)  # character matrix
     codon_starts <- parsed_headers[ , "codon_start"]
-    allele_name  <- parsed_headers[ , "allele_name"]
-    organism     <- parsed_headers[ , "organism"]
-    ## The codon start reported by IMGT for human allele TRDJ4*01 has changed
-    ## from 3 to 1 between IMGT releases 202603-4 and 202611-4, but the DNA
-    ## sequence of the allele has not changed. It's still:
-    ##   CCAGACCCCTGATCTTTGGCAAAGGAACCTATCTGGAGGTACAACAAC  (48 nuc)
-    ## With the old codon start (3), the coding frame translates to:
-    ##   RPLIFGKGTYLEVQQ
-    ## Note the presence of conserved motif FGXG at positions 5-8.
-    ## With the new codon start (1), the coding frame translates to:
-    ##   PDP*SLAKEPIWRYNN
-    ## Note the presence of a stop codon at position 4. Also now the
-    ## conserved motif is gone.
-    ## So we revert this back!
-    ## I reported this to the IMGT folks on June 7, 2026.
-    bad_idx <- which(organism == "Homo sapiens" & allele_name == "TRDJ4*01")
-    if (length(bad_idx) != 0L) {
-        stopifnot(length(bad_idx) == 1L)
-        codon_starts[[bad_idx]] <- 3L
-    }
-    setNames(as.integer(codon_starts), names(codon_starts))
+    setNames(as.integer(codon_starts), names(headers))
 }
 
 .auxdata_completeness <- function(auxdata, verbose=FALSE)
@@ -569,7 +550,7 @@ clean_allele_set <- function(allele_set,
 ### additional metadata columns.
 clean_V_allele_set <- function(allele_set,
                                gapped=FALSE, auto.intdata=FALSE,
-                               fwrcdr_ends=IMGT_FWRCDR_ENDS,
+                               fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
                                disambiguate.allele.names=FALSE,
                                verbose=FALSE)
 {
@@ -589,7 +570,7 @@ clean_V_allele_set <- function(allele_set,
         if (auto.intdata) {
             ## (Bv1) Annotate the V alleles.
             allele_set <- .annotate_V_alleles(allele_set,
-                                              fwrcdr_ends=fwrcdr_ends,
+                                              fwrcdr_widths=fwrcdr_widths,
                                               verbose=verbose)
         } else {
             warn_if_allele_sequences_have_no_gaps(ngaps)

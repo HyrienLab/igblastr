@@ -116,7 +116,8 @@ show_intdata_disagreements <- function(db_name)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### count_cysteines()
+### count_conserved_V_codons()
+### summarize_anchor_V_residues()
 ###
 
 .get_amino_acids_at <- function(V_alleles, codon_ends)
@@ -126,113 +127,126 @@ show_intdata_disagreements <- function(db_name)
     codon_starts <- codon_ends - 2L
     idx <- which(codon_starts >= 1L & codon_ends <= width(V_alleles))
     codons <- subseq(V_alleles[idx], codon_starts[idx], codon_ends[idx])
-    translate(codons)
+    translate(codons, no.init.codon=TRUE, if.fuzzy.codon="solve")
 }
 
 ### Not exported!
-### On the ungapped germline V gene allele sequences, the codons for cysteines
-### 23 and 104 are expected to be found at positions fwr1_end-11 to fwr1_end-9
-### for the former and fwr3_end-2 to fwr3_end for the latter. This is a quick
-### and easy way to validate the intdata of a germline db.
-### Returns a data.frame with 1 row per codon and columns "nb_cys", "other",
-### and "percent_cys".
-count_cysteines <- function(db_name)
+### If the 2nd argument ('intdata') is missing then the 1st argument
+### ('V_alleles') must be the name of an existing germline db.
+### IMGT codons 23 (fwr1), 41 (fwr2), and 104 (fwr3) are expected to
+### translate to C, W, and C, respectively (conserved codons).
+### Returns a data.frame with 1 row per codon of interest and the
+### following columns: C_count, W_count, other, percent_C, percent_W.
+count_conserved_V_codons <- function(V_alleles, intdata)
 {
-    V_alleles <- load_germline_sequences(db_name, region_types="V")
-    intdata <- load_intdata(db_name)
-    stopifnot(identical(names(V_alleles), intdata[ , "allele_name"]))
-    codon22  <- .get_amino_acids_at(V_alleles, intdata[ , "fwr1_end"] - 12L)
-    codon23  <- .get_amino_acids_at(V_alleles, intdata[ , "fwr1_end"] - 9L)
-    codon24  <- .get_amino_acids_at(V_alleles, intdata[ , "fwr1_end"] - 6L)
-    codon25  <- .get_amino_acids_at(V_alleles, intdata[ , "fwr1_end"] - 3L)
-    codon26  <- .get_amino_acids_at(V_alleles, intdata[ , "fwr1_end"])
-    codon103 <- .get_amino_acids_at(V_alleles, intdata[ , "fwr3_end"] - 3L)
-    codon104 <- .get_amino_acids_at(V_alleles, intdata[ , "fwr3_end"])
-    codon105 <- .get_amino_acids_at(V_alleles, intdata[ , "fwr3_end"] + 3L)
-    nb_cys <- c(sum(codon22 == "C"),
-                sum(codon23 == "C"),
-                sum(codon24 == "C"),
-                sum(codon25 == "C"),
-                sum(codon26 == "C"),
-                sum(codon103 == "C"),
-                sum(codon104 == "C"),
-                sum(codon105 == "C"))
-    other  <- c(sum(codon22 != "C"),
-                sum(codon23 != "C"),
-                sum(codon24 != "C"),
-                sum(codon25 != "C"),
-                sum(codon26 != "C"),
-                sum(codon103 != "C"),
-                sum(codon104 != "C"),
-                sum(codon105 != "C"))
-    lens   <- c(length(codon22),
-                length(codon23),
-                length(codon24),
-                length(codon25),
-                length(codon26),
-                length(codon103),
-                length(codon104),
-                length(codon105))
-    percent_cys <- round(100 * nb_cys / lens, digits=2L)
-    ans <- data.frame(nb_cys, other, percent_cys)
-    rownames(ans) <- paste0("codon", c(22:26, 103:105))
+    if (missing(intdata)) {
+        check_germline_db_name(V_alleles)
+        intdata <- load_intdata(V_alleles)
+        V_alleles <- load_germline_sequences(V_alleles, region_types="V")
+    }
+    fwr1_ends   <- query_intdata(intdata, V_alleles, "fwr1_end", no.NAs=TRUE)
+    fwr2_starts <- query_intdata(intdata, V_alleles, "fwr2_start", no.NAs=TRUE)
+    fwr3_ends   <- query_intdata(intdata, V_alleles, "fwr3_end", no.NAs=TRUE)
+    codons <- list(
+        ## codon 23 + a few flanking codons:
+        codon22 =.get_amino_acids_at(V_alleles, fwr1_ends - 12L),
+        codon23 =.get_amino_acids_at(V_alleles, fwr1_ends - 9L),
+        codon24 =.get_amino_acids_at(V_alleles, fwr1_ends - 6L),
+        codon25 =.get_amino_acids_at(V_alleles, fwr1_ends - 3L),
+        codon26 =.get_amino_acids_at(V_alleles, fwr1_ends),
+        ## codon 41 + a few flanking codons:
+        codon39 =.get_amino_acids_at(V_alleles, fwr2_starts + 2L),
+        codon40 =.get_amino_acids_at(V_alleles, fwr2_starts + 5L),
+        codon41 =.get_amino_acids_at(V_alleles, fwr2_starts + 8L),
+        codon42 =.get_amino_acids_at(V_alleles, fwr2_starts + 11L),
+        codon43 =.get_amino_acids_at(V_alleles, fwr2_starts + 14L),
+        ## codon 104 + a few flanking codons:
+        codon103=.get_amino_acids_at(V_alleles, fwr3_ends - 3L),
+        codon104=.get_amino_acids_at(V_alleles, fwr3_ends),
+        codon105=.get_amino_acids_at(V_alleles, fwr3_ends + 3L)
+    )
+    C_count <- vapply(codons, function(codon) sum(codon == "C"), integer(1))
+    W_count <- vapply(codons, function(codon) sum(codon == "W"), integer(1))
+    other <- vapply(codons, function(codon) sum(codon != "C" & codon != "W"),
+                    integer(1))
+    percent_C <- round(100 * C_count / lengths(codons), digits=2L)
+    percent_W <- round(100 * W_count / lengths(codons), digits=2L)
+    ans <- data.frame(C_count=C_count, W_count=W_count, other=other,
+                      percent_C=percent_C, percent_W=percent_W)
+    rownames(ans) <- names(codons)
+    ans
+}
+
+### Not exported!
+### If the 2nd argument ('intdata') is missing then the 1st argument
+### ('V_alleles') must be the name of an existing germline db.
+### Returns C23/W41/C104 percentages in a named numeric vector.
+summarize_anchor_V_residues <- function(V_alleles, intdata)
+{
+    conserved_codons <- c(codon23="C", codon41="W", codon104="C")
+    Mindex <- cbind(names(conserved_codons),
+                    paste0("percent_", conserved_codons))
+    ans <- count_conserved_V_codons(V_alleles, intdata)[Mindex]
+    names(ans) <- paste0(conserved_codons,
+                         sub("^codon", "", names(conserved_codons)))
     ans
 }
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### count_cysteines_for_IMGT_organisms()
+### summarize_anchor_V_residues_for_IMGT_organisms()
 ###
 
 ### Not exported!
-### Percent cysteines obtained with igblastr 1.3.13 for IMGT 202614-2:
-### ---------------------------- tcr.db=FALSE ---------------------------
-###                                              db_name codon23 codon104
-### 1               IMGT-202614-2.Bos_taurus.IGH+IGK+IGL   98.88    95.00
-### 2   IMGT-202614-2.Canis_lupus_familiaris.IGH+IGK+IGL   97.89    47.68
-### 3               IMGT-202614-2.Equus_caballus.IGH+IGK   91.01    34.83
-### 4                IMGT-202614-2.Gallus_gallus.IGH+IGL   73.98    71.09
-### 5  IMGT-202614-2.Gorilla_gorilla_gorilla.IGH+IGK+IGL   98.26    93.40
-### 6             IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL   98.47    97.41
-### 7              IMGT-202614-2.Lemur_catta.IGH+IGK+IGL   96.92   100.00
-### 8              IMGT-202614-2.Macaca_fascicularis.IGH   93.18     0.00
-### 9           IMGT-202614-2.Macaca_mulatta.IGH+IGK+IGL   95.62    34.65
-### 10            IMGT-202614-2.Mus_musculus.IGH+IGK+IGL   98.49    94.51
-### 11   IMGT-202614-2.Mustela_putorius_furo.IGH+IGK+IGL   65.54    32.20
-### 12                   IMGT-202614-2.Neogale_vison.IGH    0.00     0.00
-### 13             IMGT-202614-2.Oncorhynchus_mykiss.IGH   98.73    94.90
-### 14        IMGT-202614-2.Ornithorhynchus_anatinus.IGH   97.78     0.00
-### 15   IMGT-202614-2.Oryctolagus_cuniculus.IGH+IGK+IGL   98.64   100.00
-### 16          IMGT-202614-2.Pongo_pygmaeus.IGH+IGK+IGL   49.66    48.11
-### 17       IMGT-202614-2.Rattus_norvegicus.IGH+IGK+IGL   95.76    42.21
-### 18                     IMGT-202614-2.Salmo_salar.IGH    0.00     0.67
-### 19              IMGT-202614-2.Sus_scrofa.IGH+IGK+IGL   96.92    95.38
-### 20                   IMGT-202614-2.Vicugna_pacos.IGH   98.81   100.00
-### ------------------------------ tcr.db=TRUE ------------------------------
-###                                                  db_name codon23 codon104
-### 1               IMGT-202614-2.Bos_taurus.TRA+TRB+TRG+TRD   66.58    48.56
-### 2      IMGT-202614-2.Camelus_dromedarius.TRA+TRB+TRG+TRD  100.00   100.00
-### 3   IMGT-202614-2.Canis_lupus_familiaris.TRA+TRB+TRG+TRD   98.77    14.81
-### 4                      IMGT-202614-2.Danio_rerio.TRA+TRD    0.71     0.00
-### 5              IMGT-202614-2.Felis_catus.TRA+TRB+TRG+TRD   98.85    44.83
-### 6  IMGT-202614-2.Gorilla_gorilla_gorilla.TRA+TRB+TRG+TRD   53.72    45.21
-### 7    IMGT-202614-2.Heterocephalus_glaber.TRA+TRB+TRG+TRD   95.65    90.43
-### 8             IMGT-202614-2.Homo_sapiens.TRA+TRB+TRG+TRD   96.88    97.69
-### 9                  IMGT-202614-2.Macaca_fascicularis.TRB   95.45    98.46
-### 10          IMGT-202614-2.Macaca_mulatta.TRA+TRB+TRG+TRD   34.26    62.79
-### 11            IMGT-202614-2.Mus_musculus.TRA+TRB+TRG+TRD   20.80    20.00
-### 12   IMGT-202614-2.Mustela_putorius_furo.TRA+TRB+TRG+TRD   96.64    36.97
-### 13   IMGT-202614-2.Oryctolagus_cuniculus.TRA+TRB+TRG+TRD   99.32   100.00
-### 14                  IMGT-202614-2.Ovis_aries.TRA+TRB+TRD   99.47    18.72
-### 15             IMGT-202614-2.Pan_troglodytes.TRA+TRG+TRD   97.50    81.25
-### 16            IMGT-202614-2.Pongo_abelii.TRA+TRB+TRG+TRD   95.83    85.00
-### 17                  IMGT-202614-2.Pongo_pygmaeus.TRB+TRG   95.73    84.62
-### 18                      IMGT-202614-2.Sus_scrofa.TRB+TRG   92.68     0.00
-count_cysteines_for_IMGT_organisms <- function(release, tcr.db=FALSE)
+### Percent cysteines (C) at codon23 & codon104 and percent tryptophans (W)
+### at codon41. Results obtained with igblastr 1.3.20 for IMGT 202614-2:
+### ---------------------------- tcr.db=FALSE --------------------------------
+###                                                          C23    W41   C104
+### IMGT-202614-2.Bos_taurus.IGH+IGK+IGL                   98.88  95.51  95.00
+### IMGT-202614-2.Canis_lupus_familiaris.IGH+IGK+IGL       97.89  47.68  47.68
+### IMGT-202614-2.Equus_caballus.IGH+IGK                   91.01  88.76  34.83
+### IMGT-202614-2.Gallus_gallus.IGH+IGL                    73.98  67.91  71.09
+### IMGT-202614-2.Gorilla_gorilla_gorilla.IGH+IGK+IGL      98.26  89.58  93.40
+### IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL                 98.47  94.52  97.41
+### IMGT-202614-2.Lemur_catta.IGH+IGK+IGL                  96.92  99.56 100.00
+### IMGT-202614-2.Macaca_fascicularis.IGH                  93.18   0.00   0.00
+### IMGT-202614-2.Macaca_mulatta.IGH+IGK+IGL               95.62  61.05  34.65
+### IMGT-202614-2.Mus_musculus.IGH+IGK+IGL                 98.49  94.68  94.51
+### IMGT-202614-2.Mustela_putorius_furo.IGH+IGK+IGL        65.54  31.64  32.20
+### IMGT-202614-2.Neogale_vison.IGH                         0.00   0.00   0.00
+### IMGT-202614-2.Oncorhynchus_mykiss.IGH                  98.73  92.36  94.90
+### IMGT-202614-2.Ornithorhynchus_anatinus.IGH             97.78   0.00   0.00
+### IMGT-202614-2.Oryctolagus_cuniculus.IGH+IGK+IGL        98.64 100.00 100.00
+### IMGT-202614-2.Pongo_pygmaeus.IGH+IGK+IGL               49.66  55.48  48.11
+### IMGT-202614-2.Rattus_norvegicus.IGH+IGK+IGL            95.76  40.20  42.21
+### IMGT-202614-2.Salmo_salar.IGH                           0.00   0.00   0.67
+### IMGT-202614-2.Sus_scrofa.IGH+IGK+IGL                   96.92  96.92  95.38
+### IMGT-202614-2.Vicugna_pacos.IGH                        98.81  97.62 100.00
+### ---------------------------- tcr.db=TRUE ---------------------------------
+###                                                          C23    W41   C104
+### IMGT-202614-2.Bos_taurus.TRA+TRB+TRG+TRD               66.58  48.29  48.56
+### IMGT-202614-2.Camelus_dromedarius.TRA+TRB+TRG+TRD     100.00 100.00 100.00
+### IMGT-202614-2.Canis_lupus_familiaris.TRA+TRB+TRG+TRD   98.77  98.77  14.81
+### IMGT-202614-2.Danio_rerio.TRA+TRD                       0.71   0.00   0.00
+### IMGT-202614-2.Felis_catus.TRA+TRB+TRG+TRD              98.85  98.85  44.83
+### IMGT-202614-2.Gorilla_gorilla_gorilla.TRA+TRB+TRG+TRD  53.72  54.79  45.21
+### IMGT-202614-2.Heterocephalus_glaber.TRA+TRB+TRG+TRD    95.65  95.65  90.43
+### IMGT-202614-2.Homo_sapiens.TRA+TRB+TRG+TRD             96.88  98.87  97.69
+### IMGT-202614-2.Macaca_fascicularis.TRB                  95.45  98.48  98.46
+### IMGT-202614-2.Macaca_mulatta.TRA+TRB+TRG+TRD           34.26  34.72  62.79
+### IMGT-202614-2.Mus_musculus.TRA+TRB+TRG+TRD             20.80  25.32  20.00
+### IMGT-202614-2.Mustela_putorius_furo.TRA+TRB+TRG+TRD    96.64  94.12  36.97
+### IMGT-202614-2.Oryctolagus_cuniculus.TRA+TRB+TRG+TRD    99.32  99.32 100.00
+### IMGT-202614-2.Ovis_aries.TRA+TRB+TRD                   99.47  72.80  18.72
+### IMGT-202614-2.Pan_troglodytes.TRA+TRG+TRD              97.50  98.75  81.25
+### IMGT-202614-2.Pongo_abelii.TRA+TRB+TRG+TRD             95.83  96.67  85.00
+### IMGT-202614-2.Pongo_pygmaeus.TRB+TRG                   95.73  96.58  84.62
+### IMGT-202614-2.Sus_scrofa.TRB+TRG                       92.68  97.56   0.00
+summarize_anchor_V_residues_for_IMGT_organisms <-
+    function(release, tcr.db=FALSE)
 {
-    organisms <- list_IMGT_organisms(release)
-    codon_names <- c("codon23", "codon104")
-    percent_cys <- lapply(organisms,
+    imgt_organisms <- list_IMGT_organisms(release)
+    all_percents <- lapply(imgt_organisms,
         function(organism) {
             message(organism)
             db_name <- try(suppressWarnings(suppressMessages(
@@ -241,15 +255,9 @@ count_cysteines_for_IMGT_organisms <- function(release, tcr.db=FALSE)
             )), silent=TRUE)
             if (inherits(db_name, "try-error"))
                 return(NULL)
-            percents <- count_cysteines(db_name)[codon_names, "percent_cys"]
-	    ## Returns a list with 3 components: db_name, codon23, codon104.
-            c(list(db_name=db_name),
-	      setNames(as.list(percents), codon_names))
+            percents <- summarize_anchor_V_residues(db_name)
+            matrix(percents, nrow=1L, dimnames=list(db_name, names(percents)))
         })
-    percent_cys <- S4Vectors:::delete_NULLs(percent_cys)
-    db_name  <- vapply(percent_cys, function(x) x$db_name, character(1))
-    codon23  <- vapply(percent_cys, function(x) x$codon23, numeric(1))
-    codon104 <- vapply(percent_cys, function(x) x$codon104, numeric(1))
-    data.frame(db_name=db_name, codon23=codon23, codon104=codon104)
+    do.call(rbind, all_percents)
 }
 

@@ -4,38 +4,25 @@
 ###
 
 
+.INTDATA_AS_RETURNED_BY <- "load_intdata()"
+
 ### Not exported!
 get_intdata_col <- function(intdata, colname)
 {
-    what <- "a data.frame as returned by load_intdata()"
-    if (!is.data.frame(intdata))
-        stop(wmsg("'intdata' must be ", what))
-    if (!isSingleNonWhiteString(colname))
-        stop(wmsg("'colname' must be a single (non-empty) string"))
-    intdata_col <- intdata[[colname]]
-    if (is.null(intdata_col))
-        stop(wmsg("'intdata' has no \"", colname, "\" column. ",
-                  "Make sure that it's ", what, "."))
-    intdata_col
+    get_igdata_col(intdata, colname,
+                   what="intdata", as_returned_by=.INTDATA_AS_RETURNED_BY)
 }
 
-### Extracts the specified column from the 'intdata' data.frame, and
-### subset/reorder it to keep only the column values that correspond
-### to the alleles in 'V_alleles'. Returns them in a named vector that
-### is parallel to 'V_alleles' and has the allele names on it.
-### The returned vector will have NAs for alleles that are not annotated
-### in 'intdata' or when 'intdata[[colname]]' reports an NA for the allele.
-.query_intdata <- function(intdata, V_alleles, colname)
+### See query_igdata() in R/igdata-utils.R for what gets returned.
+query_intdata <- function(intdata, V_alleles, colname, no.NAs=FALSE)
 {
-    allele_names <- get_intdata_col(intdata, "allele_name")
     if (!is(V_alleles, "DNAStringSet"))
-        stop(wmsg("'V_alleles' must be DNAStringSet object"))
+        stop(wmsg("'V_alleles' must be a DNAStringSet object"))
     V_names <- names(V_alleles)
     if (is.null(V_names))
         stop(wmsg("'V_alleles' must have names"))
-    V_names <- clean_imgt_fasta_headers(V_names)
-    intdata_col <- get_intdata_col(intdata, colname)
-    setNames(intdata_col[match(V_names, allele_names)], V_names)
+    query_igdata(intdata, V_names, colname, no.NAs=no.NAs,
+                 what="intdata", as_returned_by=.INTDATA_AS_RETURNED_BY)
 }
 
 
@@ -67,7 +54,7 @@ get_intdata_col <- function(intdata, colname)
 ### an NA.
 .translate_V_coding_frame <- function(V_alleles, intdata)
 {
-    offsets <- .query_intdata(intdata, V_alleles, "coding_frame_start")
+    offsets <- query_intdata(intdata, V_alleles, "coding_frame_start")
     .translate_V_codons(V_alleles, offsets, with.init.codon=TRUE)
 }
 
@@ -83,8 +70,8 @@ get_intdata_col <- function(intdata, colname)
     .check_V_segment(V_segment)
     start_colname <- paste0(V_segment, "_start")
     end_colname <- paste0(V_segment, "_end")
-    starts <- .query_intdata(intdata, V_alleles, start_colname)  # 1-based
-    ends <- .query_intdata(intdata, V_alleles, end_colname)  # 1-based
+    starts <- query_intdata(intdata, V_alleles, start_colname)  # 1-based
+    ends <- query_intdata(intdata, V_alleles, end_colname)  # 1-based
     offsets <- starts - 1L
     with.init.codon <- V_segment == "fwr1"
     ans <- .translate_V_codons(V_alleles, offsets, with.init.codon)
