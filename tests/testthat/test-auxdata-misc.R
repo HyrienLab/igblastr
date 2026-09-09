@@ -2,15 +2,15 @@
 ### installation actually triggers a download from IMGT. All subsequent
 ### installations obtain the data from the IMGT local store (located
 ### in 'igblastr_cache(IMGT_STORE)') so are very fast and work offline.
-install_IMGT_germline_db("202614-2", "Oryctolagus cuniculus",
+install_IMGT_germline_db("202631-1", "Oryctolagus cuniculus",
                          auto.auxdata=FALSE, overwrite=TRUE)
 
 test_that("compute_germline_db_auxdata()", {
     ## Compare computed auxdata for
-    ## IMGT-202614-2.Oryctolagus_cuniculus.IGH+IGK+IGL
+    ## IMGT-202631-1.Oryctolagus_cuniculus.IGH+IGK+IGL
     ## with rabbit auxdata included in IgBLAST.
 
-    db_name <- "IMGT-202614-2.Oryctolagus_cuniculus.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Oryctolagus_cuniculus.IGH+IGK+IGL"
     auxdata <- compute_germline_db_auxdata(db_name)
     auxdata0 <- load_auxdata("rabbit")
     m <- match(auxdata[ , "allele_name"], auxdata0[ , "allele_name"])

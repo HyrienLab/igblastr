@@ -126,7 +126,7 @@ clean_germline_blastdbs <- function()
 ### load_germline_sequences()
 ###
 
-.normarg_region_types <- function(region_types=NULL)
+.normarg_region_types1 <- function(region_types=NULL)
 {
     if (is.null(region_types))
         return(VDJ_REGION_TYPES)
@@ -149,7 +149,7 @@ load_germline_sequences <- function(db_name, region_types=NULL)
 {
     check_germline_db_name(db_name)
     db_path <- get_germline_db_path(db_name)
-    region_types <- .normarg_region_types(region_types)
+    region_types <- .normarg_region_types1(region_types)
     db_fasta_files <- vapply(region_types,
         function(region_type) get_db_fasta_file(db_path, region_type),
         character(1), USE.NAMES=FALSE)

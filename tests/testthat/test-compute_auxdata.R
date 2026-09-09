@@ -256,7 +256,7 @@ test_that(".get_fwr4_start_from_fwr4refset_dna_PWM", {
 
 test_that("solve_cdr3_ends_using_fwr4_*_comparisons", {
     ## The auxdata for IMGT rat has 1 unsolved allele.
-    db_name <- install_IMGT_germline_db("202614-2", "Rattus norvegicus",
+    db_name <- install_IMGT_germline_db("202631-1", "Rattus norvegicus",
                                         overwrite=TRUE)
     auxdata0 <- load_auxdata(db_name)
     solve_me <- is.na(auxdata0[ , "cdr3_end"])

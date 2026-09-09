@@ -73,6 +73,7 @@ remove_gaps <- function(sequences, gap_letter=".")
     offset
 }
 
+### Propagates names and metadata columns.
 extract_codons <- function(dna, offset=0)
 {
     if (is(dna, "DNAStringSet")) {
@@ -94,11 +95,17 @@ extract_codons <- function(dna, offset=0)
 ### translate_codons()
 ###
 
+### Propagates names and metadata columns.
 translate_codons <- function(dna, offset=0, with.init.codon=FALSE)
 {
     if (!isTRUEorFALSE(with.init.codon))
         stop(wmsg("'with.init.codon' must be TRUE or FALSE"))
     codons <- extract_codons(dna, offset)
-    translate(codons, no.init.codon=!with.init.codon, if.fuzzy.codon="solve")
+    ## Biostrings::translate() does not propagate the metadata columns at
+    ## the moment but maybe it should?
+    ans <- translate(codons, no.init.codon=!with.init.codon,
+                             if.fuzzy.codon="solve")
+    mcols(ans) <- mcols(codons)
+    ans
 }
 

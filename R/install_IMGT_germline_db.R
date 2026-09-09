@@ -53,12 +53,12 @@
     sprintf("IMGT-%s.%s.%s", release, organism, paste(loci, collapse="+"))
 }
 
-.get_fwrcdr_ends_for_organism <- function(organism)
+.get_fwrcdr_widths_for_organism <- function(organism)
 {
     switch(organism,
-        Macaca_mulatta     =RHESUS_MONKEY_FWRCDR_ENDS,
-        Oncorhynchus_mykiss=RAINBOW_TROUT_FWRCDR_ENDS,
-        IMGT_FWRCDR_ENDS)
+        Macaca_mulatta     =RHESUS_MONKEY_FWRCDR_WIDTHS,
+        Oncorhynchus_mykiss=RAINBOW_TROUT_FWRCDR_WIDTHS,
+        IMGT_FWRCDR_WIDTHS)
 }
 
 ### Why does IMGT human J allele IGLJ2A*01 have a codon start set to 1?
@@ -95,31 +95,29 @@
         return(NULL)
     ## We set 'intdata' to "auto" only if we know that the intdata that we're
     ## going to compute is valid. The criteria we use to decide whether the
-    ## intdata is valid is that the percent cysteines at codons 23 and 104
-    ## must both be >= 90. See count_cysteines_for_IMGT_organisms() in
+    ## intdata is valid is that the percent cysteines (C) at codon23 & codon104
+    ## must both be >= 90 and the percent tryptophans (W) at codon41 must also
+    ## be >= 90. See summarize_anchor_V_residues_for_IMGT_organisms() in
     ## R/intdata-misc.R for more information.
-    if (loci_prefix == "IG") {
-        ok_IG_organisms <- c("Bos_taurus",
-                             "Gorilla_gorilla_gorilla",
-                             "Homo_sapiens",
-                             "Lemur_catta",
-                             "Mus_musculus",
-                             "Oncorhynchus_mykiss",
-                             "Oryctolagus_cuniculus",
-                             "Sus_scrofa",
-                             "Vicugna_pacos")
-        if (organism %in% ok_IG_organisms)
-            return("auto")
-    } else {
-        ok_TR_organisms <- c("Camelus_dromedarius",
-                             "Heterocephalus_glaber",
-                             "Homo_sapiens",
-                             "Macaca_fascicularis",
-                             "Oryctolagus_cuniculus")
-        if (organism %in% ok_TR_organisms)
-            return("auto")
-    }
-    NULL
+    ok_organisms <- if (loci_prefix == "IG") c(
+        "Bos_taurus",
+        ## codon41 for gorilla is only 89.58% conserved but that's good enough!
+        "Gorilla_gorilla_gorilla",
+        "Homo_sapiens",
+        "Lemur_catta",
+        "Mus_musculus",
+        "Oncorhynchus_mykiss",
+        "Oryctolagus_cuniculus",
+        "Sus_scrofa",
+        "Vicugna_pacos"
+    ) else c(
+        "Camelus_dromedarius",
+        "Heterocephalus_glaber",
+        "Homo_sapiens",
+        "Macaca_fascicularis",
+        "Oryctolagus_cuniculus"
+    )
+    if (organism %in% ok_organisms) "auto" else NULL
 }
 
 .check_concordance_with_igblast_intdata <- function(db_name)
@@ -174,8 +172,8 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
     ## Compute 'db_name'.
     db_name <- .form_IMGT_germline_db_name(fasta_store, loci)
 
-    ## Set 'fwrcdr_ends'.
-    fwrcdr_ends <- .get_fwrcdr_ends_for_organism(organism)
+    ## Set 'fwrcdr_widths'.
+    fwrcdr_widths <- .get_fwrcdr_widths_for_organism(organism)
 
     ## Do we need to exclude any J allele known to be problematic?
     if (organism == "Homo_sapiens" && loci_prefix == "IG") {
@@ -199,7 +197,7 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
     install_germline_db(install_dir, db_name, fasta_store, loci,
                         imgt.fasta.headers=TRUE,
                         gapped=TRUE, intdata=intdata,
-                        fwrcdr_ends=fwrcdr_ends,
+                        fwrcdr_widths=fwrcdr_widths,
                         excluded_J_alleles=excluded_J_alleles,
                         auxdata=auxdata, ref_auxdata=ref_auxdata,
                         if.exists=if.exists, verbose=verbose,

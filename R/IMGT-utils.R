@@ -192,13 +192,13 @@ list_organisms_in_IMGT_store <- function(IMGT_store)
 find_organism_in_IMGT_store <- function(organism, IMGT_store)
 {
     stopifnot(isSingleNonWhiteString(organism))
-    all_organisms <- list_organisms_in_IMGT_store(IMGT_store)
-    idx <- match(tolower(organism), tolower(all_organisms))
+    imgt_organisms <- list_organisms_in_IMGT_store(IMGT_store)
+    idx <- match(tolower(organism), tolower(imgt_organisms))
     if (!is.na(idx)) {
         refdir <- file.path(IMGT_store, VQUEST_REFERENCE_DIRECTORY)
-        return(file.path(refdir, all_organisms[[idx]]))
+        return(file.path(refdir, imgt_organisms[[idx]]))
     }
-    in1string <- paste0("\"", all_organisms, "\"", collapse=", ")
+    in1string <- paste0("\"", imgt_organisms, "\"", collapse=", ")
     stop(wmsg(organism, ": organism not found in ",
               "IMGT/V-QUEST release ", basename(IMGT_store), "."),
          "\n  ",

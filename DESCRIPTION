@@ -41,12 +41,13 @@ Suggests: Peptides, GenomicAlignments, parallel, testthat, knitr, rmarkdown,
 VignetteBuilder: knitr
 Collate:
 	utils.R
+	ascii-viz-utils.R
 	internet-utils.R
 	long_to_wide_airr.R
-	igdata-IO.R
 	translate_codons.R
 	allele2gene.R
 	parse_imgt_fasta_headers.R
+	igdata-utils.R
 	file-utils.R
 	loci-utils.R
 	db-utils.R
@@ -86,8 +87,10 @@ Collate:
 	OGRDB-API.R
 	download_OGRDB_germline_sequences.R
 	download_OGRDB_germline_json.R
-	install_OGRDB_germline_db.R
 	download_IMGT_germline_sequences.R
+	print_gapped_V_alleles.R
+	print_J_alleles.R
+	install_OGRDB_germline_db.R
 	install_IMGT_germline_db.R
 	combine_germline_dbs.R
 	augment_germline_db.R

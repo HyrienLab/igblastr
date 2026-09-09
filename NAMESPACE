@@ -92,7 +92,7 @@ export(
     same_alleles_annot,
 
     ## compute_V_gene_delineations.R:
-    IMGT_FWRCDR_ENDS,
+    IMGT_FWRCDR_WIDTHS,
     compute_V_gene_delineations,
     compute_imgt_intdata,
 
@@ -112,7 +112,6 @@ export(
     V_allele_has_stop_codon,
 
     ## J_alleles-inspect.R:
-    print_J_alleles,
     translate_J_alleles,
     J_allele_has_stop_codon,
     translate_fwr4,
@@ -182,16 +181,22 @@ export(
     extract_intdata_from_ogrdb_json,
     extract_auxdata_from_ogrdb_json,
 
-    ## install_OGRDB_germline_db.R:
-    make_intdata_files_from_ogrdb_jsons,
-    make_auxdata_files_from_ogrdb_jsons,
-    install_OGRDB_germline_db,
-
     ## download_IMGT_germline_sequences.R:
     IMGT_is_up,
     list_IMGT_releases,
     list_IMGT_organisms,
     download_IMGT_germline_sequences,
+
+    ## print_gapped_V_alleles.R:
+    print_gapped_V_alleles,
+
+    ## print_J_alleles.R:
+    print_J_alleles,
+
+    ## install_OGRDB_germline_db.R:
+    make_intdata_files_from_ogrdb_jsons,
+    make_auxdata_files_from_ogrdb_jsons,
+    install_OGRDB_germline_db,
 
     ## install_IMGT_germline_db.R:
     install_IMGT_germline_db,

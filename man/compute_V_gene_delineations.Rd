@@ -1,6 +1,6 @@
 \name{compute_V_gene_delineations}
 
-\alias{IMGT_FWRCDR_ENDS}
+\alias{IMGT_FWRCDR_WIDTHS}
 \alias{compute_V_gene_delineations}
 \alias{compute_imgt_intdata}
 
@@ -16,7 +16,7 @@
 
 \usage{
 compute_V_gene_delineations(gapped_V_alleles,
-                            fwrcdr_ends=IMGT_FWRCDR_ENDS,
+                            fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
                             as.IRangesList=FALSE)
 }
 
@@ -25,10 +25,11 @@ compute_V_gene_delineations(gapped_V_alleles,
     A \link[Biostrings]{DNAStringSet} object containing germline V
     gene allele \emph{gapped} sequences.
   }
-  \item{fwrcdr_ends}{
-    A named integer vector containing the FWR/CDR fixed end positions w.r.t.
-    the translated V gapped sequences.
-    Set to \code{IMGT_FWRCDR_ENDS} by default.
+  \item{fwrcdr_widths}{
+    A named integer vector containing the maximum observed FWR/CDR widths.
+    The FWR/CDR widths are their number of nucleotides.
+    Set to \code{IMGT_FWRCDR_WIDTHS} by default.
+    See \url{https://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html}
   }
   \item{as.IRangesList}{
     Experts only! Set to \code{TRUE} to return the delineations in an
