@@ -210,7 +210,7 @@ summarize_anchor_V_residues <- function(V_alleles, intdata)
 ### IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL                 98.47  94.52  97.41
 ### IMGT-202614-2.Lemur_catta.IGH+IGK+IGL                  96.92  99.56 100.00
 ### IMGT-202614-2.Macaca_fascicularis.IGH                  93.18   0.00   0.00
-### IMGT-202614-2.Macaca_mulatta.IGH+IGK+IGL               95.62  61.05  34.65
+### IMGT-202614-2.Macaca_mulatta.IGH+IGK+IGL               95.62  93.87  96.05
 ### IMGT-202614-2.Mus_musculus.IGH+IGK+IGL                 98.49  94.68  94.51
 ### IMGT-202614-2.Mustela_putorius_furo.IGH+IGK+IGL        65.54  31.64  32.20
 ### IMGT-202614-2.Neogale_vison.IGH                         0.00   0.00   0.00
@@ -234,7 +234,7 @@ summarize_anchor_V_residues <- function(V_alleles, intdata)
 ### IMGT-202614-2.Homo_sapiens.TRA+TRB+TRG+TRD             96.88  98.87  97.69
 ### IMGT-202614-2.Macaca_fascicularis.TRB                  95.45  98.48  98.46
 ### IMGT-202614-2.Macaca_mulatta.TRA+TRB+TRG+TRD           34.26  34.72  62.79
-### IMGT-202614-2.Mus_musculus.TRA+TRB+TRG+TRD             20.80  25.32  20.00
+### IMGT-202614-2.Mus_musculus.TRA+TRB+TRG+TRD             99.47  97.16  98.70
 ### IMGT-202614-2.Mustela_putorius_furo.TRA+TRB+TRG+TRD    96.64  94.12  36.97
 ### IMGT-202614-2.Oryctolagus_cuniculus.TRA+TRB+TRG+TRD    99.32  99.32 100.00
 ### IMGT-202614-2.Ovis_aries.TRA+TRB+TRD                   99.47  72.80  18.72

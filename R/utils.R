@@ -131,6 +131,30 @@ check_seqlens <- function(seqlens, varname)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### unsplit2()
+###
+
+### base::unsplit() assumes that the list elements in 'value' are vector-like
+### objects that support subsetting by NAs. Unfortunately, most Vector
+### derivatives in Bioconductor (e.g. IRanges, IRangesList, GRanges,
+### GRangesList, DNAStringSet) do not support subsetting by NAs. So for
+### example base::unsplit() doesn't work on an ordinary list of IRangesList
+### objects.
+### unsplit2() is a replacement for base::unsplit() that doesn't make such
+### assumption. It works on any ordinary list of vector-like objects as long
+### as the objects support c() and subsetting by an integer vector.
+unsplit2 <- function(value, f)
+{
+    unlisted_value <- do.call(c, unname(value))
+    f_len <- length(f)
+    stopifnot(length(unlisted_value) == sum(lengths(value)),
+              length(unlisted_value) == f_len)
+    idx <- unlist(split(seq_len(f_len), f), use.names=FALSE)
+    unlisted_value[S4Vectors:::reverseIntegerInjection(idx, f_len)]
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### make_unique_allele_names()
 ###
 
@@ -508,8 +532,8 @@ system3 <- function(command, outfile, errfile, args=character())
         unlink(errfile)
     }
     if (status != 0) {
-        cmd_in_1string <- paste(c(command, args), collapse=" ")
-        stop(wmsg("command '", cmd_in_1string, "' failed"))
+        cmd_in1string <- paste(c(command, args), collapse=" ")
+        stop(wmsg("command '", cmd_in1string, "' failed"))
     }
 }
 

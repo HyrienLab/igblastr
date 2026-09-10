@@ -7,7 +7,7 @@
 .VPART_NAMES <- paste0(c("fwr", "cdr"), rep(1:3, each=2))
 stopifnot(
     identical(c(.VPART_NAMES, "fwr4"), FWRCDR_NAMES),
-    identical(.VPART_NAMES, c(names(IMGT_FWRCDR_WIDTHS), "cdr3"))
+    identical(.VPART_NAMES, c(names(IMGT_DEFAULT_FWRCDR_WIDTHS), "cdr3"))
 )
 
 .normarg_region_types2 <- function(region_types=NULL)
@@ -39,7 +39,8 @@ stopifnot(
 {
     stopifnot(is(gapped_V_alleles, "XStringSet"),
               is.integer(fwrcdr_widths),
-              identical(names(fwrcdr_widths), names(IMGT_FWRCDR_WIDTHS)),
+              identical(names(fwrcdr_widths),
+                        names(IMGT_DEFAULT_FWRCDR_WIDTHS)),
               is.character(region_types))
 
     extra_cols <- mcols(gapped_V_alleles, use.names=FALSE)
@@ -143,7 +144,8 @@ stopifnot(
 {
     extra_cols <- .extract_Vparts_extra_cols(Vparts, region_types)
     stopifnot(is.integer(fwrcdr_widths),
-              identical(names(fwrcdr_widths), names(IMGT_FWRCDR_WIDTHS)))
+              identical(names(fwrcdr_widths),
+                        names(IMGT_DEFAULT_FWRCDR_WIDTHS)))
 
     ## Prepare 'labels'.
     allele_names <- Vparts[ , "allele_name"]
@@ -197,7 +199,7 @@ stopifnot(
 ###
 
 print_gapped_V_alleles <- function(gapped_V_alleles,
-                                   fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
+                                   fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
                                    translate=FALSE,
                                    region_types=NULL,
                                    igblast_organism=NA, filler=".", sep=" ")
@@ -207,6 +209,8 @@ print_gapped_V_alleles <- function(gapped_V_alleles,
     gapped_V_alleles <- normarg_gapped_V_alleles(gapped_V_alleles)
     if (!is(gapped_V_alleles, "DNAStringSet"))
         gapped_V_alleles <- as(gapped_V_alleles, "DNAStringSet")
+    if (is.matrix(fwrcdr_widths))
+        stop(wmsg("'fwrcdr_widths' cannot be a matrix"))
     fwrcdr_widths <- normarg_fwrcdr_widths(fwrcdr_widths)
     if (!isTRUEorFALSE(translate))
         stop(wmsg("'translate' must be TRUE or FALSE"))

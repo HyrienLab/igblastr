@@ -1,6 +1,7 @@
 \name{compute_V_gene_delineations}
 
-\alias{IMGT_FWRCDR_WIDTHS}
+\alias{IMGT_DEFAULT_FWRCDR_WIDTHS}
+\alias{IMGT_MOUSE_FWRCDR_WIDTHS}
 \alias{compute_V_gene_delineations}
 \alias{compute_imgt_intdata}
 
@@ -16,7 +17,7 @@
 
 \usage{
 compute_V_gene_delineations(gapped_V_alleles,
-                            fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
+                            fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
                             as.IRangesList=FALSE)
 }
 
@@ -27,9 +28,18 @@ compute_V_gene_delineations(gapped_V_alleles,
   }
   \item{fwrcdr_widths}{
     A named integer vector containing the maximum observed FWR/CDR widths.
-    The FWR/CDR widths are their number of nucleotides.
-    Set to \code{IMGT_FWRCDR_WIDTHS} by default.
+    The names on \code{fwrcdr_widths} must be fwr1, cdr1, fwr2, cdr2, and
+    fwr3. The values in \code{fwrcdr_widths} must be the corresponding widths
+    in number of amino acids.
+    Set to \code{IMGT_DEFAULT_FWRCDR_WIDTHS} by default.
     See \url{https://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html}
+
+    Alternatively, \code{fwrcdr_widths} can be 5-column integer matrix with
+    rownames and colnames. The colnames must be fwr1, cdr1, fwr2, cdr2, and
+    fwr3. The rownames must be BCR or TCR loci. The BCR loci are IGH, IGK,
+    IGL, and the TCR loci are TRA, TRB, TRG, TRD. A mix of BCR and TCR loci
+    is ok. An example of such matrix is predefined object
+    \code{IMGT_MOUSE_FWRCDR_WIDTHS}.
   }
   \item{as.IRangesList}{
     Experts only! Set to \code{TRUE} to return the delineations in an
@@ -178,7 +188,7 @@ download_OGRDB_germline_sequences("Mus musculus", germline_set,
 ## List the downloaded files:
 list.files(tmpdir)  # 1 FASTA file
 
-## Compute the V gene delineations for 'IGKV_alleles':
+## Compute the V gene delineations for 'IGLV_alleles':
 IGLV_alleles <- file.path(tmpdir, "IGLV.fasta")
 IGLV_gene_delinea <- compute_V_gene_delineations(IGLV_alleles)
 IGLV_gene_delinea
@@ -199,7 +209,7 @@ json_path <- file.path(tmpdir, "IGLV.json")
 IGLV_gene_delinea2 <- extract_intdata_from_ogrdb_json(json_path)
 IGLV_gene_delinea2
 
-## As you can see, when a V allele sequence ends before the end of
+## As we can see, when a V allele sequence ends before the end of
 ## its FWR3, the FWR3 end position reported in the AIRR-C JSON file
 ## is the position of the last nucleotide in the (ungapped) sequence.
 

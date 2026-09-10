@@ -12,7 +12,7 @@
 
 \usage{
 print_gapped_V_alleles(gapped_V_alleles,
-                       fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
+                       fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
                        translate=FALSE,
                        region_types=NULL,
                        igblast_organism=NA,

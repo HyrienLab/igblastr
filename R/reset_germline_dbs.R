@@ -30,7 +30,7 @@
 ### Install db only if missing.
 .preinstall_OGRDB_germline_db <-
     function(install_dir, db_name, fasta_store, loci=IG_LOCI,
-             fwrcdr_widths=IMGT_FWRCDR_WIDTHS, verbose=FALSE)
+             fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS, verbose=FALSE)
 {
     install_germline_db(install_dir, db_name, fasta_store, loci,
                         gapped=TRUE, intdata="auto",
@@ -147,8 +147,8 @@
     db_name <-
         .form_preinstalled_OGRDB_rainbow_trout_germline_db_name(fasta_store)
     .preinstall_OGRDB_germline_db(install_dir, db_name, fasta_store, loci="IGH",
-                                  fwrcdr_widths=RAINBOW_TROUT_FWRCDR_WIDTHS,
-                                  verbose=verbose)
+                      fwrcdr_widths=IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS,
+                      verbose=verbose)
 }
 
 .preinstall_missing_OGRDB_rainbow_trout_germline_dbs <-

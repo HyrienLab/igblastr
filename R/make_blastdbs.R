@@ -80,11 +80,11 @@
         return(TRUE)
     msg1 <- c("Set of blastdb files found in ", db_path, "/ for ",
               "the \"", region_type, "\"-region db is not as expected:")
-    expected_in_1string <- paste0(expected_filenames, collapse=", ")
-    found_in_1string <- paste0(blastdb_files, collapse=", ")
+    expected_in1string <- paste0(expected_filenames, collapse=", ")
+    found_in1string <- paste0(blastdb_files, collapse=", ")
     warning(wmsg2(msg1),
-            "\n  - expected: ", wmsg2(expected_in_1string, margin=14),
-            "\n  -    found: ", wmsg2(found_in_1string, margin=14))
+            "\n  - expected: ", wmsg2(expected_in1string, margin=14),
+            "\n  -    found: ", wmsg2(found_in1string, margin=14))
     FALSE
 }
 

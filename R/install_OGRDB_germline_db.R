@@ -132,11 +132,11 @@ make_intdata_files_from_ogrdb_jsons <-
     function(found_bad_alleles, expected_bad_alleles)
 {
     msg1 <- "Set of J alleles with negative cdr3 end is not as expected:"
-    expected_in_1string <- paste0(expected_bad_alleles, collapse=", ")
-    found_in_1string <- paste0(found_bad_alleles, collapse=", ")
+    expected_in1string <- paste0(expected_bad_alleles, collapse=", ")
+    found_in1string <- paste0(found_bad_alleles, collapse=", ")
     stop(wmsg2(msg1),
-         "\n  - expected: ", wmsg2(expected_in_1string, margin=14),
-         "\n  -    found: ", wmsg2(found_in_1string, margin=14))
+         "\n  - expected: ", wmsg2(expected_in1string, margin=14),
+         "\n  -    found: ", wmsg2(found_in1string, margin=14))
 }
 
 .extract_and_fix_auxdata_from_ogrdb_json <- function(json_file, a_w_n_c_e=NULL)
