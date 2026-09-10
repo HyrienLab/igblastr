@@ -393,7 +393,7 @@ create_region_db <- function(destdir, fasta_files,
 ### added to the db.
 create_V_region_db <- function(destdir, fasta_files,
                                gapped=FALSE, auto.intdata=FALSE,
-                               fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
+                               fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
                                disambiguate.allele.names=FALSE,
                                overwrite=FALSE, verbose=FALSE)
 {

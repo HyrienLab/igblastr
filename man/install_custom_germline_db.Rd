@@ -17,7 +17,7 @@
 install_custom_germline_db(db_name, fasta_dir, tcr.db=FALSE, loci="auto",
                            imgt.fasta.headers=FALSE,
                            gapped=FALSE, intdata=NULL,
-                           fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
+                           fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
                            auxdata=NULL, ref_auxdata=NULL,
                            disambiguate.allele.names=FALSE,
                            overwrite=FALSE, verbose=FALSE)

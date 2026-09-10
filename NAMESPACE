@@ -92,7 +92,8 @@ export(
     same_alleles_annot,
 
     ## compute_V_gene_delineations.R:
-    IMGT_FWRCDR_WIDTHS,
+    IMGT_DEFAULT_FWRCDR_WIDTHS,
+    IMGT_MOUSE_FWRCDR_WIDTHS,
     compute_V_gene_delineations,
     compute_imgt_intdata,
 

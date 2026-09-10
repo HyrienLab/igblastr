@@ -244,7 +244,7 @@ extract_intdata_from_ogrdb_json <- function(json_path, extra_fields=NULL)
 ### Returns the intdata in a data.frame.
 .compute_intdata_from_OGRDB_gapped_V_sequences <-
     function(organism, germline_set, source_set=FALSE, recache=FALSE, ...,
-             fwrcdr_widths=IMGT_FWRCDR_WIDTHS)
+             fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS)
 {
     tmp_dir <- tempfile()
     dir.create(tmp_dir)

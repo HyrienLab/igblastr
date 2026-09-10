@@ -14,26 +14,59 @@
 ### protein sequences so that the widths of the gapped FWR/CDR regions are
 ### effectively the maximum observed widths.
 ### See https://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html
-IMGT_FWRCDR_WIDTHS <- c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L)
+IMGT_DEFAULT_FWRCDR_WIDTHS <-
+    c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L)
 
 ### There are some exceptions to this rule though.
 
 ### Not exported!
-### In the IMGT gapped sequences for rhesus monkey, the end of the FWR1 regions
-### is at position 27 (in amino acid space) instead of standard position 26. As
-### a result, the CDR1/FWR2/CDR2/FWR3 are shifted downstream by 1 position.
-RHESUS_MONKEY_FWRCDR_WIDTHS <- list(
+IMGT_MOUSE_FWRCDR_WIDTHS <- rbind(
+    ## Not 100% sure about the CDR2/FWR3 junction for the IMGT V alleles
+    ## on loci TRA and TRD, hence our hesitation between using
+    ## cdr2=11L/fwr3=39L and cdr2=10L/fwr3=40L. However, using the latter
+    ## is A LOT MORE in agreement with 'load_intdata("mouse")'.
+    ## More precisely, with the former, doing
+    ##   install_IMGT_germline_db("202614-2", "Mus_musculus", tcr.db=TRUE)
+    ## introduces CDR2/FWR3 junction disagreements for 150+ TRA alleles
+    ## and 8 TRD alleles. While with the latter, we get CDR2/FWR3 junction
+    ## disagreements for 0 TRA allele and only 3 TRD alleles: TRDV5*01,
+    ## TRDV5*03, and TRDV5*04!
+    #TRA=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=11L, fwr3=39L),
+    TRA=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L),
+    #TRD=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=11L, fwr3=39L),
+    TRD=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L)
+)
+
+### Not exported!
+IMGT_RHESUS_MONKEY_FWRCDR_WIDTHS <- rbind(
     IGH=c(fwr1=27L, cdr1=13L, fwr2=17L, cdr2=10L, fwr3=39L),
     IGK=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L),
-    IGL=c(fwr1=27L, cdr1=12L, fwr2=19L, cdr2=10L, fwr3=39L)
+    IGL=c(fwr1=27L, cdr1=12L, fwr2=19L, cdr2=10L, fwr3=39L),
+    ## Not sure about the CDR2/FWR3 junction for the IMGT V alleles
+    ## on loci TRA, TRB, and TRG, hence our hesitation between using
+    ## cdr2=11L/fwr3=39L and cdr2=10L/fwr3=40L, even though the latter
+    ## seems more likely to be "the truth" (gut feeling based on some
+    ## observations that are too long to explain here). Note that we cannot
+    ## disambiguate by comparing with 'load_intdata("rhesus_monkey")' like
+    ## we did for IMGT_MOUSE_FWRCDR_WIDTHS above because IgBLAST does not
+    ## provide internal data for rhesus monkey TR alleles. So for now, we
+    ## disable automatic intdata generation in
+    ##   install_IMGT_germline_db("<release>", "Macaca_mulatta", tcr.db=TRUE)
+    ## See .from_auto.intdata_to_intdata() in R/install_IMGT_germline_db.R.
+    #TRA=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=11L, fwr3=39L),
+    TRA=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L),
+    #TRB=c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=11L, fwr3=39L),
+    TRB=c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L),
+    #TRG=c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=11L, fwr3=39L),
+    TRG=c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L)
 )
 
 ### Not exported!
 ### In the IMGT gapped sequences for rainbow trout, the end of the FWR1 regions
 ### is at position 29 (in amino acid space) instead of standard position 26. As
 ### a result, the CDR1/FWR2/CDR2/FWR3 are shifted downstream by 3 positions.
-RAINBOW_TROUT_FWRCDR_WIDTHS <- IMGT_FWRCDR_WIDTHS
-RAINBOW_TROUT_FWRCDR_WIDTHS[[1L]] <- RAINBOW_TROUT_FWRCDR_WIDTHS[[1L]] + 3L
+IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS <-
+    c(fwr1=29L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L)
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -75,23 +108,48 @@ normarg_gapped_V_alleles <- function(gapped_V_alleles)
 }
 
 ### Not exported!
+### 'fwrcdr_widths' can be a named numeric vector or a numeric matrix with
+### dimnames. Returns a named numeric vector or a numeric matrix with dimnames.
 normarg_fwrcdr_widths <- function(fwrcdr_widths)
 {
     if (!is.numeric(fwrcdr_widths))
-        stop(wmsg("'fwrcdr_widths' must be an integer vector"))
-    expected_len <- length(IMGT_FWRCDR_WIDTHS)
-    if (length(fwrcdr_widths) != expected_len)
-        stop(wmsg("'fwrcdr_widths' must have ", expected_len, " elements"))
-    nms <- names(fwrcdr_widths)
-    if (is.null(nms))
-        stop(wmsg("'fwrcdr_widths' must have names"))
-    expected_nms <- names(IMGT_FWRCDR_WIDTHS)
-    if (!identical(nms, expected_nms)) {
-        in1string <- paste(expected_nms, collapse=", ")
-        stop(wmsg("the names on 'fwrcdr_widths' must be: ", in1string))
+        stop(wmsg("'fwrcdr_widths' must be an integer vector or matrix"))
+    expected_len <- length(IMGT_DEFAULT_FWRCDR_WIDTHS)
+    expected_nms <- names(IMGT_DEFAULT_FWRCDR_WIDTHS)
+    expected_nms_in1string <- paste(expected_nms, collapse=", ")
+    if (is.matrix(fwrcdr_widths)) {
+        if (ncol(fwrcdr_widths) != expected_len)
+            stop(wmsg("'fwrcdr_widths' must have ", expected_len, " columns"))
+        dn <- dimnames(fwrcdr_widths)
+        if (is.null(dn))
+            stop(wmsg("'fwrcdr_widths' must have dimnames"))
+        dn1 <- dn[[1L]]
+        dn2 <- dn[[2L]]
+        if (is.null(dn1) || is.null(dn2))
+            stop(wmsg("'fwrcdr_widths' must have rownames and colnames"))
+        if (!identical(dn2, expected_nms))
+            stop(wmsg("the colnames on 'fwrcdr_widths' must be: ",
+                      expected_nms_in1string))
+        valid_rownames <- c(IG_LOCI, TR_LOCI)
+        if (!all(dn1 %in% valid_rownames)) {
+            in1string <- paste(valid_rownames, collapse=", ")
+            stop(wmsg("valid rownames for 'fwrcdr_widths' are: ", in1string))
+        }
+        if (anyDuplicated(dn1))
+            stop(wmsg("the rownames on 'fwrcdr_widths' cannot ",
+                      "contain duplicates"))
+    } else {
+        if (length(fwrcdr_widths) != expected_len)
+            stop(wmsg("'fwrcdr_widths' must have ", expected_len, " elements"))
+        nms <- names(fwrcdr_widths)
+        if (is.null(nms))
+            stop(wmsg("'fwrcdr_widths' must have names"))
+        if (!identical(nms, expected_nms))
+            stop(wmsg("the names on 'fwrcdr_widths' must be: ",
+                      expected_nms_in1string))
     }
     if (!is.integer(fwrcdr_widths))
-        fwrcdr_widths <- setNames(as.integer(fwrcdr_widths), expected_nms)
+        storage.mode(fwrcdr_widths) <- "integer"
     if (anyNA(fwrcdr_widths))
         stop(wmsg("'fwrcdr_widths' cannot contain NAs"))
     if (!all(fwrcdr_widths >= 1L))
@@ -227,10 +285,10 @@ stopifnot(
     stopifnot(is(IRL, "CompressedIRangesList"))
     IRL_len <- length(IRL)
     all_ranges <- unlist(IRL, use.names=FALSE)
-    expected_names <- rep.int(names(IMGT_FWRCDR_WIDTHS), IRL_len)
+    expected_names <- rep.int(names(IMGT_DEFAULT_FWRCDR_WIDTHS), IRL_len)
     stopifnot(identical(expected_names, names(all_ranges)))
 
-    idx0 <- seq_len(IRL_len) * length(IMGT_FWRCDR_WIDTHS)
+    idx0 <- seq_len(IRL_len) * length(IMGT_DEFAULT_FWRCDR_WIDTHS)
     df <- data.frame(
         allele_name=names(IRL),
         fwr1_start =start(all_ranges)[idx0 - 4L],
@@ -249,20 +307,12 @@ stopifnot(
     df
 }
 
-### 'gapped_V_alleles' can be a named DNAStringSet or BStringSet object,
-### or the path to a FASTA file. Note that **all** the sequences
-### in 'gapped_V_alleles' are expected to have gaps (the function will
-### issue a warning if that's not the case).
-### Returns a data.frame with 1 row per sequence in 'gapped_V_alleles'.
-compute_V_gene_delineations <- function(gapped_V_alleles,
-                                        fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
-                                        as.IRangesList=FALSE)
+.do_compute_V_gene_delineations <-
+    function(gapped_V_alleles, fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS)
 {
-    gapped_V_alleles <- normarg_gapped_V_alleles(gapped_V_alleles)
-    fwrcdr_widths <- normarg_fwrcdr_widths(fwrcdr_widths)
-    if (!isTRUEorFALSE(as.IRangesList))
-        stop(wmsg("'as.IRangesList' must be TRUE or FALSE"))
-
+    stopifnot(is.integer(fwrcdr_widths),
+              identical(names(fwrcdr_widths),
+                        names(IMGT_DEFAULT_FWRCDR_WIDTHS)))
     ## IMGT FWR/CDR fixed intervals in nucleotide space.
     imgt_bins <- PartitioningByWidth(fwrcdr_widths * 3L)
     midx <- vmatchPattern(GAP_LETTER, gapped_V_alleles)
@@ -292,6 +342,41 @@ compute_V_gene_delineations <- function(gapped_V_alleles,
                             starting_gap=starting_gap,
                             all_gaps_in_frame=all_gaps_in_frame,
                             all_gaps_contained=all_gaps_contained)
+    IRL
+}
+
+### 'gapped_V_alleles' can be a named DNAStringSet or BStringSet object,
+### or the path to a FASTA file. Note that **all** the sequences
+### in 'gapped_V_alleles' are expected to have gaps (the function will
+### issue a warning if that's not the case).
+### Returns a data.frame with 1 row per sequence in 'gapped_V_alleles'.
+compute_V_gene_delineations <-
+    function(gapped_V_alleles, fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
+             as.IRangesList=FALSE)
+{
+    gapped_V_alleles <- normarg_gapped_V_alleles(gapped_V_alleles)
+    fwrcdr_widths <- normarg_fwrcdr_widths(fwrcdr_widths)
+    if (!isTRUEorFALSE(as.IRangesList))
+        stop(wmsg("'as.IRangesList' must be TRUE or FALSE"))
+    if (is.matrix(fwrcdr_widths)) {
+        allele_loci <- substr(names(gapped_V_alleles), 1L, 3L)
+        alleles_by_loci <- split(gapped_V_alleles, allele_loci)
+        IRLs <- lapply(seq_along(alleles_by_loci),
+            function(i) {
+                locus <- names(alleles_by_loci)[[i]]
+                if (locus %in% rownames(fwrcdr_widths)) {
+                    locus_fwrcdr_widths <- fwrcdr_widths[locus, ]
+                } else {
+                    locus_fwrcdr_widths <- IMGT_DEFAULT_FWRCDR_WIDTHS
+                }
+                .do_compute_V_gene_delineations(alleles_by_loci[[i]],
+                                   fwrcdr_widths=locus_fwrcdr_widths)
+        })
+        IRL <- unsplit2(IRLs, allele_loci)
+    } else {
+        IRL <- .do_compute_V_gene_delineations(gapped_V_alleles,
+                                               fwrcdr_widths=fwrcdr_widths)
+    }
     if (as.IRangesList)
         return(IRL)
     .IRL_to_data_frame(IRL)

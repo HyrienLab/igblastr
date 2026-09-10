@@ -143,10 +143,10 @@ print.igblastn_raw_output <- function(x, ...) cat(x, sep="\n")
 {
     igblastn_exe <- get_igblast_exe("igblastn", igblast_root=igblast_root)
     cmd <- c(igblastn_exe, exe_args)
-    cmd_in_1string <- paste(cmd, collapse=" ")
+    cmd_in1string <- paste(cmd, collapse=" ")
     outfile <- if (show.in.browser)
                tempfile("igblastn_command_", fileext=".txt") else ""
-    cat(cmd_in_1string, "\n", file=outfile, sep="")
+    cat(cmd_in1string, "\n", file=outfile, sep="")
     if (show.in.browser)
         display_local_file_in_browser(outfile)
     cmd  # returns the command in a character vector

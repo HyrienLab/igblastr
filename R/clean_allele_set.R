@@ -244,8 +244,9 @@ check_locus <- function(locus, what)
 ### - carries the names and metadata columns of input object 'allele_set';
 ### - also carries the annotations obtained with compute_V_gene_delineations()
 ###   in additional metadata columns.
-.annotate_V_alleles <- function(allele_set, fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
-                                verbose=FALSE)
+.annotate_V_alleles <-
+    function(allele_set, fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
+             verbose=FALSE)
 {
     if (verbose) {
         msg <- c("Computing the intdata (a.k.a. igblastr-generated ",
@@ -550,7 +551,7 @@ clean_allele_set <- function(allele_set,
 ### additional metadata columns.
 clean_V_allele_set <- function(allele_set,
                                gapped=FALSE, auto.intdata=FALSE,
-                               fwrcdr_widths=IMGT_FWRCDR_WIDTHS,
+                               fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
                                disambiguate.allele.names=FALSE,
                                verbose=FALSE)
 {

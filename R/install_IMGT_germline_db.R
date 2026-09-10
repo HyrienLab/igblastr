@@ -40,12 +40,13 @@
 ### install_IMGT_germline_db()
 ###
 
-.form_IMGT_germline_db_name <- function(fasta_store, loci)
+.form_IMGT_germline_db_name <- function(fasta_store, organism, loci)
 {
-    stopifnot(isSingleNonWhiteString(fasta_store), dir.exists(fasta_store))
+    stopifnot(isSingleNonWhiteString(fasta_store), dir.exists(fasta_store),
+              isSingleNonWhiteString(organism))
     check_selected_loci(loci)
     organism_path <- dirname(fasta_store)
-    organism <- basename(organism_path)
+    stopifnot(basename(organism_path) == organism)
     refdir <- dirname(organism_path)
     stopifnot(basename(refdir) == VQUEST_REFERENCE_DIRECTORY)
     IMGT_store <- dirname(refdir)
@@ -53,12 +54,13 @@
     sprintf("IMGT-%s.%s.%s", release, organism, paste(loci, collapse="+"))
 }
 
-.get_fwrcdr_widths_for_organism <- function(organism)
+.get_fwrcdr_widths_for_imgt_organism <- function(organism)
 {
     switch(organism,
-        Macaca_mulatta     =RHESUS_MONKEY_FWRCDR_WIDTHS,
-        Oncorhynchus_mykiss=RAINBOW_TROUT_FWRCDR_WIDTHS,
-        IMGT_FWRCDR_WIDTHS)
+        Macaca_mulatta     =IMGT_RHESUS_MONKEY_FWRCDR_WIDTHS,
+        Mus_musculus       =IMGT_MOUSE_FWRCDR_WIDTHS,
+        Oncorhynchus_mykiss=IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS,
+        IMGT_DEFAULT_FWRCDR_WIDTHS)
 }
 
 ### Why does IMGT human J allele IGLJ2A*01 have a codon start set to 1?
@@ -105,6 +107,7 @@
         "Gorilla_gorilla_gorilla",
         "Homo_sapiens",
         "Lemur_catta",
+        "Macaca_mulatta",
         "Mus_musculus",
         "Oncorhynchus_mykiss",
         "Oryctolagus_cuniculus",
@@ -115,6 +118,10 @@
         "Heterocephalus_glaber",
         "Homo_sapiens",
         "Macaca_fascicularis",
+        ## See IMGT_RHESUS_MONKEY_FWRCDR_WIDTHS in
+        ## R/compute_V_gene_delineations.R
+        #"Macaca_mulatta",
+        "Mus_musculus",
         "Oryctolagus_cuniculus"
     )
     if (organism %in% ok_organisms) "auto" else NULL
@@ -169,11 +176,12 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
     found_loci <- list_loci_in_germline_fasta_dir(fasta_store, loci_prefix)
     loci <- .get_effective_loci(loci, found_loci)
 
-    ## Compute 'db_name'.
-    db_name <- .form_IMGT_germline_db_name(fasta_store, loci)
+    ## Get final 'organism' string and use it to form 'db_name'.
+    organism <- basename(dirname(fasta_store))
+    db_name <- .form_IMGT_germline_db_name(fasta_store, organism, loci)
 
     ## Set 'fwrcdr_widths'.
-    fwrcdr_widths <- .get_fwrcdr_widths_for_organism(organism)
+    fwrcdr_widths <- .get_fwrcdr_widths_for_imgt_organism(organism)
 
     ## Do we need to exclude any J allele known to be problematic?
     if (organism == "Homo_sapiens" && loci_prefix == "IG") {
