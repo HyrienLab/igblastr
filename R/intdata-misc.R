@@ -203,39 +203,39 @@ summarize_anchor_V_residues <- function(V_alleles, intdata)
 ### ---------------------------- tcr.db=FALSE --------------------------------
 ###                                                          C23    W41   C104
 ### IMGT-202614-2.Bos_taurus.IGH+IGK+IGL                   98.88  95.51  95.00
-### IMGT-202614-2.Canis_lupus_familiaris.IGH+IGK+IGL       97.89  47.68  47.68
+### IMGT-202614-2.Canis_lupus_familiaris.IGH+IGK+IGL       97.89  95.36  96.20
 ### IMGT-202614-2.Equus_caballus.IGH+IGK                   91.01  88.76  34.83
 ### IMGT-202614-2.Gallus_gallus.IGH+IGL                    73.98  67.91  71.09
 ### IMGT-202614-2.Gorilla_gorilla_gorilla.IGH+IGK+IGL      98.26  89.58  93.40
 ### IMGT-202614-2.Homo_sapiens.IGH+IGK+IGL                 98.47  94.52  97.41
 ### IMGT-202614-2.Lemur_catta.IGH+IGK+IGL                  96.92  99.56 100.00
-### IMGT-202614-2.Macaca_fascicularis.IGH                  93.18   0.00   0.00
+### IMGT-202614-2.Macaca_fascicularis.IGH                  93.18  95.45  98.85
 ### IMGT-202614-2.Macaca_mulatta.IGH+IGK+IGL               95.62  93.87  96.05
 ### IMGT-202614-2.Mus_musculus.IGH+IGK+IGL                 98.49  94.68  94.51
-### IMGT-202614-2.Mustela_putorius_furo.IGH+IGK+IGL        65.54  31.64  32.20
-### IMGT-202614-2.Neogale_vison.IGH                         0.00   0.00   0.00
+### IMGT-202614-2.Mustela_putorius_furo.IGH+IGK+IGL        95.48  93.22  94.35
+### IMGT-202614-2.Neogale_vison.IGH                        96.77 100.00  96.77
 ### IMGT-202614-2.Oncorhynchus_mykiss.IGH                  98.73  92.36  94.90
-### IMGT-202614-2.Ornithorhynchus_anatinus.IGH             97.78   0.00   0.00
+### IMGT-202614-2.Ornithorhynchus_anatinus.IGH             97.78 100.00  95.45
 ### IMGT-202614-2.Oryctolagus_cuniculus.IGH+IGK+IGL        98.64 100.00 100.00
-### IMGT-202614-2.Pongo_pygmaeus.IGH+IGK+IGL               49.66  55.48  48.11
-### IMGT-202614-2.Rattus_norvegicus.IGH+IGK+IGL            95.76  40.20  42.21
-### IMGT-202614-2.Salmo_salar.IGH                           0.00   0.00   0.67
+### IMGT-202614-2.Pongo_pygmaeus.IGH+IGK+IGL               95.17  94.18  93.47
+### IMGT-202614-2.Rattus_norvegicus.IGH+IGK+IGL            95.76  91.56  95.48
+### IMGT-202614-2.Salmo_salar.IGH                          95.33  92.00  91.33
 ### IMGT-202614-2.Sus_scrofa.IGH+IGK+IGL                   96.92  96.92  95.38
 ### IMGT-202614-2.Vicugna_pacos.IGH                        98.81  97.62 100.00
 ### ---------------------------- tcr.db=TRUE ---------------------------------
 ###                                                          C23    W41   C104
-### IMGT-202614-2.Bos_taurus.TRA+TRB+TRG+TRD               66.58  48.29  48.56
+### IMGT-202614-2.Bos_taurus.TRA+TRB+TRG+TRD               98.16  94.23  99.21
 ### IMGT-202614-2.Camelus_dromedarius.TRA+TRB+TRG+TRD     100.00 100.00 100.00
-### IMGT-202614-2.Canis_lupus_familiaris.TRA+TRB+TRG+TRD   98.77  98.77  14.81
+### IMGT-202614-2.Canis_lupus_familiaris.TRA+TRB+TRG+TRD   98.77  98.77  98.77
 ### IMGT-202614-2.Danio_rerio.TRA+TRD                       0.71   0.00   0.00
-### IMGT-202614-2.Felis_catus.TRA+TRB+TRG+TRD              98.85  98.85  44.83
-### IMGT-202614-2.Gorilla_gorilla_gorilla.TRA+TRB+TRG+TRD  53.72  54.79  45.21
+### IMGT-202614-2.Felis_catus.TRA+TRB+TRG+TRD              98.85  98.85 100.00
+### IMGT-202614-2.Gorilla_gorilla_gorilla.TRA+TRB+TRG+TRD  97.34  99.47 100.00
 ### IMGT-202614-2.Heterocephalus_glaber.TRA+TRB+TRG+TRD    95.65  95.65  90.43
 ### IMGT-202614-2.Homo_sapiens.TRA+TRB+TRG+TRD             96.88  98.87  97.69
 ### IMGT-202614-2.Macaca_fascicularis.TRB                  95.45  98.48  98.46
-### IMGT-202614-2.Macaca_mulatta.TRA+TRB+TRG+TRD           34.26  34.72  62.79
+### IMGT-202614-2.Macaca_mulatta.TRA+TRB+TRG+TRD           97.69  99.54  98.60
 ### IMGT-202614-2.Mus_musculus.TRA+TRB+TRG+TRD             99.47  97.16  98.70
-### IMGT-202614-2.Mustela_putorius_furo.TRA+TRB+TRG+TRD    96.64  94.12  36.97
+### IMGT-202614-2.Mustela_putorius_furo.TRA+TRB+TRG+TRD    96.64  94.12  97.48
 ### IMGT-202614-2.Oryctolagus_cuniculus.TRA+TRB+TRG+TRD    99.32  99.32 100.00
 ### IMGT-202614-2.Ovis_aries.TRA+TRB+TRD                   99.47  72.80  18.72
 ### IMGT-202614-2.Pan_troglodytes.TRA+TRG+TRD              97.50  98.75  81.25
