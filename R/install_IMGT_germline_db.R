@@ -57,9 +57,20 @@
 .get_fwrcdr_widths_for_imgt_organism <- function(organism)
 {
     switch(organism,
-        Macaca_mulatta     =IMGT_RHESUS_MONKEY_FWRCDR_WIDTHS,
-        Mus_musculus       =IMGT_MOUSE_FWRCDR_WIDTHS,
-        Oncorhynchus_mykiss=IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS,
+        Bos_taurus              =IMGT_COW_FWRCDR_WIDTHS,
+        Canis_lupus_familiaris  =IMGT_DOG_FWRCDR_WIDTHS,
+        Felis_catus             =IMGT_CAT_FWRCDR_WIDTHS,
+        Gorilla_gorilla_gorilla =IMGT_GORILLA_FWRCDR_WIDTHS,
+        Macaca_fascicularis     =IMGT_CRAB_EATING_MACAQUE_FWRCDR_WIDTHS,
+        Macaca_mulatta          =IMGT_RHESUS_MONKEY_FWRCDR_WIDTHS,
+        Mus_musculus            =IMGT_MOUSE_FWRCDR_WIDTHS,
+        Mustela_putorius_furo   =IMGT_FERRET_FWRCDR_WIDTHS,
+        Neogale_vison           =IMGT_AMERICAN_MINK_FWRCDR_WIDTHS,
+        Oncorhynchus_mykiss     =IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS,
+        Ornithorhynchus_anatinus=IMGT_PLATYPUS_FWRCDR_WIDTHS,
+        Pongo_pygmaeus          =IMGT_BORNEAN_ORANGUTAN_FWRCDR_WIDTHS,
+        Rattus_norvegicus       =IMGT_RAT_FWRCDR_WIDTHS,
+        Salmo_salar             =IMGT_ATLANTIC_SALMON_FWRCDR_WIDTHS,
         IMGT_DEFAULT_FWRCDR_WIDTHS)
 }
 
@@ -103,25 +114,36 @@
     ## R/intdata-misc.R for more information.
     ok_organisms <- if (loci_prefix == "IG") c(
         "Bos_taurus",
+        "Canis_lupus_familiaris",
         ## codon41 for gorilla is only 89.58% conserved but that's good enough!
         "Gorilla_gorilla_gorilla",
         "Homo_sapiens",
         "Lemur_catta",
+        "Macaca_fascicularis",
         "Macaca_mulatta",
         "Mus_musculus",
+        "Mustela_putorius_furo",
+        "Neogale_vison",
         "Oncorhynchus_mykiss",
+        "Ornithorhynchus_anatinus",
         "Oryctolagus_cuniculus",
+        "Pongo_pygmaeus",
+        "Rattus_norvegicus",
+        "Salmo_salar",
         "Sus_scrofa",
         "Vicugna_pacos"
     ) else c(
+        "Bos_taurus",
         "Camelus_dromedarius",
+        "Canis_lupus_familiaris",
+        "Felis_catus",
+        "Gorilla_gorilla_gorilla",
         "Heterocephalus_glaber",
         "Homo_sapiens",
         "Macaca_fascicularis",
-        ## See IMGT_RHESUS_MONKEY_FWRCDR_WIDTHS in
-        ## R/compute_V_gene_delineations.R
-        #"Macaca_mulatta",
+        "Macaca_mulatta",
         "Mus_musculus",
+        "Mustela_putorius_furo",
         "Oryctolagus_cuniculus"
     )
     if (organism %in% ok_organisms) "auto" else NULL
