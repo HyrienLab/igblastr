@@ -21,13 +21,13 @@ lookup_igblast_organism <- function(organism)
     if (length(ans) == 1L)
         return(ans)
     if (length(ans) >= 2L)
-        stop(wmsg("ambigous organism abbreviation: ", organism))
+        stop(wmsg("ambiguous organism abbreviation: ", organism))
     idx <- grep(chartr("_", " ", organism), LATIN_NAMES,
                 ignore.case=TRUE)
     if (length(idx) == 0L)
         stop(wmsg("unrecognized organism: ", organism))
-    if (length(idx) != 1L)
-        stop(wmsg("ambigous organism abbreviation: ", organism))
+    if (length(idx) >= 2L)
+        stop(wmsg("ambiguous organism abbreviation: ", organism))
     names(LATIN_NAMES)[[idx]]
 }
 

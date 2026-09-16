@@ -25,10 +25,8 @@
 {
     stopifnot(is.character(fasta_files),
               isSingleString(loci_prefix), loci_prefix %in% c("IG", "TR"))
-    loci <- unique(sub("[VDJ]\\.fasta$", "", fasta_files))
-    valid_loci <- if (loci_prefix == "IG") IG_LOCI else TR_LOCI
-    stopifnot(all(loci %in% valid_loci))
-    valid_loci[valid_loci %in% loci]  # return loci in canonical order
+    sort_unique_loci(sub("[VDJ]\\.fasta$", "", fasta_files),
+                     loci_prefix=loci_prefix)
 }
 
 .check_fasta_set <- function(fasta_files, loci)

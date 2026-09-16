@@ -82,6 +82,7 @@ check_selected_loci <- function(loci)
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### extract_loci_prefix()
 ### extract_selected_loci_prefix()
+### sort_unique_loci()
 ###
 
 extract_loci_prefix <- function(loci)
@@ -106,6 +107,23 @@ extract_selected_loci_prefix <- function(loci)
     TR_loci_in1string <- paste0("\"", TR_LOCI, "\"", collapse=", ")
     stop(wmsg("'loci' must be a subset of 'c(", IG_loci_in1string, ")' ",
               "or a subset of 'c(", TR_loci_in1string, ")'"))
+}
+
+### Return unique loci in canonical order.
+sort_unique_loci <- function(loci, loci_prefix=NULL)
+{
+    stopifnot(is.character(loci))
+    if (is.null(loci_prefix)) {
+        valid_loci <- c(IG_LOCI, TR_LOCI)
+    } else {
+        stopifnot(isSingleNonWhiteString(loci_prefix))
+        valid_loci <- switch(loci_prefix,
+                             IG=IG_LOCI,
+                             TR=TR_LOCI,
+                             stop(wmsg("invalid 'loci_prefix'")))
+    }
+    stopifnot(all(loci %in% valid_loci))
+    valid_loci[valid_loci %in% loci]
 }
 
 
@@ -159,8 +177,7 @@ normalize_user_supplied_loci <- function(loci="auto", tcr.db=FALSE,
     loci_prefix <- extract_selected_loci_prefix(loci)
     if (!identical(tcr.db, FALSE))
         stop(wmsg("'tcr.db' should not be used when 'loci' is supplied"))
-    valid_loci <- if (loci_prefix == "IG") IG_LOCI else TR_LOCI
-    valid_loci[valid_loci %in% loci]  # return loci in canonical order
+    sort_unique_loci(loci, loci_prefix=loci_prefix)
 }
 
 
