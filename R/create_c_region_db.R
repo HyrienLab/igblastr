@@ -40,9 +40,7 @@ stop_on_existing_c_region_db <- function(db_name)
     stopifnot(is.character(fasta_files),
               isSingleString(loci_prefix), loci_prefix %in% c("IG", "TR"))
     loci <- unique(sub("C\\.fasta$", "", fasta_files))
-    valid_loci <- if (loci_prefix == "IG") IG_LOCI else TR_LOCI
-    stopifnot(all(loci %in% valid_loci))
-    valid_loci[valid_loci %in% loci]  # return loci in canonical order
+    sort_unique_loci(loci, loci_prefix=loci_prefix)
 }
 
 list_loci_in_c_region_fasta_dir <- function(fasta_dir, loci_prefix)

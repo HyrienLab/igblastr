@@ -93,7 +93,6 @@ export(
 
     ## compute_V_gene_delineations.R:
     IMGT_DEFAULT_FWRCDR_WIDTHS,
-    IMGT_MOUSE_FWRCDR_WIDTHS,
     compute_V_gene_delineations,
     compute_imgt_intdata,
 
@@ -116,6 +115,9 @@ export(
     translate_J_alleles,
     J_allele_has_stop_codon,
     translate_fwr4,
+
+    ## IMGT-intdata-utils.R:
+    get_fwrcdr_widths_for_imgt_organism,
 
     ## get_igblast_root.R:
     get_igblast_root, set_igblast_root,

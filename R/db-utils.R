@@ -99,18 +99,6 @@ get_db_original_fasta_dir <- function(db_path, region_type=VDJC_REGION_TYPES)
         }, integer(1))
 }
 
-### No longer used.
-### Replaced by .extract_loci_from_original_fasta_filenames() below.
-.extract_loci_from_db_name <- function(db_name)
-{
-    stopifnot(isSingleNonWhiteString(db_name))
-    loci_in1string <- sub("^[^+]*\\.([IGHKLTRABGD+]+)[^+]*$", "\\1", db_name)
-    if (loci_in1string == "")
-        stop(wmsg("failed to extract loci from db name \"", db_name, "\""))
-    strsplit(loci_in1string, "+", fixed=TRUE)[[1L]]
-}
-
-### A replacement for .extract_loci_from_db_name() that is more robust.
 ### Returns a character vector of loci in canonical order.
 .extract_loci_from_original_fasta_filenames <- function(db_path, region_types)
 {
@@ -122,17 +110,13 @@ get_db_original_fasta_dir <- function(db_path, region_type=VDJC_REGION_TYPES)
             stopifnot(!anyDuplicated(loci))
             loci
         })
-    loci <- unique(unlist(all_loci, use.names=FALSE))
-    loci_prefix <- extract_selected_loci_prefix(loci)
-    valid_loci <- if (loci_prefix == "IG") IG_LOCI else TR_LOCI
-    valid_loci[valid_loci %in% loci]  # return loci in canonical order
+    sort_unique_loci(unlist(all_loci, use.names=FALSE))
 }
 
 ### Returns a 3-column integer matrix with 'loci' as rownames
 ### and V/D/J as colnames.
 .tabulate_germline_db_by_group <- function(db_path)
 {
-    #loci <- .extract_loci_from_db_name(basename(db_path))
     loci <- .extract_loci_from_original_fasta_filenames(db_path,
                                                         VDJ_REGION_TYPES)
     vdj_counts <- lapply(VDJ_REGION_TYPES,
@@ -149,7 +133,6 @@ get_db_original_fasta_dir <- function(db_path, region_type=VDJC_REGION_TYPES)
 ### Returns a named integer vector with 'loci' as names.
 .tabulate_c_region_db_by_locus <- function(db_path)
 {
-    #loci <- .extract_loci_from_db_name(basename(db_path))
     loci <- .extract_loci_from_original_fasta_filenames(db_path, "C")
     ans <- .tabulate_db_original_fasta_files_by_locus(db_path, "C", loci)
     stopifnot(all(ans != 0L))

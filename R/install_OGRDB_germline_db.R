@@ -200,19 +200,19 @@ make_auxdata_files_from_ogrdb_jsons <-
 ###
 
 ### Fetch all required FASTA and JSON files from OGRDB.
-### Returns vector of corresponding loci.
+### Returns vector of corresponding loci in canonical order.
 .download_OGRDB_files_to_tmp_store <- function(organism, germline_sets,
                                                source_set, tmp_store, ...)
 {
     fasta_files <- download_OGRDB_germline_sequences(organism, germline_sets,
                                       source_set=source_set,
                                       destdir=tmp_store, ...)
-    loci <- unique(substr(fasta_files, 1L, 3L))
+    loci <- sort_unique_loci(substr(fasta_files, 1L, 3L), loci_prefix="IG")
     json_files <- download_OGRDB_germline_json(organism, germline_sets,
                                       source_set=source_set,
                                       destdir=tmp_store, ...)
     stopifnot(setequal(unique(substr(json_files, 1L, 3L)), loci))
-    IG_LOCI[IG_LOCI %in% loci]  # return loci in canonical order
+    loci
 }
 
 .check_db_name_suffix <- function(suffix)

@@ -5,7 +5,7 @@
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-### FWR/CDR fixed end positions w.r.t. the V gapped sequences
+### IMGT_DEFAULT_FWRCDR_WIDTHS
 ###
 
 ### The IMGT unique numbering provides a standardized delimitation of
@@ -17,152 +17,8 @@
 IMGT_DEFAULT_FWRCDR_WIDTHS <-
     c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L)
 
-### There are some exceptions to this rule though: some organisms/loci have
-### additional insertions in their FWR/CDR regions. IMGT online "Protein
-### displays" service at https://www.imgt.org/IMGTrepertoire/Proteins/ shows
-### these additional insertions.
-
-### Not exported!
-IMGT_MOUSE_FWRCDR_WIDTHS <- rbind(
-    ## 1 additional insertion in FWR1 and 1 in FWR3 (between pos 84 & 85). See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=house%20mouse&latin=Mus%20musculus&group=TRAV
-    TRA=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L),
-    ## 1 additional insertion in FWR1 and 1 in FWR3 (between pos 84 & 85). See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=house%20mouse&latin=Mus%20musculus&group=TRDV
-    TRD=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L)
-)
-
-### Not exported!
-IMGT_RAT_FWRCDR_WIDTHS <- rbind(
-    ## IMGT "Protein display" service shows 2 additional insertions in CDR1
-    ## and 1 in FWR3. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Norway%20rat&latin=Rattus%20norvegicus&group=IGHV
-    ## However, this seems very outdated! I sent an email to the IMGT team with
-    ## subject "Protein display for rat IGHV seems out-of-sync with IGHV.fasta
-    ## for rat" on Sep 11, 2026 about this.
-    ## What we actually see in recent IGHV.fasta for rat is 1 additional
-    ## insertion in CDR1 and 1 in FWR3.
-    IGH=c(fwr1=26L, cdr1=13L, fwr2=17L, cdr2=10L, fwr3=40L)
-)
-
-### Not exported!
-IMGT_RHESUS_MONKEY_FWRCDR_WIDTHS <- rbind(
-    ## 2 additional insertions in FWR1 (between pos 15 & 16, and between
-    ## pos 26 & 27, this 2nd insertion is considered part of the FWR1). See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Rhesus%20monkey&latin=Macaca%20mulatta&group=IGHV
-    IGH=c(fwr1=28L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L),
-    ## 1 additional insertion in FWR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Rhesus%20monkey&latin=Macaca%20mulatta&group=IGKV
-    IGK=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L),
-    ## 1 additional insertion in FWR1 and 2 in FWR2. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Rhesus%20monkey&latin=Macaca%20mulatta&group=IGLV
-    IGL=c(fwr1=27L, cdr1=12L, fwr2=19L, cdr2=10L, fwr3=39L),
-    ## 1 additional insertion in FWR1 and 1 in FWR3. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Rhesus%20monkey&latin=Macaca%20mulatta&group=TRAV
-    TRA=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L),
-    ## 1 additional insertion in FWR3. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Rhesus%20monkey&latin=Macaca%20mulatta&group=TRBV
-    TRB=c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L),
-    ## 1 additional insertion in FWR2. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Rhesus%20monkey&latin=Macaca%20mulatta&group=TRGV
-    TRG=c(fwr1=26L, cdr1=12L, fwr2=18L, cdr2=10L, fwr3=39L)
-)
-
-### Not exported!
-IMGT_CRAB_EATING_MACAQUE_FWRCDR_WIDTHS <- rbind(
-    ## 1 additional insertion in FWR1 (between pos 26 & 27, considered part
-    ## of the FWR1). See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=crab-eating%20macaque&latin=Macaca%20fascicularis&group=IGHV
-    IGH=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L)
-)
-
-### Not exported!
-IMGT_GORILLA_FWRCDR_WIDTHS <- rbind(
-    ## 1 additional insertion in FWR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=western%20lowland%20gorilla&latin=Gorilla%20gorilla%20gorilla&group=TRAV
-    TRA=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L),
-    ## 1 additional insertion in FWR2. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=western%20lowland%20gorilla&latin=Gorilla%20gorilla%20gorilla&group=TRGV
-    TRG=c(fwr1=26L, cdr1=12L, fwr2=18L, cdr2=10L, fwr3=39L)
-)
-
-### Not exported!
-IMGT_CAT_FWRCDR_WIDTHS <- rbind(
-    ## 1 additional insertion in FWR2 (between pos 46 & 47). See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=domestic%20cat&latin=Felis%20catus&group=TRAV
-    TRA=c(fwr1=26L, cdr1=12L, fwr2=18L, cdr2=10L, fwr3=39L)
-)
-
-### Not exported!
-IMGT_DOG_FWRCDR_WIDTHS <- rbind(
-    ## 2 additional insertions in CDR1, 1 in FWR2, and 1 in FWR3. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=dog&latin=Canis%20lupus%20familiaris&group=IGLV
-    IGL=c(fwr1=26L, cdr1=14L, fwr2=18L, cdr2=10L, fwr3=40L),
-    ## 1 additional insertion in FWR2 (between pos 46 & 47). See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=dog&latin=Canis%20lupus%20familiaris&group=TRAV
-    TRA=c(fwr1=26L, cdr1=12L, fwr2=18L, cdr2=10L, fwr3=39L),
-    ## 2 additional insertions in FWR3. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=dog&latin=Canis%20lupus%20familiaris&group=TRBV
-    TRB=c(fwr1=26L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=41L)
-)
-
-### Not exported!
-IMGT_BORNEAN_ORANGUTAN_FWRCDR_WIDTHS <- rbind(
-    ## 3 additional insertions in FWR1 and 1 in FWR3. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Bornean%20orangutan&latin=Pongo%20pygmaeus&group=IGHV
-    IGH=c(fwr1=29L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=40L)
-)
-
-### Not exported!
-IMGT_COW_FWRCDR_WIDTHS <- rbind(
-    ## 1 additional insertion in FWR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=bovine&latin=Bos%20taurus&group=TRBV
-    TRB=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L),
-    ## 2 additional insertions in FWR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=bovine&latin=Bos%20taurus&group=TRGV
-    TRG=c(fwr1=28L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L),
-    ## 6 additional insertions in CDR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=bovine&latin=Bos%20taurus&group=TRDV
-    TRD=c(fwr1=26L, cdr1=18L, fwr2=17L, cdr2=10L, fwr3=39L)
-)
-
-### Not exported!
-IMGT_PLATYPUS_FWRCDR_WIDTHS <- rbind(
-    ## 1 additional insertion in CDR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=platypus&latin=Ornithorhynchus%20anatinus&group=IGHV
-    IGH=c(fwr1=26L, cdr1=13L, fwr2=17L, cdr2=10L, fwr3=39L)
-)
-
-### Not exported!
-IMGT_FERRET_FWRCDR_WIDTHS <- rbind(
-    ## 1 additional insertion in FWR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=domestic%20ferret&latin=Mustela%20putorius%20furo&group=IGKV
-    IGK=c(fwr1=27L, cdr1=12L, fwr2=17L, cdr2=10L, fwr3=39L),
-    ## 2 additional insertions in CDR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=domestic%20ferret&latin=Mustela%20putorius%20furo&group=IGLV
-    IGL=c(fwr1=26L, cdr1=14L, fwr2=17L, cdr2=10L, fwr3=39L),
-    ## 1 additional insertion in FWR2 (between pos 46 & 47). See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=domestic%20ferret&latin=Mustela%20putorius%20furo&group=TRAV
-    TRA=c(fwr1=26L, cdr1=12L, fwr2=18L, cdr2=10L, fwr3=39L)
-)
-
-### Not exported!
-IMGT_AMERICAN_MINK_FWRCDR_WIDTHS <-
-    ## 1 additional insertion in FWR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=American%20mink&latin=Neogale%20vison&group=IGHV
-    c(fwr1=27L, IMGT_DEFAULT_FWRCDR_WIDTHS[-1L])
-
-### Not exported!
-IMGT_ATLANTIC_SALMON_FWRCDR_WIDTHS <-
-    ## 2 additional insertions in FWR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=Atlantic%20salmon&latin=Salmo%20salar&group=IGHV
-    c(fwr1=28L, IMGT_DEFAULT_FWRCDR_WIDTHS[-1L])
-
-### Not exported!
-IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS <-
-    ## 3 additional insertions in FWR1. See
-    ## https://www.imgt.org/IMGTrepertoire/Proteins/proteinDisplays.php?species=rainbow%20trout&latin=Oncorhynchus%20mykiss&group=IGHV
-    c(fwr1=29L, IMGT_DEFAULT_FWRCDR_WIDTHS[-1L])
+### There are some exceptions to this rule though. See R/IMGT-intdata-utils.R
+### for more information.
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -226,7 +82,7 @@ normarg_fwrcdr_widths <- function(fwrcdr_widths)
         if (!identical(dn2, expected_nms))
             stop(wmsg("the colnames on 'fwrcdr_widths' must be: ",
                       expected_nms_in1string))
-        valid_rownames <- c(IG_LOCI, TR_LOCI)
+        valid_rownames <- paste0(c(IG_LOCI, TR_LOCI), "V")
         if (!all(dn1 %in% valid_rownames)) {
             in1string <- paste(valid_rownames, collapse=", ")
             stop(wmsg("valid rownames for 'fwrcdr_widths' are: ", in1string))
@@ -453,22 +309,25 @@ compute_V_gene_delineations <-
     gapped_V_alleles <- normarg_gapped_V_alleles(gapped_V_alleles)
     fwrcdr_widths <- normarg_fwrcdr_widths(fwrcdr_widths)
     if (!isTRUEorFALSE(as.IRangesList))
-        stop(wmsg("'as.IRangesList' must be TRUE or FALSE"))
+        stop(wmsg("'IRangesList' must be TRUE or FALSE"))
     if (is.matrix(fwrcdr_widths)) {
-        allele_loci <- substr(names(gapped_V_alleles), 1L, 3L)
-        alleles_by_loci <- split(gapped_V_alleles, allele_loci)
-        IRLs <- lapply(seq_along(alleles_by_loci),
+        allele_groups <- substr(names(gapped_V_alleles), 1L, 4L)
+        alleles_by_group <- split(gapped_V_alleles, allele_groups)
+        bad_idx <- which(!(names(alleles_by_group) %in%
+                           rownames(fwrcdr_widths)))
+        if (length(bad_idx) != 0L) {
+            in1string <- paste(names(alleles_by_group)[bad_idx], collapse=", ")
+            stop(wmsg("FWR/CDR widths unknown for gapped V allele ",
+                      "sequences in group(s): ", in1string))
+        }
+        IRLs <- lapply(seq_along(alleles_by_group),
             function(i) {
-                locus <- names(alleles_by_loci)[[i]]
-                if (locus %in% rownames(fwrcdr_widths)) {
-                    locus_fwrcdr_widths <- fwrcdr_widths[locus, ]
-                } else {
-                    locus_fwrcdr_widths <- IMGT_DEFAULT_FWRCDR_WIDTHS
-                }
-                .do_compute_V_gene_delineations(alleles_by_loci[[i]],
-                                   fwrcdr_widths=locus_fwrcdr_widths)
+                group <- names(alleles_by_group)[[i]]
+                group_fwrcdr_widths <- fwrcdr_widths[group, ]
+                .do_compute_V_gene_delineations(alleles_by_group[[i]],
+                                   fwrcdr_widths=group_fwrcdr_widths)
         })
-        IRL <- unsplit2(IRLs, allele_loci)
+        IRL <- unsplit2(IRLs, allele_groups)
     } else {
         IRL <- .do_compute_V_gene_delineations(gapped_V_alleles,
                                                fwrcdr_widths=fwrcdr_widths)

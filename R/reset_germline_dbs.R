@@ -146,9 +146,10 @@
 {
     db_name <-
         .form_preinstalled_OGRDB_rainbow_trout_germline_db_name(fasta_store)
+    fwrcdr_widths <- get_fwrcdr_widths_for_imgt_organism("rainbow_trout")
     .preinstall_OGRDB_germline_db(install_dir, db_name, fasta_store, loci="IGH",
-                      fwrcdr_widths=IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS,
-                      verbose=verbose)
+                                  fwrcdr_widths=fwrcdr_widths,
+                                  verbose=verbose)
 }
 
 .preinstall_missing_OGRDB_rainbow_trout_germline_dbs <-

@@ -76,8 +76,10 @@ validate_rainbow_trout_intdata <- function()
                       "(version ", germline_set, ")")
             message("Validating intdata for ", what, " ... ",
                     appendLF=FALSE)
+            fwrcdr_widths <-
+                get_fwrcdr_widths_for_imgt_organism("rainbow_trout")
             ok <- igblastr:::validate_OGRDB_intdata(organism, germline_set,
-                      fwrcdr_widths=igblastr:::IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS)
+                                            fwrcdr_widths=fwrcdr_widths)
             msg <- if (ok) "ok" else "DATA IS INCONSISTENT!"
             message(msg)
         }

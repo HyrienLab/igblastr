@@ -1,7 +1,6 @@
 \name{compute_V_gene_delineations}
 
 \alias{IMGT_DEFAULT_FWRCDR_WIDTHS}
-\alias{IMGT_MOUSE_FWRCDR_WIDTHS}
 \alias{compute_V_gene_delineations}
 \alias{compute_imgt_intdata}
 
@@ -16,6 +15,8 @@
 }
 
 \usage{
+IMGT_DEFAULT_FWRCDR_WIDTHS
+
 compute_V_gene_delineations(gapped_V_alleles,
                             fwrcdr_widths=IMGT_DEFAULT_FWRCDR_WIDTHS,
                             as.IRangesList=FALSE)
@@ -34,12 +35,13 @@ compute_V_gene_delineations(gapped_V_alleles,
     Set to \code{IMGT_DEFAULT_FWRCDR_WIDTHS} by default.
     See \url{https://www.imgt.org/IMGTScientificChart/Nomenclature/IMGT-FRCDRdefinition.html}
 
-    Alternatively, \code{fwrcdr_widths} can be 5-column integer matrix with
+    Alternatively, \code{fwrcdr_widths} can be a 5-column integer matrix with
     rownames and colnames. The colnames must be fwr1, cdr1, fwr2, cdr2, and
-    fwr3. The rownames must be BCR or TCR loci. The BCR loci are IGH, IGK,
-    IGL, and the TCR loci are TRA, TRB, TRG, TRD. A mix of BCR and TCR loci
-    is ok. An example of such matrix is predefined object
-    \code{IMGT_MOUSE_FWRCDR_WIDTHS}.
+    fwr3. The rownames must be valid IMGT V group names. There are 7 IMGT V
+    group names, one per BCR locus (groups IGHV, IGKV, and IGLV), and one per
+    TCR locus (groups TRAV, TRBV, TRGV, and TRDV).
+    See \code{?\link{get_fwrcdr_widths_for_imgt_organism}} for examples
+    of such matrices.
   }
   \item{as.IRangesList}{
     Experts only! Set to \code{TRUE} to return the delineations in an
@@ -100,6 +102,9 @@ compute_V_gene_delineations(gapped_V_alleles,
           for the role of gaps in the germline V gene allele sequences
           provided by IMGT.
 
+    \item \code{\link{get_fwrcdr_widths_for_imgt_organism}} to get the FWR/CDR
+          widths for a given IMGT organism.
+
     \item \code{\link{load_intdata}} to access IgBLAST \emph{internal data}.
 
     \item \code{\link{compute_auxdata}} to annotate a set of germline J
@@ -119,7 +124,19 @@ compute_V_gene_delineations(gapped_V_alleles,
 
 \examples{
 ## ---------------------------------------------------------------------
-## 1. USING HUMAN GERMLINE V GENE ALLELE SEQUENCES FROM OGRDB
+## 1. THE DEFAULT FWR/CDR WIDTHS
+## ---------------------------------------------------------------------
+
+## The FWR/CDR widths are the number of letters+dots used to represent
+## the FWR/CDR regions in the gapped amino acid sequences of the V
+## alleles. The default widths are:
+IMGT_DEFAULT_FWRCDR_WIDTHS
+
+## See '?get_fwrcdr_widths_for_imgt_organism' to get the FWR/CDR widths
+## for a given IMGT organism.
+
+## ---------------------------------------------------------------------
+## 2. COMPUTE V GENE DELINEATIONS OF OGRDB HUMAN V ALLELES
 ## ---------------------------------------------------------------------
 ## Visit https://ogrdb.airr-community.org/germline_sets/Homo%20sapiens
 ## for the list of human germline sets available at OGRDB.
@@ -172,7 +189,7 @@ stopifnot(same_alleles_annot(IGKV_gene_delinea, IGKV_gene_delinea2))
 unlink(tmpdir, recursive=TRUE)
 
 ## ---------------------------------------------------------------------
-## 2. USING MOUSE GERMLINE V GENE ALLELE SEQUENCES FROM OGRDB
+## 3. COMPUTE V GENE DELINEATIONS OF OGRDB MOUSE MSM/MsJ V ALLELES
 ## ---------------------------------------------------------------------
 ## Visit https://ogrdb.airr-community.org/germline_sets/Mus%20musculus
 ## for the list of mouse germline sets available at OGRDB.

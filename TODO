@@ -90,7 +90,7 @@ o Why are some of the V alleles provided by IMGT "truncated" at the 3' end
   This is the case for 34 human V alleles and 82 mouse V alleles.
   To identify them e.g. for mouse:
 
-    db_name <- "IMGT-202614-2.Mus_musculus.IGH+IGK+IGL"
+    db_name <- "IMGT-202631-1.Mus_musculus.IGH+IGK+IGL"
     V_alleles <- load_germline_sequences(db_name, region_types="V")
     intdata <- load_intdata(db_name)
     stopifnot(identical(names(V_alleles), intdata[ , "allele_name"]))
@@ -98,8 +98,8 @@ o Why are some of the V alleles provided by IMGT "truncated" at the 3' end
     table(seq_lens < intdata$fwr3_end)  # 82 are truncated (out of 865)
     head(subset(intdata, seq_lens < fwr3_end))
 
-  A more straightforward way to identify them is to look at the gapped
-  sequences. See how we compute 'has_incomplete_fwr3'
+  Note that a more straightforward way to identify them is to look at the
+  gapped sequences. See how we compute 'has_incomplete_fwr3'
   in '?parse_imgt_fasta_headers' for the details.
 
 o Investigate BIG inconsistency between local IgBLAST and web IgBLAST:

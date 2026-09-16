@@ -54,26 +54,6 @@
     sprintf("IMGT-%s.%s.%s", release, organism, paste(loci, collapse="+"))
 }
 
-.get_fwrcdr_widths_for_imgt_organism <- function(organism)
-{
-    switch(organism,
-        Bos_taurus              =IMGT_COW_FWRCDR_WIDTHS,
-        Canis_lupus_familiaris  =IMGT_DOG_FWRCDR_WIDTHS,
-        Felis_catus             =IMGT_CAT_FWRCDR_WIDTHS,
-        Gorilla_gorilla_gorilla =IMGT_GORILLA_FWRCDR_WIDTHS,
-        Macaca_fascicularis     =IMGT_CRAB_EATING_MACAQUE_FWRCDR_WIDTHS,
-        Macaca_mulatta          =IMGT_RHESUS_MONKEY_FWRCDR_WIDTHS,
-        Mus_musculus            =IMGT_MOUSE_FWRCDR_WIDTHS,
-        Mustela_putorius_furo   =IMGT_FERRET_FWRCDR_WIDTHS,
-        Neogale_vison           =IMGT_AMERICAN_MINK_FWRCDR_WIDTHS,
-        Oncorhynchus_mykiss     =IMGT_RAINBOW_TROUT_FWRCDR_WIDTHS,
-        Ornithorhynchus_anatinus=IMGT_PLATYPUS_FWRCDR_WIDTHS,
-        Pongo_pygmaeus          =IMGT_BORNEAN_ORANGUTAN_FWRCDR_WIDTHS,
-        Rattus_norvegicus       =IMGT_RAT_FWRCDR_WIDTHS,
-        Salmo_salar             =IMGT_ATLANTIC_SALMON_FWRCDR_WIDTHS,
-        IMGT_DEFAULT_FWRCDR_WIDTHS)
-}
-
 ### Why does IMGT human J allele IGLJ2A*01 have a codon start set to 1?
 ### This is unexpected because:
 ### - there's no FGXG motif in this coding frame (the allele sequence
@@ -100,53 +80,6 @@
     if (is.na(igblast_organism))
         return(NULL)
     load_and_fix_igblast_auxdata(igblast_organism)
-}
-
-.from_auto.intdata_to_intdata <- function(auto.intdata, organism, loci_prefix)
-{
-    if (!auto.intdata)
-        return(NULL)
-    ## We set 'intdata' to "auto" only if we know that the intdata that we're
-    ## going to compute is valid. The criteria we use to decide whether the
-    ## intdata is valid is that the percent cysteines (C) at codon23 & codon104
-    ## must both be >= 90 and the percent tryptophans (W) at codon41 must also
-    ## be >= 90. See summarize_anchor_V_residues_for_IMGT_organisms() in
-    ## R/intdata-misc.R for more information.
-    ok_organisms <- if (loci_prefix == "IG") c(
-        "Bos_taurus",
-        "Canis_lupus_familiaris",
-        ## codon41 for gorilla is only 89.58% conserved but that's good enough!
-        "Gorilla_gorilla_gorilla",
-        "Homo_sapiens",
-        "Lemur_catta",
-        "Macaca_fascicularis",
-        "Macaca_mulatta",
-        "Mus_musculus",
-        "Mustela_putorius_furo",
-        "Neogale_vison",
-        "Oncorhynchus_mykiss",
-        "Ornithorhynchus_anatinus",
-        "Oryctolagus_cuniculus",
-        "Pongo_pygmaeus",
-        "Rattus_norvegicus",
-        "Salmo_salar",
-        "Sus_scrofa",
-        "Vicugna_pacos"
-    ) else c(
-        "Bos_taurus",
-        "Camelus_dromedarius",
-        "Canis_lupus_familiaris",
-        "Felis_catus",
-        "Gorilla_gorilla_gorilla",
-        "Heterocephalus_glaber",
-        "Homo_sapiens",
-        "Macaca_fascicularis",
-        "Macaca_mulatta",
-        "Mus_musculus",
-        "Mustela_putorius_furo",
-        "Oryctolagus_cuniculus"
-    )
-    if (organism %in% ok_organisms) "auto" else NULL
 }
 
 .check_concordance_with_igblast_intdata <- function(db_name)
@@ -202,8 +135,13 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
     organism <- basename(dirname(fasta_store))
     db_name <- .form_IMGT_germline_db_name(fasta_store, organism, loci)
 
-    ## Set 'fwrcdr_widths'.
-    fwrcdr_widths <- .get_fwrcdr_widths_for_imgt_organism(organism)
+    ## Set 'fwrcdr_widths' and 'intdata'.
+    fwrcdr_widths <-
+        get_fwrcdr_widths_for_imgt_organism(organism,
+                                            loci_prefix=loci_prefix)
+    intdata <- if (!auto.intdata || length(fwrcdr_widths) == 1L &&
+                                    is.na(fwrcdr_widths))
+                   NULL else "auto"
 
     ## Do we need to exclude any J allele known to be problematic?
     if (organism == "Homo_sapiens" && loci_prefix == "IG") {
@@ -212,10 +150,7 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
         excluded_J_alleles <- character(0)
     }
 
-    ## Create and install germline db.
-    install_dir <- get_germline_dbs_home(TRUE)  # guaranteed to exist
-    intdata <-
-        .from_auto.intdata_to_intdata(auto.intdata, organism, loci_prefix)
+    ## Set 'auxdata' and 'ref_auxdata'.
     if (auto.auxdata) {
         auxdata <- "auto"
         ref_auxdata <- .load_ref_auxdata(db_name)
@@ -223,6 +158,9 @@ install_IMGT_germline_db <- function(release, organism="Homo sapiens",
         auxdata <- NULL
         ref_auxdata <- NULL
     }
+
+    ## Create and install germline db.
+    install_dir <- get_germline_dbs_home(TRUE)  # guaranteed to exist
     if.exists <- if (overwrite) "overwrite" else "error"
     install_germline_db(install_dir, db_name, fasta_store, loci,
                         imgt.fasta.headers=TRUE,
@@ -295,5 +233,24 @@ install_IMGT_c_region_db <- function(organism, loci,
     message("C-region db to use with igblastn().")
 
     invisible(db_name)
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### install_all_IMGT_germline_dbs()
+###
+
+### Not exported!
+install_all_IMGT_germline_dbs <- function(release, tcr.db=FALSE)
+{
+    imgt_organisms <- list_IMGT_organisms(release)
+    for (organism in imgt_organisms) {
+        message(organism, " ... ", appendLF=FALSE)
+        db_name <- try(suppressWarnings(suppressMessages(
+            install_IMGT_germline_db(release, organism,
+                                     tcr.db=tcr.db, overwrite=TRUE)
+        )), silent=TRUE)
+        message(if (inherits(db_name, "try-error")) "error!" else "ok")
+    }
 }
 
