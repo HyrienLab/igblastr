@@ -60,19 +60,22 @@ library(BiocManager)
 Loading **BiocManager** should display a message that indicates the
 version of Bioconductor that you are using.
 
-- If you are using Bioconductor **3.23**:
+- _If you are using Bioconductor **3.23**:_
     ```r
     BiocManager::install("igblastr")
     ```
   This will download and install the latest version of the package from
   the Bioconductor 3.23 software repository.
 
-  Note that Bioconductor **3.23** was released in on April 29, 2026 and
+  Note that Bioconductor **3.23** was released on April 29, 2026 and
   is the most recent release. It requires R 4.6. See
   <https://bioconductor.org/about/release-announcements/>
 
-- If you are using Bioconductor **3.22** (requires R 4.5): PLEASE DO NOT
-  INSTALL **igblastr** FROM THE BIOCONDUCTOR 3.22 SOFTWARE REPOSITORY!
+- _If you are using Bioconductor **3.22** (requires R 4.5):_
+
+  PLEASE DO NOT INSTALL **igblastr** FROM THE BIOCONDUCTOR 3.22 SOFTWARE
+  REPOSITORY!
+
   Bioconductor 3.22 was frozen in April 2026 with the version of **igblastr**
   included in it being frozen permanently at 1.0.23. Unfortunately, the
   `install_IMGT_germline_db()` function included in this version
@@ -95,10 +98,11 @@ version of Bioconductor that you are using.
   package with `BiocManager::install("igblastr")` and keep your installation
   up-to-date by running `BiocManager::install()` on a regular basis.
 
-- If you are using Bioconductor **3.21** (requires R 4.5): You need to
-  install **igblastr** directly from GitHub (usually discouraged). That's
-  because the package was only added to Bioconductor >= 3.22 so cannot be
-  installed from the Bioconductor 3.21 software repository:
+- _If you are using Bioconductor **3.21** (requires R 4.5):_
+
+  You need to install **igblastr** directly from GitHub (usually discouraged).
+  That's because the package was only added to Bioconductor >= 3.22 so cannot
+  be installed from the Bioconductor 3.21 software repository:
     ```r
     if (!require("remotes", quietly=TRUE))
         BiocManager::install("remotes")
