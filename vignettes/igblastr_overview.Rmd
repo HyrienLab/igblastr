@@ -7,7 +7,7 @@ author:
   affiliation: Fred Hutch Cancer Center, Seattle, WA
 - name: Ollivier Hyrien
   affiliation: Fred Hutch Cancer Center, Seattle, WA
-date: "Compiled `r BiocStyle::doc_date()`; Modified 8 September 2026"
+date: "Compiled `r BiocStyle::doc_date()`; Modified 17 September 2026"
 package: igblastr
 vignette: |
   %\VignetteIndexEntry{igblastr overview}
@@ -126,9 +126,12 @@ if (!require("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
 BiocManager::install("igblastr")
 ```
+If you're using Bioconductor 3.22 or older, see
+<https://github.com/HyrienLab/igblastr/tree/devel#install-igblastr>
+for detailed instructions.
 
-`BiocManager::install()` will take care of installing the package dependencies
-that are missing.
+`BiocManager::install()` will take care of installing the package
+dependencies that are missing.
 
 To load `r Biocpkg("igblastr")` into your R session, run:
 ```{r, message=FALSE}
