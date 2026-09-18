@@ -79,7 +79,7 @@ version of Bioconductor that you are using.
   Bioconductor 3.22 was frozen in April 2026 with the version of **igblastr**
   included in it being frozen permanently at 1.0.23. Unfortunately, the
   `install_IMGT_germline_db()` function included in this version
-  of **igblastr** is known to generate invalid internal data for
+  of **igblastr** is known to generate incorrect internal data for
   Macaca mulatta (rhesus monkey) and other IMGT organisms. See
   <https://github.com/HyrienLab/igblastr/issues/11> for the details.
 
