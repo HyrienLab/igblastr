@@ -93,16 +93,14 @@ version of Bioconductor that you are using.
   This will install the latest version of the package where the issue
   w.r.t. internal data has been addressed.
 
-  Alternatively, we strongly encourage you to update your installation to
+  Alternatively, we strongly recommend that you update your installation to
   Bioconductor 3.23 (requires R 4.6). This will allow you to install the
   package with `BiocManager::install("igblastr")` and keep your installation
   up-to-date by running `BiocManager::install()` on a regular basis.
 
 - _If you are using Bioconductor **3.21** (requires R 4.5):_
 
-  You need to install **igblastr** directly from GitHub (usually discouraged).
-  That's because the package was only added to Bioconductor >= 3.22 so cannot
-  be installed from the Bioconductor 3.21 software repository:
+  You need to install **igblastr** directly from GitHub (usually discouraged):
     ```r
     if (!require("remotes", quietly=TRUE))
         BiocManager::install("remotes")
@@ -111,8 +109,12 @@ version of Bioconductor that you are using.
     ```
   This will install the latest version of the package.
 
-  Alternatively, like for Bioconductor **3.22** users, we strongly encourage
-  you to update your installation to Bioconductor 3.23. See above.
+  The reason for installing directly from GitHub is because the package
+  was only added to Bioconductor >= 3.22 so cannot be installed from the
+  Bioconductor 3.21 software repository.
+
+  Alternatively, like for Bioconductor **3.22** users, we strongly recommend
+  that you update your installation to Bioconductor 3.23. See above.
 
 
 #### Load igblastr
