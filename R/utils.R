@@ -72,6 +72,11 @@ drop_heading_and_trailing_white_lines <- function(lines)
 
 ### TODO: has_prefix() was added to S4Vectors 0.47.5 so drop this and
 ### use S4Vectors:::has_prefix() instead in BioC >= 3.23.
+### Oh but there's also startsWith() in base R that does exactly that and
+### is about 3x faster, so we should just use that instead. Or maybe keep
+### has_prefix() but make it call startsWith() (and also keep the healthy
+### argument checks in has_prefix() e.g. startsWith() allows 'prefix' to
+### be NA_character_ but we don't want that).
 has_prefix <- function(x, prefix)
 {
     stopifnot(is.character(x), isSingleString(prefix))
@@ -80,6 +85,7 @@ has_prefix <- function(x, prefix)
 
 ### TODO: has_suffix() was added to S4Vectors 0.47.5 so drop this and
 ### use S4Vectors:::has_suffix() instead in BioC >= 3.23.
+### But there's also endsWith() in base R etc etc.. (see above)
 has_suffix <- function(x, suffix)
 {
     stopifnot(is.character(x), isSingleString(suffix))
