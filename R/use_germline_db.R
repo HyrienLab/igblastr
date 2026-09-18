@@ -75,6 +75,50 @@
             .how_to_suppress_use_germline_db_msg(db_name))
 }
 
+.make_install_IMGT_germline_cmd_string <- function(db_name)
+{
+    parts <- strsplit(db_name, ".", fixed=TRUE)[[1L]]
+    release <- sub("^IMGT-", "", parts[[1L]])
+    organism <- parts[[2L]]
+    loci <- strsplit(parts[[3L]], "+", fixed=TRUE)[[1L]]
+    tcr.db <- has_prefix(loci[[1L]], "TR")
+    if (!tcr.db && length(loci) == length(IG_LOCI)) {
+        arg3 <- ""
+    } else if (tcr.db && length(loci) == length(TR_LOCI)) {
+        arg3 <- paste0(", tcr.db=", as.character(tcr.db))
+    } else {
+        arg3 <- paste0(", loci=\"", parts[[3L]], "\"")
+    }
+    sprintf("install_IMGT_germline_db(\"%s\", \"%s\"%s, overwrite=TRUE)",
+            release, organism, arg3)
+}
+
+### IMGT germline dbs installed with old versions of igblastr can contain
+### incorrect intdata.
+### See https://github.com/HyrienLab/igblastr/issues/11
+.warn_on_incorrect_IMGT_germline_db_intdata <- function(db_name)
+{
+    is_imgt_db <- has_prefix(db_name, "IMGT-")
+    if (!is_imgt_db)
+        return()
+    db_path <- get_germline_db_path(db_name)
+    intdata_path <- make_germline_db_intdata_path(db_path, FALSE, "imgt")
+    if (!file.exists(intdata_path))
+        return()
+    intdata <- read_ndm_data(intdata_path)
+    V_alleles <- load_germline_sequences(db_name, region_types="V")
+    stats <- compute_V_anchor_stats(V_alleles, intdata,
+                                    add.stats.per.locus=TRUE)
+    if (all(stats >= 85))
+        return()
+    warning(wmsg("The internal data included in ", db_name, " seems ",
+                 "incorrect. Was the germline db installed with an old ",
+                 "version of igblastr?"),
+            "\n  ",
+            wmsg("Please reinstall it with:"),
+            "\n    ", .make_install_IMGT_germline_cmd_string(db_name))
+}
+
 .select_germline_db <- function(db_name, verbose=FALSE)
 {
     check_germline_db_name(db_name)
@@ -85,6 +129,7 @@
     } else {
         .notes_on_selecting_OGRDB_germline_db(db_name)
         .note_on_selecting_IMGT_germline_db(db_name)
+        .warn_on_incorrect_IMGT_germline_db_intdata(db_name)
     }
 
     db_path <- get_germline_db_path(db_name)
