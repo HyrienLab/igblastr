@@ -3,7 +3,7 @@ name: docker
 
 on:
   push:
-    branches: [devel, 'RELEASE_*']
+    branches: [devel, 'RELEASE_*', '!RELEASE_3_22']
   workflow_dispatch:
 
 jobs:
