@@ -34,7 +34,7 @@
     add_suffix(loci, output_suffix)
 }
 
-.handle_existing_output_files <- function(output_files, overwrite, what)
+.remove_existing_output_files <- function(output_files, overwrite, what)
 {
     if (!isTRUEorFALSE(overwrite))
         stop(wmsg("'overwrite' must be TRUE or FALSE"))
@@ -81,7 +81,7 @@ make_intdata_files_from_ogrdb_jsons <-
     loci <- substr(json_files, 1L, 3L)  # same as substr(intdata_files, 1L, 3L)
 
     intdata_files <- file.path(destdir, intdata_files)
-    .handle_existing_output_files(intdata_files, overwrite, "intdata")
+    .remove_existing_output_files(intdata_files, overwrite, "intdata")
 
     json_files <- file.path(json_dir, json_files)
     ok <- vapply(seq_along(json_files),
@@ -178,7 +178,7 @@ make_auxdata_files_from_ogrdb_jsons <-
         .normarg_alleles_with_neg_cdr3_end(alleles_with_neg_cdr3_end, loci)
 
     auxdata_files <- file.path(destdir, auxdata_files)
-    .handle_existing_output_files(auxdata_files, overwrite, "auxdata")
+    .remove_existing_output_files(auxdata_files, overwrite, "auxdata")
 
     json_files <- file.path(json_dir, json_files)
     ok <- vapply(seq_along(json_files),

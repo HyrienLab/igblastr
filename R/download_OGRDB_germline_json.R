@@ -111,7 +111,7 @@ download_OGRDB_germline_json <- function(organism, germline_sets,
     }
 }
 
-.extract_allele_sequence_type <- function(allele_description)
+.extract_sequence_type <- function(allele_description)
 {
     stopifnot(is.list(allele_description))
     sequence_type <- allele_description$sequence_type
@@ -120,20 +120,49 @@ download_OGRDB_germline_json <- function(organism, germline_sets,
     sequence_type
 }
 
-.extract_allele_description_fields <- function(allele_description, fields)
+.extract_coding_sequence <- function(allele_description)
+{
+    stopifnot(is.list(allele_description))
+    coding_sequence <- allele_description$coding_sequence
+    stopifnot(isSingleNonWhiteString(coding_sequence))
+
+    ## Some sanity checks.
+    sequence <- allele_description$sequence
+    stopifnot(isSingleNonWhiteString(sequence))
+    gene_start <- allele_description$gene_start
+    gene_end <- allele_description$gene_end
+    stopifnot(isSingleInteger(gene_start), isSingleInteger(gene_end),
+              1L <= gene_start, gene_start <= gene_end,
+              gene_end <= nchar(sequence))
+    ext_3prime <- allele_description$ext_3prime
+    if (is.null(ext_3prime)) {
+        ext_3prime_len <- 0L
+    } else {
+        stopifnot(isSingleNonWhiteString(ext_3prime),
+                  endsWith(coding_sequence, ext_3prime))
+        ext_3prime_len <- nchar(ext_3prime)
+    }
+    stopifnot(
+        gene_end - gene_start + 1L == nchar(coding_sequence) - ext_3prime_len,
+        startsWith(coding_sequence, substr(sequence, gene_start, gene_end))
+    )
+
+    coding_sequence
+}
+
+.extract_description_fields <- function(allele_description, fields)
 {
     stopifnot(is.list(allele_description), is.character(fields))
     valid_fields <- names(allele_description)
     stopifnot(!is.null(valid_fields))
     invalid_fields <- setdiff(fields, valid_fields)
     if (length(invalid_fields) != 0L) {
-        sequence_type <- .extract_allele_sequence_type(allele_description)
+        sequence_type <- .extract_sequence_type(allele_description)
         in1string <- paste(invalid_fields, collapse=", ")
-        msg1 <- c("Invalid specified ", sequence_type, " allele ",
-                  "description field(s): ", in1string)
+        msg1 <- c("Invalid allele description field(s): ", in1string)
         in1string <- paste(valid_fields, collapse=", ")
-        msg2 <- c("The valid ", sequence_type, " allele ",
-                  "description fields are: ", in1string)
+        msg2 <- c("The valid description fields for alleles of ",
+                  "type ", sequence_type, " are: ", in1string)
         stop(wmsg(msg1), "\n\n  ", wmsg(msg2))
     }
     setNames(as.character(allele_description[fields]), fields)
@@ -161,6 +190,58 @@ download_OGRDB_germline_json <- function(organism, germline_sets,
 
 
 ### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### extract_alleles_from_ogrdb_json()
+###
+
+### Returns a named character vector.
+.extract_core_columns <-
+    function(allele_description, extra_fields=NULL)
+{
+    stopifnot(is.list(allele_description))
+    valid_fields <- names(allele_description)
+    stopifnot(!is.null(valid_fields))
+    sequence_type <- .extract_sequence_type(allele_description)
+    if (is.null(extra_fields)) {
+        extra_data <- NULL
+    } else {
+        extra_data <- .extract_description_fields(allele_description,
+                                                  extra_fields)
+    }
+    allele_name <- allele_description$label
+    stopifnot(isSingleNonWhiteString(allele_name))
+    locus <- allele_description$locus
+    stopifnot(isSingleNonWhiteString(locus))
+    coding_sequence <- .extract_coding_sequence(allele_description)
+    c(allele_name=allele_name,
+      locus=locus,
+      sequence_type=sequence_type,
+      coding_sequence=coding_sequence,
+      extra_data)
+}
+
+extract_alleles_from_ogrdb_json <- function(json_path, extra_fields=NULL)
+{
+    allele_descriptions <- .extract_allele_descriptions(json_path)
+    col2class <- c(allele_name="character",
+                   locus="character",
+                   sequence_type="character",
+                   coding_sequence="character")
+    if (!is.null(extra_fields))
+        .check_extra_fields(extra_fields, names(col2class))
+    data <- lapply(allele_descriptions, .extract_core_columns,
+                   extra_fields=extra_fields)
+    expected_names <- c(names(col2class), extra_fields)
+    what <- c("allele descriptions found in JSON file: ", json_path)
+    m <- .make_matrix_from_allele_data_list(data, expected_names, what)
+    df <- matrix2df(m[ , names(col2class), drop=FALSE], col2class)
+    df$sequence_type <- factor(df$sequence_type, levels=VDJ_REGION_TYPES)
+    if (!is.null(extra_fields))
+        df <- cbind(df, m[ , extra_fields, drop=FALSE])
+    df
+}
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ### extract_intdata_from_ogrdb_json()
 ###
 
@@ -171,15 +252,15 @@ download_OGRDB_germline_json <- function(organism, germline_sets,
     stopifnot(is.list(allele_description))
     valid_fields <- names(allele_description)
     stopifnot(!is.null(valid_fields))
-    sequence_type <- .extract_allele_sequence_type(allele_description)
+    sequence_type <- .extract_sequence_type(allele_description)
     if (sequence_type != "V")
         return(NULL)
 
     if (is.null(extra_fields)) {
         extra_data <- NULL
     } else {
-        extra_data <- .extract_allele_description_fields(allele_description,
-                                                         extra_fields)
+        extra_data <- .extract_description_fields(allele_description,
+                                                  extra_fields)
     }
     allele_name <- allele_description$label
     stopifnot(isSingleNonWhiteString(allele_name))
@@ -229,7 +310,7 @@ extract_intdata_from_ogrdb_json <- function(json_path, extra_fields=NULL)
     expected_names <- c(names(col2class), extra_fields)
     what <- c("V allele descriptions found in JSON file: ", json_path)
     m <- .make_matrix_from_allele_data_list(data, expected_names, what)
-    df <- matrix2df(m[ , names(col2class)], col2class)
+    df <- matrix2df(m[ , names(col2class), drop=FALSE], col2class)
     df <- cbind(df, coding_frame_start=integer(nrow(df)))
     if (!is.null(extra_fields))
         df <- cbind(df, m[ , extra_fields, drop=FALSE])
@@ -266,7 +347,7 @@ extract_intdata_from_ogrdb_json <- function(json_path, extra_fields=NULL)
                                            fwrcdr_widths=fwrcdr_widths)
     locus <- extract_loci_from_OGRDB_set_names(organism, names(germline_set))
     intdata$chain_type <- make_chain_type("V", locus)
-    intdata[ , names(NDM_DATA_COL2CLASS)]
+    intdata[ , names(NDM_DATA_COL2CLASS), drop=FALSE]
 }
 
 ### Returns the intdata in a data.frame.
@@ -323,20 +404,6 @@ validate_OGRDB_intdata <- function(organism, germline_set, source_set=FALSE,
 ### extract_auxdata_from_ogrdb_json()
 ###
 
-.extract_J_allele_length <- function(allele_description)
-{
-    stopifnot(is.list(allele_description), !is.null(names(allele_description)))
-    coding_sequence <- allele_description$coding_sequence
-    stopifnot(isSingleNonWhiteString(coding_sequence))
-    seq_len <- nchar(coding_sequence)
-    ## Some sanity checks.
-    gene_start <- allele_description$gene_start
-    gene_end <- allele_description$gene_end
-    stopifnot(isSingleInteger(gene_start), isSingleInteger(gene_end),
-              gene_end - gene_start + 1L == seq_len)
-    seq_len
-}
-
 ### IMPORTANT NOTE about the j_cdr3_end reported in OGRDB json files:
 ### The j_cdr3_end reported in OGRDB json files seems to be 2-based i.e.
 ### it's set to the 1-based value + 1 or to the 0-based value + 2.
@@ -377,15 +444,15 @@ validate_OGRDB_intdata <- function(organism, germline_set, source_set=FALSE,
     stopifnot(is.list(allele_description))
     valid_fields <- names(allele_description)
     stopifnot(!is.null(valid_fields))
-    sequence_type <- .extract_allele_sequence_type(allele_description)
+    sequence_type <- .extract_sequence_type(allele_description)
     if (sequence_type != "J")
         return(NULL)
 
     if (is.null(extra_fields)) {
         extra_data <- NULL
     } else {
-        extra_data <- .extract_allele_description_fields(allele_description,
-                                                         extra_fields)
+        extra_data <- .extract_description_fields(allele_description,
+                                                  extra_fields)
     }
     allele_name <- allele_description$label
     stopifnot(isSingleNonWhiteString(allele_name))
@@ -394,7 +461,7 @@ validate_OGRDB_intdata <- function(organism, germline_set, source_set=FALSE,
     j_cdr3_end <- allele_description$j_cdr3_end
     stopifnot(isSingleInteger(j_codon_frame), isSingleInteger(j_cdr3_end))
     coding_frame_start <- j_codon_frame - 1L
-    seq_len <- .extract_J_allele_length(allele_description)
+    seq_len <- nchar(.extract_coding_sequence(allele_description))
     extra_bps <- (seq_len - coding_frame_start) %% 3L
     c(allele_name=allele_name,
       coding_frame_start=coding_frame_start,
@@ -416,7 +483,8 @@ extract_auxdata_from_ogrdb_json <- function(json_path, extra_fields=NULL)
     expected_names <- c(names(AUXDATA_COL2CLASS), extra_fields)
     what <- c("J allele descriptions found in JSON file: ", json_path)
     m <- .make_matrix_from_allele_data_list(data, expected_names, what)
-    df <- matrix2df(m[ , names(AUXDATA_COL2CLASS)], AUXDATA_COL2CLASS)
+    df <- matrix2df(m[ , names(AUXDATA_COL2CLASS), drop=FALSE],
+                    AUXDATA_COL2CLASS)
     what <- "CDR3 end position reported in the JSON file"
     warn_if_negative_cdr3_end(df, what)
     if (!is.null(extra_fields))

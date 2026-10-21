@@ -176,13 +176,14 @@ export(
     ## install_custom_germline_db.R:
     install_custom_germline_db,
 
-    ## download_OGRDB_germline_sequences.R:
-    download_OGRDB_germline_sequences,
-
     ## download_OGRDB_germline_json.R:
     download_OGRDB_germline_json,
+    extract_alleles_from_ogrdb_json,
     extract_intdata_from_ogrdb_json,
     extract_auxdata_from_ogrdb_json,
+
+    ## download_OGRDB_germline_sequences.R:
+    download_OGRDB_germline_sequences,
 
     ## download_IMGT_germline_sequences.R:
     IMGT_is_up,

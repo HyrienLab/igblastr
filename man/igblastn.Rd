@@ -334,7 +334,7 @@ igblast_info()
 ## ---------------------------------------------------------------------
 
 ## Files 'heavy_sequences.fasta' and 'light_sequences.fasta' included
-## in igblastr contain 250 paired heavy- and light- chain sequences (125
+## in igblastr contain 250 paired heavy- and light-chain sequences (125
 ## sequences in each file) downloaded from OAS (the Observed Antibody
 ## Space database):
 fasta_files <- paste0(c("heavy", "light"), "_sequences.fasta")
