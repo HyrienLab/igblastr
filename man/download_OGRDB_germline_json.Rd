@@ -1,6 +1,7 @@
 \name{download_OGRDB_germline_json}
 
 \alias{download_OGRDB_germline_json}
+\alias{extract_alleles_from_ogrdb_json}
 \alias{extract_intdata_from_ogrdb_json}
 \alias{extract_auxdata_from_ogrdb_json}
 
@@ -33,6 +34,7 @@ download_OGRDB_germline_json(organism, germline_sets,
                              destdir=".", overwrite=FALSE,
                              recache=FALSE, ...)
 
+extract_alleles_from_ogrdb_json(json_path, extra_fields=NULL)
 extract_intdata_from_ogrdb_json(json_path, extra_fields=NULL)
 extract_auxdata_from_ogrdb_json(json_path, extra_fields=NULL)
 }
@@ -96,8 +98,15 @@ extract_auxdata_from_ogrdb_json(json_path, extra_fields=NULL)
   files that it produced in an invisible character vector that carries
   the names of the corresponding germline sets.
 
+  \code{extract_alleles_from_ogrdb_json()} returns the allele coding
+  sequences in a data.frame with 1 row per allele in the AIRR-C JSON file,
+  and with columns \code{allele_name}, \code{locus}, \code{sequence_type},
+  and \code{coding_sequence}.
+  If \code{extra_fields} was specified, the returned data.frame will
+  have 1 additional column per field in \code{extra_fields}.
+
   \code{extract_intdata_from_ogrdb_json()} returns the V gene delineations
-  in a data.frame with 1 row per V allele in the AIRR-C JSON file and
+  in a data.frame with 1 row per V allele in the AIRR-C JSON file, and
   with the same columns as the data.frame returned by \code{load_intdata()}.
   See \code{?\link{load_intdata}} for the details.
   If \code{extra_fields} was specified, the returned data.frame will
@@ -105,7 +114,7 @@ extract_auxdata_from_ogrdb_json(json_path, extra_fields=NULL)
 
   \code{extract_auxdata_from_ogrdb_json()} returns the coding frame and
   CDR3 end information in a data.frame with 1 row per J allele in the
-  AIRR-C JSON file and with the same columns as the data.frame returned by
+  AIRR-C JSON file, and with the same columns as the data.frame returned by
   \code{load_auxdata()}. See \code{?\link{load_auxdata}} for the details.
   If \code{extra_fields} was specified, the returned data.frame will
   have 1 additional column per field in \code{extra_fields}.
@@ -162,6 +171,32 @@ download_OGRDB_germline_json("Mus musculus", germline_sets,
 list.files(temp_json_dir)  # 5 AIRR-C JSON files (one per germline set)
 
 ## ---------------------------------------------------------------------
+## extract_alleles_from_ogrdb_json()
+## ---------------------------------------------------------------------
+
+json_paths <- list.files(temp_json_dir, full.names=TRUE)
+df <- do.call(rbind, lapply(json_paths, extract_alleles_from_ogrdb_json))
+head(df)
+table(df$locus, df$sequence_type)
+
+## The table above should be the same as the matrix
+## displayed by 'list_germline_dbs(long.listing=TRUE)' for
+## germline db _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410:
+db_name <- "_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410"
+list_germline_dbs(long.listing=TRUE)[[db_name]]
+
+## Sanity checks:
+m <- unclass(table(df$locus, df$sequence_type))
+names(dimnames(m)) <- NULL
+stopifnot(
+  identical(m, list_germline_dbs(long.listing=TRUE)[[db_name]]),
+  identical(
+    setNames(df$coding_sequence, df$allele_name),
+    as.character(load_germline_sequences(db_name)[df$allele_name])
+  )
+)
+
+## ---------------------------------------------------------------------
 ## extract_intdata_from_ogrdb_json()
 ## ---------------------------------------------------------------------
 ## Let's use extract_intdata_from_ogrdb_json() to extract the V gene
@@ -188,7 +223,7 @@ dim(intdata)
 
 ## 'intdata' should be the same as the "internal data" included in
 ## germline db _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410:
-intdata0 <- load_intdata("_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410")
+intdata0 <- load_intdata(db_name)
 
 ## Let's use same_alleles_annot(), a small undocumented helper function,
 ## to verify that 'intdata' and 'intdata0' contain the same data (possibly
@@ -231,7 +266,7 @@ dim(auxdata)
 
 ## 'auxdata' should be the same as the "auxiliary data" included
 ## in germline db _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410:
-auxdata0 <- load_auxdata("_OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410")
+auxdata0 <- load_auxdata(db_name)
 stopifnot(same_alleles_annot(auxdata, auxdata0))
 
 ## Note that calling extract_auxdata_from_ogrdb_json() on an AIRR-C JSON

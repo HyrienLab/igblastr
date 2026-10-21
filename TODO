@@ -22,10 +22,7 @@ o The 1st argument ('V_alleles') of print_gapped_V_alleles() and all exported
 
 o Complete print_gapped_V_alleles() man page.
 
-o install_OGRDB_germline_db():
-  - complete man page
-  - improve examples
-  - add unit tests
+o Add unit tests for install_OGRDB_germline_db().
 
 o More testing of combine_germline_dbs() and combine_c_region_dbs(). What
   happens if we try to combine 2 germline dbs with no intdata or 2 germline dbs

@@ -192,7 +192,7 @@ if (IMGT_is_up()) {
   ## List the cached germline databases:
   list_germline_dbs()
 
-  ## Select newly installed germline db to use with igblastn():
+  ## Call use_germline_db() on the db name to use it with igblastn():
   use_germline_db("IMGT-202631-1.Homo_sapiens.IGH+IGK+IGL")
 
   ## Download human TCR germline gene allele sequences from IMGT/V-QUEST

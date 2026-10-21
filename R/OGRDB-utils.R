@@ -35,7 +35,8 @@ encode_OGRDB_URL_component <- function(component)
     "Homo sapiens",
     "Macaca mulatta",
     "Mus musculus",
-    "Oncorhynchus mykiss"
+    "Oncorhynchus mykiss",
+    "Peromyscus leucopus"
 )
 
 normalize_OGRDB_organism <- function(organism)
