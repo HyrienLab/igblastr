@@ -1,3 +1,203 @@
+VERSION 1.4.0
+-------------
+
+NEW FEATURES
+
+    o Add get_fwrcdr_widths_for_imgt_organism() to obtain the "real"
+      FWR/CDR widths for a given IMGT organism, and use it in
+      install_IMGT_germline_db() to compute the internal data that
+      gets included in the germline db.
+      See '?get_fwrcdr_widths_for_imgt_organism' for more information.
+
+    o Thanks to many improvements, install_IMGT_germline_db() now is able
+      to compute the internal and auxiliary data for the following IMGT
+      organisms:
+
+      * when making an IG germline db (i.e. 'tcr.db=FALSE'):
+        - Bos taurus
+        - Canis lupus familiaris
+        - Ctenopharyngodon idella
+        - Equus caballus
+        - Felis catus
+        - Gallus gallus
+        - Gorilla gorilla gorilla
+        - Homo sapiens
+        - Lemur catta
+        - Macaca fascicularis
+        - Macaca mulatta
+        - Mus musculus
+        - Mustela putorius furo
+        - Neogale vison
+        - Oncorhynchus mykiss
+        - Ornithorhynchus anatinus
+        - Oryctolagus cuniculus
+        - Pongo pygmaeus
+        - Rattus norvegicus
+        - Salmo salar
+        - Sus scrofa
+        - Vicugna pacos
+
+      * when making a TR germline db (i.e. 'tcr.db=TRUE'):
+        - Bos taurus
+        - Camelus dromedarius
+        - Canis lupus familiaris
+        - Danio rerio
+        - Felis catus
+        - Gorilla gorilla gorilla
+        - Heterocephalus glaber
+        - Homo sapiens
+        - Macaca fascicularis
+        - Macaca mulatta
+        - Mus musculus
+        - Mustela putorius furo
+        - Oryctolagus cuniculus
+        - Ovis aries
+        - Pan troglodytes
+        - Pongo abelii
+        - Pongo pygmaeus
+        - Sus scrofa
+
+    o use_germline_db() now emits warning if IMGT germline db contains
+      incorrect internal data.
+
+    o Add install_OGRDB_germline_db() to create and install an
+      IgBLAST-compatible germline database from germline V, D, and J
+      gene sequences available at OGRDB: https://ogrdb.airr-community.org/
+
+    o Add combine_germline_dbs() and combine_c_region_dbs() for combining
+      two existing germline dbs or C-region dbs, typically (but not
+      necessarily) from two different organisms, into a new one.
+
+    o Add percent_mutation() for computing the percent mutation in the
+      V, D, J segments of a set of BCR or TCR sequences, at the nucleotide
+      or amino acid levels. See '?percent_mutation' for more information.
+
+    o Add net_charge() and extract_region_net_charge().
+      See '?net_charge' for the details.
+
+    o Add 'fwrcdr_ends' argument to functions compute_V_gene_delineations()
+      and install_custom_germline_db(). See '?compute_V_gene_delineations'
+      for more information.
+
+    o install_IMGT_germline_db() now emits a warning if the computed
+      "internal data" that it includes in the germline db has disagreements
+      with the "internal data" shipped with IgBLAST.
+
+    o Add show_intdata_disagreements() to show disagreements (if any) between
+      the computed "internal data" included in a germline db and the "internal
+      data" shipped with IgBLAST.
+
+    o compute_auxdata() now handles TCR J alleles.
+
+    o Add low-level utilities validate_and_complete_auxdata_with_ref(),
+      solve_cdr3_ends_using_fwr4_aa_comparisons(),
+      solve_cdr3_ends_using_fwr4_dna_comparisons(), and
+      solve_cdr3_ends_using_fwr4_dna_PWM() that are used internally by
+      install_IMGT_germline_db() and install_custom_germline_db() to
+      improve the "auxiliary data" obtained with compute_auxdata().
+
+    o Add print_J_alleles() for displaying a set of J allele sequences
+      where the sequences are colored and justified w.r.t. their
+      CDR3/FWR4 junction.
+
+    o Add print_gapped_V_alleles() for displaying a set of gapped V allele
+      sequences where the sequences are colored and split by FWR/CDR regions.
+
+    o Add low-level utility extract_alleles_from_ogrdb_json().
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Update the list of preinstalled germline dbs.
+      The new list is:
+
+        > list_germline_dbs()
+         db_name                                       V  D  J intdata auxdata
+         _OGRDB.human.IGH+IGK+IGL.202410             342 31 23    TRUE    TRUE
+         _OGRDB.human.IGH+IGK+IGL.202410.src         354 33 24    TRUE    TRUE
+         _OGRDB.human.IGH+IGK+IGL.202605             367 31 23    TRUE    TRUE
+         _OGRDB.human.IGH+IGK+IGL.202605.src         379 33 24    TRUE    TRUE
+         _OGRDB.mouse.C57BL_6J.IGH+IGK+IGL.202410    196  8 22    TRUE    TRUE
+         _OGRDB.mouse.CAST_EiJ.IGH+IGK+IGL.202603    184  9 22    TRUE    TRUE
+         _OGRDB.mouse.LEWES_EiJ.IGH+IGK+IGL.202603   169 11 22    TRUE    TRUE
+         _OGRDB.mouse.MSM_MsJ.IGH+IGK+IGL.202603     172  9 22    TRUE    TRUE
+         _OGRDB.mouse.NOD_ShiLtJ.IGH+IGK+IGL.202205  149  9 22    TRUE    TRUE
+         _OGRDB.mouse.PWD_PhJ.IGH+IGK+IGL.202410     184 10 22    TRUE    TRUE
+         _OGRDB.rainbow_trout.IGH.202606              81 26 18    TRUE    TRUE
+         _OGRDB.rhesus_monkey.IGH+IGK+IGL.202602    2294 72 39    TRUE    TRUE
+
+    o Update the preinstalled C-region dbs.
+      This follows major updates of the artificially spliced exons sets for IG
+      and TR constant genes by the IMGT folks in Dec 2025. Note that these sets
+      are available here: https://www.imgt.org/vquest/refseqh.html#constant-sets
+
+      With this update, the new list of preinstalled C-region dbs is:
+
+        > list_c_region_dbs()
+         db_name                                      C
+         _IMGT.human.IGH+IGK+IGL.202605             180
+         _IMGT.human.TRA+TRB+TRG+TRD.202605          23
+         _IMGT.mouse.IGH+IGK+IGL.202605              64
+         _IMGT.mouse.TRA+TRB+TRG+TRD.202605          13
+         _IMGT.rabbit.IGH+IGK+IGL.202605             50
+         _IMGT.rabbit.TRA+TRB+TRG+TRD.202605          6
+         _IMGT.rat.IGH+IGK+IGL.202605                25
+         _IMGT.rhesus_monkey.IGH+IGK+IGL.202605      44
+         _IMGT.rhesus_monkey.TRA+TRB+TRG+TRD.202605  10
+
+      The old set was:
+
+        > list_c_region_dbs()
+         db_name                                  C
+         _IMGT.human.IGH+IGK+IGL.202412          76
+         _IMGT.human.TRA+TRB+TRG+TRD.202509      12
+         _IMGT.mouse.IGH.202509                  55
+         _IMGT.mouse.TRA+TRB+TRG+TRD.202509       9
+         _IMGT.rabbit.IGH.202412                 28
+         _IMGT.rat.IGH.202508                    18
+         _IMGT.rhesus_monkey.IGH+IGK+IGL.202509  40
+
+    o Rename list_germline_dbs()'s and list_c_region_dbs()'s
+      argument 'builtin.only' -> 'preinstalled.only'.
+
+    o Rename load_germline_db() -> load_germline_sequences() and
+      load_c_region_db() -> load_c_region_sequences().
+
+    o Replace install_IMGT_germline_db()'s arguments 'without.intdata'
+      and 'without.auxdata' with 'auto.intdata' and 'auto.auxdata'.
+      See '?install_IMGT_germline_db' for more information.
+
+    o install_custom_germline_db() now accepts user-supplied germline
+      annotations via its 'intdata' and 'auxdata' arguments.
+      See '?install_custom_germline_db' for more information.
+
+    o Improve details displayed by install_IMGT_germline_db() and
+      install_custom_germline_db()) when 'verbose=TRUE'. In particular
+      the functions now display details about how the automatic auxdata
+      is computed.
+
+    o Many improvements to the vignette.
+
+DEPRECATED AND DEFUNCT
+
+    o Deprecate list_germline_dbs()'s and list_c_region_dbs()'s
+      argument 'builtin.only' in favor of 'preinstalled.only'.
+
+    o Deprecate load_germline_db() and load_c_region_db() in favor of
+      load_germline_sequences() and load_c_region_sequences().
+
+BUG FIXES
+
+    o Bioconductor 3.22 was frozen in April 2026 with the version of
+      igblastr included in it being frozen permanently at 1.0.23.
+      Unfortunately, the install_IMGT_germline_db() function included in
+      this version of igblastr is known to generate incorrect internal data
+      for Macaca mulatta (rhesus monkey) and other IMGT organisms. See
+      https://github.com/HyrienLab/igblastr/issues/11 for the details.
+      This is now fixed in igblastr 1.4.0 (Bioconductor 3.24), and the fix
+      was backported to igblastr 1.2.24, the last (and now frozen) igblastr
+      version included in Bioconductor 3.23.
+
+
 VERSION 1.2.0
 -------------
 
