@@ -107,7 +107,7 @@ o Investigate BIG inconsistency between local IgBLAST and web IgBLAST:
   email to the IgBLAST folks at NCBI (blast-help@ncbi.nlm.nih.gov or
   nlm-support@nlm.nih.gov).
 
-o NEW FEATURE: Mismatch/indel summarization:
+o NEW FEATURE: BCR/TCR mutation summarization at the FWR/CDR level:
 
   The goal is to summarize information about the mismatches and indels
   between the query sequences (BCR or TCR nucleotide sequences) and the

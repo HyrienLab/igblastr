@@ -142,6 +142,11 @@ download_OGRDB_germline_json <- function(organism, germline_sets,
                   endsWith(coding_sequence, ext_3prime))
         ext_3prime_len <- nchar(ext_3prime)
     }
+    ## Report alleles for which "coding_sequence" extends beyond the 3' end
+    ## of "sequence" (ususally due to a non-null "ext_3prime", see email to
+    ## William Lees sent on Oct 21, 2026):
+    #if (gene_start + nchar(coding_sequence) - 1L > nchar(sequence))
+    #    cat(allele_description$label, "\n")
     stopifnot(
         gene_end - gene_start + 1L == nchar(coding_sequence) - ext_3prime_len,
         startsWith(coding_sequence, substr(sequence, gene_start, gene_end))

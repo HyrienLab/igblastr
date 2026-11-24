@@ -252,6 +252,7 @@ igblastn_help(long.help=FALSE, show.in.browser=FALSE)
     \item A \link[tibble]{tibble} with 1 row per query sequence if
           \code{outfmt} is \code{"AIRR"} or \code{19} and \code{parse.out}
           is \code{TRUE}.
+          See \code{?\link{read_igblastn_AIRR_output}} for more information.
     \item A nested list with two top-level components (\code{records}
           and \code{footer}) if \code{outfmt} is \code{7} (or a customized
           format 7) and \code{parse.out} is \code{TRUE}.
@@ -446,7 +447,8 @@ AIRR_df <- igblastn(query)
 ## More examples
 ## ---------------------------------------------------------------------
 
-## See '?read_igblastn_fmt7_output' for more examples.
+## See '?read_igblastn_AIRR_output' and '?read_igblastn_fmt7_output' for
+## more examples.
 }
 
 \keyword{manip}
