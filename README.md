@@ -182,7 +182,7 @@ See `?use_germline_db`.
 
 ### 4. Select constant region db (optional)
 
-The C-regions from IMGT are pre-installed for a few organisms:
+The C-regions from IMGT are preinstalled for a few organisms:
 ```r
 list_c_region_dbs()
 ```
